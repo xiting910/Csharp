@@ -1,0 +1,6 @@
+**/*.AssemblyInfo.cs
+**/*.AssemblyInfoInputs.cache
+**/bin/
+**/obj/
+**/*.sln
+**/*.code-workspace
