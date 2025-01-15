@@ -2,5 +2,4 @@
 **/*.AssemblyInfoInputs.cache
 **/bin/
 **/obj/
-**/*.sln
 **/*.code-workspace
