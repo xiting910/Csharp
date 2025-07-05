@@ -419,7 +419,7 @@ namespace MineClearance
             // 添加提示信息
             Label hintLabel = new()
             {
-                Text = "提示: 右键标记地雷, 左键打开格子, 红色格子表示地雷, 黄色格子表示插旗",
+                Text = "提示: 左键打开格子, 右键标记地雷（在打开一个格子之前无效）, 灰色格子为未打开, 黄色格子表示插旗",
                 Location = new Point(500, 10),
                 AutoSize = true
             };
@@ -918,12 +918,25 @@ namespace MineClearance
         /// <param name="gameResult">游戏结果</param>
         private void OnGameWon(GameResult gameResult)
         {
+            // 将所有标记的地雷设置为绿色
+            if (gameButtons != null)
+            {
+                foreach (var button in gameButtons)
+                {
+                    if (button.BackColor == Color.Yellow)
+                    {
+                        button.BackColor = Color.Green;
+                    }
+                }
+            }
+
             // 保存游戏结果
             Task.Run(() => Datas.AddGameResultAsync(gameResult));
 
             // 停止计时器
             StopGameTimer();
 
+            // 弹出游戏胜利提示
             MessageBox.Show("恭喜你，赢得了游戏！", "游戏胜利", MessageBoxButtons.OK, MessageBoxIcon.Information);
             EndGame();
 
@@ -943,7 +956,16 @@ namespace MineClearance
             {
                 if (gameButtons != null && row < gameButtons.GetLength(0) && column < gameButtons.GetLength(1))
                 {
-                    gameButtons[row, column].BackColor = Color.Red; // 将地雷按钮标记为红色
+                    if (gameButtons[row, column].BackColor == Color.Yellow)
+                    {
+                        // 如果是标记的地雷, 设置为绿色
+                        gameButtons[row, column].BackColor = Color.Green;
+                    }
+                    else
+                    {
+                        // 如果是未标记的地雷, 设置为红色
+                        gameButtons[row, column].BackColor = Color.Red;
+                    }
                 }
             }
 
@@ -953,7 +975,8 @@ namespace MineClearance
             // 停止计时器
             StopGameTimer();
 
-            MessageBox.Show("很遗憾，你踩到了地雷！", "游戏失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // 弹出游戏失败提示
+            MessageBox.Show("很遗憾，你踩到了地雷！\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n黄色格子表示错误标记的地雷", "游戏失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
             EndGame();
 
             // 返回菜单面板
@@ -1114,6 +1137,9 @@ namespace MineClearance
 
             // 重新加载排行榜面板
             RestartRankingPanel();
+
+            // 弹窗提示
+            MessageBox.Show("排行榜已按难度和用时排序\n注意: 本模式只会排序胜利的游戏结果", "排序成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
