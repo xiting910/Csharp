@@ -44,6 +44,11 @@ namespace MineClearance
         }
 
         /// <summary>
+        /// 雷的密度阈值, 大于等于此值时, 不确保地雷周围全是地雷的情况不会出现
+        /// </summary>
+        public static readonly float mineDensityThreshold = 0.3f;
+
+        /// <summary>
         /// 按钮大小
         /// </summary>
         public static readonly int buttonSize = 25;

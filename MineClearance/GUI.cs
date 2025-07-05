@@ -49,6 +49,7 @@ namespace MineClearance
             if (mineCount >= width * height)
             {
                 MessageBox.Show("地雷数必须小于总格子数！", "输入错误", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult = DialogResult.None;
                 return;
             }
 
@@ -674,7 +675,20 @@ namespace MineClearance
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 var (width, height, mineCount) = dialog.CustomDifficulty;
-                gameInstance = new Game(width, height, mineCount);
+                try
+                {
+                    gameInstance = new Game(width, height, mineCount);
+                }
+                catch (ArgumentOutOfRangeException ex)
+                {
+                    MessageBox.Show($"参数错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show($"参数错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 StartGame();
             }
         }
@@ -863,21 +877,12 @@ namespace MineClearance
                 }
                 else
                 {
-                    throw new InvalidOperationException("按钮Tag值无效");
+                    // 如果按钮的Tag值无效, 不做任何处理
+                    return;
                 }
 
                 // 处理游戏逻辑(左键点击)
-                try
-                {
-                    gameInstance.Board.OnGridClick(row, col);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    EndGame();
-                    ShowPanel(menuPanel);
-                    return;
-                }
+                gameInstance.Board.OnGridClick(row, col);
             }
         }
 
@@ -898,21 +903,12 @@ namespace MineClearance
                 }
                 else
                 {
-                    throw new InvalidOperationException("按钮Tag值无效");
+                    // 如果按钮的Tag值无效, 不做任何处理
+                    return;
                 }
 
                 // 处理游戏逻辑(右键点击)
-                try
-                {
-                    gameInstance.Board.OnGridClick(row, col, true);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    EndGame();
-                    ShowPanel(menuPanel);
-                    return;
-                }
+                gameInstance.Board.OnGridClick(row, col, true);
             }
         }
 
@@ -1072,6 +1068,15 @@ namespace MineClearance
         /// <param name="e">事件参数</param>
         private void BtnClearHistory_Click(object? sender, EventArgs e)
         {
+            // 添加确认对话框
+            var confirmResult = MessageBox.Show("确定要清除所有历史记录吗？", "清除历史记录", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            // 用户选择取消，直接返回
+            if (confirmResult != DialogResult.Yes)
+            {
+                return;
+            }
+
             // 清空排行榜数据
             Task.Run(Datas.ClearGameResultsAsync);
             gameResults = null;

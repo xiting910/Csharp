@@ -37,6 +37,8 @@ namespace MineClearance
         /// <summary>
         /// 构造非自定义难度的扫雷游戏
         /// </summary>
+        /// <param name="difficulty">游戏难度</param>
+        /// <exception cref="ArgumentException">如果难度为自定义, 则抛出异常</exception>
         public Game(DifficultyLevel difficulty)
         {
             Difficulty = difficulty;
@@ -52,6 +54,11 @@ namespace MineClearance
         /// <summary>
         /// 构造自定义难度的扫雷游戏
         /// </summary>
+        /// <param name="width">棋盘宽度</param>
+        /// <param name="height">棋盘高度</param>
+        /// <param name="mineCount">地雷数量</param>
+        /// <exception cref="ArgumentOutOfRangeException">如果棋盘尺寸或地雷数量不合法, 则抛出异常</exception>
+        /// <exception cref="ArgumentException">如果地雷数量超过棋盘格子总数, 则抛出异常</exception>
         public Game(int width, int height, int mineCount)
         {
             Difficulty = DifficultyLevel.Custom;

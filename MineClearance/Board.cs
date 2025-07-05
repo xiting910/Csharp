@@ -100,17 +100,30 @@ namespace MineClearance
         /// <param name="row">格子的行索引</param>
         /// <param name="column">格子的列索引</param>
         /// <param name="isRightClick">是否为右键点击</param>
-        /// <exception cref="InvalidOperationException">如果第一次点击时无法生成地雷, 则抛出异常</exception>
         public void OnGridClick(int row, int column, bool isRightClick = false)
         {
             // 检查点击位置是否在游戏范围内
             if (row < 0 || row >= Height || column < 0 || column >= Width)
             {
-                return; // 点击位置无效
+                return; 
             }
 
-            // 如果是右键点击并且不是第一次点击
-            if (isRightClick && !_isFirstClick)
+            // 如果是第一次点击并且是右键点击, 则不处理
+            if (_isFirstClick && isRightClick)
+            {
+                return;
+            }
+
+            // 如果是第一次点击并且不是右键点击, 则生成地雷
+            if (_isFirstClick && !isRightClick)
+            {
+                Mines.GenerateMines((row, column));
+                _isFirstClick = false;
+                FirstClick?.Invoke();
+            }
+
+            // 如果是右键点击
+            if (isRightClick)
             {
                 ToggleFlag(row, column);
                 if (CheckWin())
@@ -124,21 +137,6 @@ namespace MineClearance
             if (Grids[row, column].Type != GridType.Unopened)
             {
                 return;
-            }
-
-            // 如果是第一次点击, 生成地雷
-            if (_isFirstClick)
-            {
-                try
-                {
-                    Mines.GenerateMines((row, column));
-                    _isFirstClick = false;
-                    FirstClick?.Invoke();
-                }
-                catch (InvalidOperationException ex)
-                {
-                    throw new InvalidOperationException("无法生成地雷, 请检查地雷数量和格子数量的设置。", ex);
-                }
             }
 
             // 打开格子
