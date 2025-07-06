@@ -56,5 +56,10 @@ namespace MineClearance
             DirectoryInfo directoryInfo = new(directoryPath);
             directoryInfo.Attributes |= FileAttributes.Hidden;
         }
+
+        /// <summary>
+        /// 当前是否为第一次检查更新
+        /// </summary>
+        public static bool IsFirstCheck { get; set; } = true;
     }
 }

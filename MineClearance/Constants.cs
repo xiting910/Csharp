@@ -52,5 +52,10 @@ namespace MineClearance
         /// 按钮大小
         /// </summary>
         public static readonly int buttonSize = 25;
+
+        /// <summary>
+        /// 自动更新的URL
+        /// </summary>
+        public static readonly string AutoUpdateUrl = "https://xiting910.github.io/MineClearance/AutoUpdater.xml";
     }
 }

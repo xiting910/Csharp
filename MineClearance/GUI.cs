@@ -1,7 +1,62 @@
+using System.Net;
+using AutoUpdaterDotNET;
+
 namespace MineClearance
 {
+    /// <summary>
+    /// 提供下载进度的窗体
+    /// </summary>
+    public class DownloadProgressForm : Form
+    {
+        /// <summary>
+        /// 下载进度条和状态标签
+        /// </summary>
+        public ProgressBar ProgressBar { get; }
+
+        /// <summary>
+        /// 状态标签, 显示下载状态信息
+        /// </summary>
+        public Label StatusLabel { get; }
+
+        /// <summary>
+        /// 构造函数, 初始化下载进度窗体
+        /// </summary>
+        public DownloadProgressForm()
+        {
+            Text = "下载更新";
+            Size = new Size(400, 120);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            StartPosition = FormStartPosition.CenterScreen;
+
+            ProgressBar = new ProgressBar
+            {
+                Location = new Point(20, 20),
+                Size = new Size(350, 23),
+                Minimum = 0,
+                Maximum = 100
+            };
+            StatusLabel = new Label
+            {
+                Location = new Point(20, 55),
+                Size = new Size(350, 23),
+                Text = "准备下载..."
+            };
+
+            Controls.Add(ProgressBar);
+            Controls.Add(StatusLabel);
+        }
+    }
+
+    /// <summary>
+    /// 提供自定义难度设置对话框
+    /// </summary>
     public partial class CustomDifficultyDialog : Form
     {
+        /// <summary>
+        /// 自定义难度设置, 包含宽度、高度和地雷数
+        /// </summary>
         public (int width, int height, int mineCount) CustomDifficulty { get; private set; }
 
         private readonly NumericUpDown widthInput;
@@ -143,6 +198,10 @@ namespace MineClearance
             CreateGamePreparationPanel();
 
             ShowPanel(menuPanel);
+
+            AutoUpdater.RunUpdateAsAdmin = false;
+            AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
+            AutoUpdater.Start(Constants.AutoUpdateUrl);
         }
 
         /// <summary>
@@ -176,7 +235,7 @@ namespace MineClearance
         }
 
         /// <summary>
-        /// 创建游戏菜单面板, 包含新游戏、显示排行榜和退出按钮
+        /// 创建游戏菜单面板, 包含新游戏、显示排行榜、检查更新和退出按钮
         /// </summary>
         private void CreateMenuPanel()
         {
@@ -213,12 +272,24 @@ namespace MineClearance
             };
             btnShowRanking.Click += BtnShowRanking_Click;
 
+            // 添加检查更新按钮
+            Button btnCheckUpdate = new()
+            {
+                Text = "检查更新",
+                Size = new Size(120, 40),
+                Location = new Point(540, 220),
+                BackColor = Color.DarkCyan,
+                ForeColor = Color.DarkBlue,
+                FlatStyle = FlatStyle.Flat
+            };
+            btnCheckUpdate.Click += BtnCheckUpdate_Click;
+
             // 添加退出按钮
             Button btnExit = new()
             {
                 Text = "退出",
                 Size = new Size(120, 40),
-                Location = new Point(540, 220),
+                Location = new Point(540, 280),
                 BackColor = Color.LightCoral,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
@@ -240,6 +311,7 @@ namespace MineClearance
             // 添加控件到菜单面板
             menuPanel.Controls.Add(btnNewGame);
             menuPanel.Controls.Add(btnShowRanking);
+            menuPanel.Controls.Add(btnCheckUpdate);
             menuPanel.Controls.Add(btnExit);
             menuPanel.Controls.Add(titleLabel);
 
@@ -615,6 +687,16 @@ namespace MineClearance
         private void BtnShowRanking_Click(object? sender, EventArgs e)
         {
             RestartRankingPanel();
+        }
+
+        /// <summary>
+        /// 检查更新按钮点击事件处理
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">事件参数</param>
+        private void BtnCheckUpdate_Click(object? sender, EventArgs e)
+        {
+            AutoUpdater.Start(Constants.AutoUpdateUrl);
         }
 
         /// <summary>
@@ -1140,6 +1222,162 @@ namespace MineClearance
 
             // 弹窗提示
             MessageBox.Show("排行榜已按难度和用时排序\n注意: 本模式只会排序胜利的游戏结果", "排序成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// 处理自动更新检查事件
+        /// </summary>
+        /// <param name="args"></param>
+        private async void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+        {
+            if (args.Error == null)
+            {
+                if (args.IsUpdateAvailable)
+                {
+                    DialogResult dialogResult;
+                    if (args.Mandatory.Value)
+                    {
+                        dialogResult =
+                            MessageBox.Show(
+                                $@"新版本 {args.CurrentVersion} 可用. 你正在使用版本 {args.InstalledVersion}。这是强制更新。按确定开始更新应用程序。", @"更新可用",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        dialogResult =
+                            MessageBox.Show(
+                                $@"新版本 {args.CurrentVersion} 可用. 你正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                    }
+
+                    // Uncomment the following line if you want to show standard update dialog instead.
+                    // AutoUpdater.ShowUpdateForm(args);
+
+                    if (dialogResult.Equals(DialogResult.Yes) || dialogResult.Equals(DialogResult.OK))
+                    {
+                        try
+                        {
+                            // 自己实现下载逻辑
+                            string sevenZipPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(args.DownloadURL));
+                            var progressForm = new DownloadProgressForm();
+                            try
+                            {
+                                // 使用 HttpClient 下载更新文件
+                                using var httpClient = new HttpClient();
+                                using var response = await httpClient.GetAsync(args.DownloadURL, HttpCompletionOption.ResponseHeadersRead);
+                                response.EnsureSuccessStatusCode();
+
+                                // 判断是否可以报告进度
+                                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                                var canReportProgress = totalBytes != -1;
+
+                                // 创建文件流以保存下载的文件
+                                using var fs = new FileStream(sevenZipPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                                using var stream = await response.Content.ReadAsStreamAsync();
+
+                                // 显示下载进度表单
+                                progressForm.Show();
+
+                                var buffer = new byte[81920];
+                                long totalRead = 0;
+                                int read;
+                                var lastUpdate = DateTime.Now;
+                                long lastRead = 0;
+                                double speed = 0;
+                                while ((read = await stream.ReadAsync(buffer)) > 0)
+                                {
+                                    await fs.WriteAsync(buffer.AsMemory(0, read));
+                                    totalRead += read;
+                                    if (canReportProgress)
+                                    {
+                                        int percent = (int)(totalRead * 100 / totalBytes);
+
+                                        // 计算速度
+                                        var now = DateTime.Now;
+                                        double seconds = (now - lastUpdate).TotalSeconds;
+
+                                        // 每0.1秒刷新一次速度
+                                        if (seconds > 0.1)
+                                        {
+                                            // MB/秒
+                                            speed = (totalRead - lastRead) / seconds / (1024 * 1024);
+                                            lastUpdate = now;
+                                            lastRead = totalRead;
+                                        }
+
+                                        string speedStr = speed > 0 ? $"，速度 {speed:F1} MB/s" : "";
+
+                                        progressForm.ProgressBar.Value = percent;
+                                        progressForm.StatusLabel.Text = $"已下载 {percent}% ({totalRead / 1024} KB / {totalBytes / 1024} KB){speedStr}";
+                                        progressForm.Refresh();
+                                    }
+                                }
+                                progressForm.Close();
+                            }
+                            catch (Exception ex)
+                            {
+                                progressForm.Close();
+                                Methods.IsFirstCheck = false;
+                                MessageBox.Show($"下载更新失败：{ex.Message}", "下载错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            string updaterBat = Path.Combine(Path.GetTempPath(), "update_MineClearance.bat");
+                            string exeDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+                            string exeName = Path.GetFileName(Application.ExecutablePath);
+                            string exePath = Path.Combine(exeDir, exeName);
+
+                            // 获取 7za.exe 的路径
+                            string sevenZipDir = Path.GetDirectoryName(exeDir) ?? string.Empty;
+                            string sevenZipExe = Path.Combine(sevenZipDir, "7za.exe");
+
+                            // 创建批处理脚本内容, 使用7za.exe命令解压缩
+                            File.WriteAllText(updaterBat, $@"
+                                    @echo off
+                                    taskkill /f /im ""{exeName}"" >nul 2>&1
+                                    rmdir /s /q ""{exeDir}""
+                                    ""{sevenZipExe}"" x -y ""{sevenZipPath}"" -o""{sevenZipDir}""
+                                    del ""{sevenZipPath}""
+                                    start """" ""{exePath}""
+                                    del ""%~f0""
+                                    ");
+
+                            // 启动批处理脚本
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = updaterBat,
+                                UseShellExecute = true
+                            });
+
+                            // 退出应用程序
+                            Application.Exit();
+                        }
+                        catch (Exception exception)
+                        {
+                            MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+                else if (!Methods.IsFirstCheck)
+                {
+                    MessageBox.Show(@"没有可用的更新，请稍后再试。", @"没有可用的更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else
+            {
+                if (args.Error is WebException)
+                {
+                    MessageBox.Show(
+                        @"无法连接到更新服务器。请检查您的互联网连接，然后稍后再试。",
+                        @"更新检查失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show(args.Error.Message, args.Error.GetType().ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            Methods.IsFirstCheck = false;
         }
     }
 }
