@@ -109,33 +109,27 @@ namespace MineClearance
         }
 
         /// <summary>
-        /// 获取非自定义难度的游戏结果
+        /// 将游戏结果按指定显示模式排序
         /// </summary>
-        /// <returns>非自定义难度的游戏结果列表</returns>
-        public static List<GameResult> GetNonCustomDifficultyGameResults()
+        /// <param name="displayMode">显示模式</param>
+        /// <returns>排序后的游戏结果列表</returns>
+        public static List<GameResult> GetSortedGameResults(RankingDisplayMode displayMode)
         {
-            return [.. _gameResults.Where(result => result.Difficulty != DifficultyLevel.Custom)];
-        }
-
-        /// <summary>
-        /// 将非自定义难度的游戏结果按指定模式排序
-        /// </summary>
-        /// <param name="sortByStartTime">true: 按开始时间排序; false: 按用时排序(该模式只会对胜利结果进行排序)</param>
-        /// <returns>排序后的非自定义难度游戏结果列表</returns>
-        public static List<GameResult> GetSortedNonCustomDifficultyGameResults(bool sortByStartTime = true)
-        {
-            if (sortByStartTime)
+            if (displayMode == RankingDisplayMode.ByStartTime)
             {
-                return [.. _gameResults
-                    .Where(result => result.Difficulty != DifficultyLevel.Custom)
-                    .OrderByDescending(result => result.StartTime)];
+                return [.. _gameResults.OrderByDescending(result => result.StartTime)];
             }
-            else
+            else if (displayMode == RankingDisplayMode.ByDuration)
             {
                 return [.. _gameResults
                     .Where(result => result.Difficulty != DifficultyLevel.Custom && result.IsWin)
                     .OrderByDescending(result => result.Difficulty)
                     .ThenBy(result => result.Duration)];
+            }
+            else
+            {
+                // 默认模式获取所有游戏结果
+                return _gameResults;
             }
         }
     }

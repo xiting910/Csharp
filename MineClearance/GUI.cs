@@ -26,7 +26,7 @@ namespace MineClearance
         /// </summary>  
         private Panel? rankingPanel;
         /// <summary>
-        /// 顶部信息栏
+        /// 游戏顶部信息栏
         /// </summary>
         private Panel? infoPanel;
         /// <summary>
@@ -66,9 +66,9 @@ namespace MineClearance
         /// </summary>
         private ListBox? rankingListBox;
         /// <summary>
-        /// 游戏结果列表
+        /// 要显示的排行榜信息列表
         /// </summary>
-        private List<GameResult>? gameResults;
+        private List<string> showRankingList;
 
         /// <summary>
         /// 构造函数, 初始化GUI
@@ -82,6 +82,7 @@ namespace MineClearance
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             BackColor = Color.LightBlue;
+            showRankingList = [];
 
             // 创建菜单面板和游戏准备面板
             CreateMenuPanel();
@@ -123,7 +124,7 @@ namespace MineClearance
                 else if (targetPanel == gamePanel)
                     Text = "扫雷游戏 - 游戏中";
                 else if (targetPanel == rankingPanel)
-                    Text = "扫雷游戏 - 排行榜";
+                    Text = "扫雷游戏 - 历史记录";
             }
         }
 
@@ -156,7 +157,7 @@ namespace MineClearance
             // 添加显示排行榜按钮
             Button btnShowRanking = new()
             {
-                Text = "显示排行榜",
+                Text = "游戏历史记录",
                 Size = new Size(120, 40),
                 Location = new Point(540, 160),
                 BackColor = Color.LightYellow,
@@ -484,7 +485,7 @@ namespace MineClearance
 
             Label titleLabel = new()
             {
-                Text = "排行榜",
+                Text = "历史记录",
                 Font = new Font("Arial", 24, FontStyle.Bold),
                 Location = new Point(10, 10),
                 AutoSize = true
@@ -510,11 +511,21 @@ namespace MineClearance
             btnClearHistory.Click += BtnClearHistory_Click;
             rankingTopPanel.Controls.Add(btnClearHistory);
 
+            // 添加按钮显示统计信息
+            Button btnShowStatistics = new()
+            {
+                Text = "显示统计信息",
+                Location = new Point(200, 10),
+                AutoSize = true
+            };
+            btnShowStatistics.Click += BtnShowRanking_Click;
+            rankingTopPanel.Controls.Add(btnShowStatistics);
+
             // 添加按钮以按开始时间排序
             Button btnSortByStartTime = new()
             {
                 Text = "按开始时间排序",
-                Location = new Point(200, 10),
+                Location = new Point(350, 10),
                 AutoSize = true
             };
             btnSortByStartTime.Click += BtnSortByStartTime_Click;
@@ -524,7 +535,7 @@ namespace MineClearance
             Button btnSortByDuration = new()
             {
                 Text = "按难度和用时排序",
-                Location = new Point(350, 10),
+                Location = new Point(500, 10),
                 AutoSize = true
             };
             btnSortByDuration.Click += BtnSortByDuration_Click;
@@ -544,20 +555,9 @@ namespace MineClearance
                 BackColor = Color.White
             };
 
-            // 如果游戏结果列表未初始化，则从数据源获取非自定义难度的游戏结果
-            gameResults ??= Datas.GetNonCustomDifficultyGameResults();
-
-            // 如果游戏结果列表为空，则显示提示信息
-            if (gameResults.Count == 0)
+            foreach (var showMessage in showRankingList)
             {
-                rankingListBox.Items.Add("暂无游戏记录");
-                return;
-            }
-
-            // 否则，遍历游戏结果列表并添加到列表框
-            foreach (var result in gameResults)
-            {
-                rankingListBox.Items.Add(result.ToString());
+                rankingListBox.Items.Add(showMessage);
             }
         }
 
@@ -678,7 +678,7 @@ namespace MineClearance
             EndGame();
             rankingPanel?.Dispose();
             rankingPanel = null;
-            gameResults = null;
+            showRankingList = [];
             ShowPanel(menuPanel);
         }
 
@@ -1045,8 +1045,43 @@ namespace MineClearance
         /// <summary>
         /// 重启排行榜面板
         /// </summary>
-        private void RestartRankingPanel()
+        /// <param name="displayMode">显示模式</param>
+        private void RestartRankingPanel(RankingDisplayMode displayMode = RankingDisplayMode.Default)
         {
+            // 根据显示模式获取游戏结果
+            var gameResults = Datas.GetSortedGameResults(displayMode);
+            showRankingList = [];
+
+            if (gameResults.Count == 0)
+            {
+                showRankingList.Add("暂无游戏记录");
+            }
+            else
+            {
+                switch (displayMode)
+                {
+                    case RankingDisplayMode.Default:
+                        UpdateDefaultRanking(gameResults);
+                        break;
+                    case RankingDisplayMode.ByStartTime:
+                        foreach (var result in gameResults)
+                        {
+                            showRankingList.Add(result.ToString());
+                        }
+                        break;
+                    case RankingDisplayMode.ByDuration:
+                        foreach (var result in gameResults)
+                        {
+                            showRankingList.Add(result.ToString());
+                        }
+                        break;
+                    default:
+                        MessageBox.Show("未知的显示模式", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ShowPanel(menuPanel);
+                        break;
+                }
+            }
+
             // 如果排行榜面板已存在，则清理旧数据
             if (rankingPanel != null)
             {
@@ -1060,6 +1095,84 @@ namespace MineClearance
         }
 
         /// <summary>
+        /// 更新默认排行榜
+        /// </summary>
+        private void UpdateDefaultRanking(List<GameResult> gameResults)
+        {
+            // 统计游戏次数
+            int totalGames = gameResults.Count;
+            showRankingList.Add($"总游戏次数: {totalGames}, 其中:");
+
+            // 统计各难度的游戏次数、胜利次数、总胜利用时、总完成度
+            var difficultyStats = new Dictionary<DifficultyLevel, (int total, int wins, TimeSpan totalDuration, double totalCompletion)>
+            {
+                { DifficultyLevel.Easy, (0, 0, TimeSpan.Zero, 0) },
+                { DifficultyLevel.Medium, (0, 0, TimeSpan.Zero, 0) },
+                { DifficultyLevel.Hard, (0, 0, TimeSpan.Zero, 0) },
+                { DifficultyLevel.Custom, (0, 0, TimeSpan.Zero, 0) }
+            };
+            foreach (var result in gameResults)
+            {
+                if (result.Difficulty == DifficultyLevel.Custom)
+                {
+                    // 自定义难度的处理
+                    difficultyStats[DifficultyLevel.Custom] = (
+                        difficultyStats[DifficultyLevel.Custom].total + 1,
+                        difficultyStats[DifficultyLevel.Custom].wins + (result.IsWin ? 1 : 0),
+                        difficultyStats[DifficultyLevel.Custom].totalDuration + (result.IsWin ? result.Duration : TimeSpan.Zero),
+                        difficultyStats[DifficultyLevel.Custom].totalCompletion + result.Completion
+                    );
+                }
+                else
+                {
+                    // 普通难度的处理
+                    difficultyStats[result.Difficulty] = (
+                        difficultyStats[result.Difficulty].total + 1,
+                        difficultyStats[result.Difficulty].wins + (result.IsWin ? 1 : 0),
+                        difficultyStats[result.Difficulty].totalDuration + (result.IsWin ? result.Duration : TimeSpan.Zero),
+                        difficultyStats[result.Difficulty].totalCompletion + result.Completion
+                    );
+                }
+            }
+
+            // 计算平均胜利率、平均胜利用时和平均完成度
+            foreach (var (level, stats) in difficultyStats)
+            {
+                // 格式化难度名称
+                string formattedDifficulty = level switch
+                {
+                    DifficultyLevel.Easy => "简单",
+                    DifficultyLevel.Medium => "中等",
+                    DifficultyLevel.Hard => "困难",
+                    DifficultyLevel.Custom => "自定义",
+                    _ => "未知"
+                };
+
+                if (stats.total == 0)
+                {
+                    showRankingList.Add($"难度: {formattedDifficulty}, 游戏次数: 0");
+                    continue;
+                }
+
+                double winRate = (double)stats.wins / stats.total;
+                TimeSpan avgDuration = stats.wins > 0 ? TimeSpan.FromMilliseconds(stats.totalDuration.TotalMilliseconds / stats.wins) : TimeSpan.Zero;
+                double avgCompletion = stats.totalCompletion / stats.total;
+
+                // 完成度格式化为百分比, 保留两位小数
+                string formattedCompletion = $"{avgCompletion,6:0.00}%";
+
+                // 格式化时间为 xx:xx:xx.xx 格式
+                string formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}:{avgDuration.Milliseconds / 10:D2}";
+
+                showRankingList.Add($"难度: {formattedDifficulty}, 游戏次数: {stats.total}, 胜利次数: {stats.wins}, 胜利率: {winRate:P2}, 平均胜利用时: {formattedDuration}, 平均完成度: {formattedCompletion}");
+            }
+
+            showRankingList.Add("\n");
+            showRankingList.Add("点击按开始时间排序按钮可以查看所有游戏记录");
+            showRankingList.Add("点击按难度和用时排序按钮可以将所有非自定义难度的胜利游戏记录先按难度高低后按用时快慢进行排序");
+        }
+
+        /// <summary>
         /// 清除历史记录按钮点击事件处理
         /// </summary>
         /// <param name="sender">事件发送者</param>
@@ -1067,7 +1180,7 @@ namespace MineClearance
         private void BtnClearHistory_Click(object? sender, EventArgs e)
         {
             // 添加确认对话框
-            var confirmResult = MessageBox.Show("确定要清除所有历史记录吗？", "清除历史记录", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            var confirmResult = MessageBox.Show("确定要清除所有历史记录吗？\n注意: 一旦清除将无法找回！！！", "清除历史记录", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             // 用户选择取消，直接返回
             if (confirmResult != DialogResult.Yes)
@@ -1077,10 +1190,18 @@ namespace MineClearance
 
             // 清空排行榜数据
             Task.Run(Datas.ClearGameResultsAsync);
-            gameResults = null;
+            showRankingList = ["暂无游戏记录"];
 
-            // 重新加载排行榜面板
-            RestartRankingPanel();
+            // 如果排行榜面板已存在，则清理旧数据
+            if (rankingPanel != null)
+            {
+                rankingPanel.Controls.Clear();
+                rankingPanel.Dispose();
+            }
+
+            // 创建新的排行榜面板
+            CreateRankingPanel();
+            ShowPanel(rankingPanel);
 
             // 弹窗提示清除成功
             MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -1093,11 +1214,8 @@ namespace MineClearance
         /// <param name="e">事件参数</param>
         private void BtnSortByStartTime_Click(object? sender, EventArgs e)
         {
-            // 按开始时间排序排行榜数据
-            gameResults = Datas.GetSortedNonCustomDifficultyGameResults();
-
             // 重新加载排行榜面板
-            RestartRankingPanel();
+            RestartRankingPanel(RankingDisplayMode.ByStartTime);
         }
 
         /// <summary>
@@ -1107,14 +1225,8 @@ namespace MineClearance
         /// <param name="e">事件参数</param>
         private void BtnSortByDuration_Click(object? sender, EventArgs e)
         {
-            // 按用时排序排行榜数据
-            gameResults = Datas.GetSortedNonCustomDifficultyGameResults(false);
-
             // 重新加载排行榜面板
-            RestartRankingPanel();
-
-            // 弹窗提示
-            MessageBox.Show("排行榜已按难度和用时排序\n注意: 本模式只会排序胜利的游戏结果", "排序成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            RestartRankingPanel(RankingDisplayMode.ByDuration);
         }
 
         /// <summary>

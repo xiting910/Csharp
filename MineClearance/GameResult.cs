@@ -54,28 +54,36 @@ namespace MineClearance
         public int MineCount { get; private set; } = mineCount;
 
         /// <summary>
-        /// 获取非自定义难度游戏结果的字符串表示
+        /// 获取游戏结果的格式化字符串表示
         /// </summary>
-        /// <param name="requiresWon">是否只需要胜利的结果</param>
-        /// <returns>游戏结果的字符串表示</returns>
-        public string ToString(bool requiresWon = false)
+        /// <returns>游戏结果的格式化字符串表示</returns>
+        public override string ToString()
         {
-            if (requiresWon && !IsWin)
+            // 格式化难度名称
+            string formattedDifficulty = Difficulty switch
             {
-                return string.Empty; // 如果只需要胜利的结果，且当前结果不是胜利，则返回空字符串
-            }
+                DifficultyLevel.Easy => "简单",
+                DifficultyLevel.Medium => "中等",
+                DifficultyLevel.Hard => "困难",
+                DifficultyLevel.Custom => "自定",
+                _ => "未知"
+            };
+
+            // 完成度格式化为百分比, 保留两位小数
+            string formattedCompletion = $"{Completion,6:0.00}%";
 
             // 格式化时间为 xx:xx:xx.xx 格式
-            string formattedDuration = $"{(int)Duration.TotalMinutes:D2}:{Duration.Seconds:D2}:{Duration.Milliseconds / 10:D2}";
+            string formattedDuration = $"{(int)Duration.TotalMinutes:D2}:{Duration.Seconds:D2}:{Duration.Milliseconds / 10:D2}";      
 
-            if (requiresWon)
+            // 构建最终的格式化字符串
+            string formattedMessage = $"开始时间: {StartTime}, 难度: {formattedDifficulty}, 结果: {(IsWin ? "胜利" : "失败")}, 完成度: {formattedCompletion}, 用时: {formattedDuration}";
+            if (Difficulty == DifficultyLevel.Custom)
             {
-                return $"开始时间: {StartTime}, 难度: {Difficulty}, 用时: {formattedDuration}";
+                formattedMessage += $", 宽: {BoardWidth}, 高: {BoardHeight}, 地雷数: {MineCount}";
             }
-            else
-            {
-                return $"开始时间: {StartTime}, 难度: {Difficulty}, 结果: {(IsWin ? "胜利" : "失败")}, 完成度: {Completion}%, 用时: {formattedDuration}";
-            }
+
+            // 返回游戏结果的格式化字符串表示
+            return formattedMessage;
         }
     }
 }

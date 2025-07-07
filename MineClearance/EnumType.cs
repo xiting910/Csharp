@@ -18,7 +18,7 @@ namespace MineClearance
         /// <summary>
         /// 数字格子, 表示周围地雷的数量
         /// </summary>
-        Number,  
+        Number,
 
         /// <summary>
         /// 标记的地雷
@@ -55,5 +55,26 @@ namespace MineClearance
         /// 自定义
         /// </summary>
         Custom
+    }
+    
+    /// <summary>
+    /// 排行榜显示模式
+    /// </summary>
+    public enum RankingDisplayMode
+    {
+        /// <summary>
+        /// 默认, 统计所有游戏结果, 计算各难度胜率等
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// 按照开始时间排序
+        /// </summary>
+        ByStartTime,
+
+        /// <summary>
+        /// 按照用时排序
+        /// </summary>
+        ByDuration
     }
 }
