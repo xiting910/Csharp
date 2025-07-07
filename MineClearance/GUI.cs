@@ -1249,7 +1249,7 @@ namespace MineClearance
                             // 下载完成后, 弹窗提示用户
                             MessageBox.Show($"更新文件已成功下载到{sevenZipPath}\n程序将尝试自动使用 \"扫雷\" 目录下的 7za.exe 解压并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件解压后替换 \"扫雷\" 目录下的 \"MineClearance\" 文件夹以完成更新", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                            string updaterBat = Path.Combine(Path.GetTempPath(), "update_MineClearance.bat");
+                            string updaterPs1 = Path.Combine(Path.GetTempPath(), "update_MineClearance.ps1");
                             string exeDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
                             string exeName = Path.GetFileName(Application.ExecutablePath);
                             string exePath = Path.Combine(exeDir, exeName);
@@ -1259,20 +1259,22 @@ namespace MineClearance
                             string sevenZipExe = Path.Combine(sevenZipDir, "7za.exe");
 
                             // 创建批处理脚本内容, 使用7za.exe命令解压缩
-                            File.WriteAllText(updaterBat, $@"
-                                    @echo off
-                                    taskkill /f /im ""{exeName}"" >nul 2>&1
-                                    rmdir /s /q ""{exeDir}""
-                                    ""{sevenZipExe}"" x -y ""{sevenZipPath}"" -o""{sevenZipDir}""
-                                    del ""{sevenZipPath}""
-                                    start """" ""{exePath}"" >nul 2>&1
-                                    del ""%~f0""
-                                    ");
+                            File.WriteAllText(updaterPs1, $@"
+                                chcp 65001 > $null
+                                [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+                                Get-Process -Name ""{Path.GetFileNameWithoutExtension(exeName)}"" -ErrorAction SilentlyContinue | ForEach-Object {{ $_.Kill() }}
+                                Remove-Item -Path ""{exeDir}"" -Recurse -Force
+                                & ""{sevenZipExe}"" x -y ""{sevenZipPath}"" -o""{sevenZipDir}""
+                                Remove-Item ""{sevenZipPath}""
+                                Start-Process ""{exePath}""
+                                Remove-Item -Path $MyInvocation.MyCommand.Path -Force
+                                ", System.Text.Encoding.UTF8);
 
                             // 启动批处理脚本
                             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                             {
-                                FileName = updaterBat,
+                                FileName = "powershell",
+                                Arguments = $"-ExecutionPolicy Bypass -File \"{updaterPs1}\"",
                                 UseShellExecute = true
                             });
 
