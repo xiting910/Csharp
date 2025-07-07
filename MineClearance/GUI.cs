@@ -1276,17 +1276,11 @@ namespace MineClearance
                     DialogResult dialogResult;
                     if (args.Mandatory.Value)
                     {
-                        dialogResult =
-                            MessageBox.Show(
-                                $@"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}, 你正在使用版本 {args.InstalledVersion}。这是强制更新。按确定开始更新应用程序。", @"更新可用",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。这是强制更新。按确定开始更新应用程序。", @"更新可用", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
-                        dialogResult =
-                            MessageBox.Show(
-                                $@"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}, 你正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用",
-                                MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
                     }
 
                     if (dialogResult.Equals(DialogResult.Yes) || dialogResult.Equals(DialogResult.OK))
