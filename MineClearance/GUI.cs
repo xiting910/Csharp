@@ -1099,40 +1099,26 @@ namespace MineClearance
         /// </summary>
         private void UpdateDefaultRanking(List<GameResult> gameResults)
         {
-            // 统计游戏次数
-            int totalGames = gameResults.Count;
-            showRankingList.Add($"总游戏次数: {totalGames}, 其中:");
+            // 显示总游戏次数
+            showRankingList.Add($"总游戏次数: {gameResults.Count}, 其中:");
 
             // 统计各难度的游戏次数、胜利次数、总胜利用时、总完成度
-            var difficultyStats = new Dictionary<DifficultyLevel, (int total, int wins, TimeSpan totalDuration, double totalCompletion)>
+            var difficultyStats = new Dictionary<DifficultyLevel, (int total, int wins, TimeSpan totalDuration, double totalCompletion, TimeSpan shortestDuration)>
             {
-                { DifficultyLevel.Easy, (0, 0, TimeSpan.Zero, 0) },
-                { DifficultyLevel.Medium, (0, 0, TimeSpan.Zero, 0) },
-                { DifficultyLevel.Hard, (0, 0, TimeSpan.Zero, 0) },
-                { DifficultyLevel.Custom, (0, 0, TimeSpan.Zero, 0) }
+                { DifficultyLevel.Easy, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
+                { DifficultyLevel.Medium, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
+                { DifficultyLevel.Hard, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
+                { DifficultyLevel.Custom, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) }
             };
             foreach (var result in gameResults)
             {
-                if (result.Difficulty == DifficultyLevel.Custom)
-                {
-                    // 自定义难度的处理
-                    difficultyStats[DifficultyLevel.Custom] = (
-                        difficultyStats[DifficultyLevel.Custom].total + 1,
-                        difficultyStats[DifficultyLevel.Custom].wins + (result.IsWin ? 1 : 0),
-                        difficultyStats[DifficultyLevel.Custom].totalDuration + (result.IsWin ? result.Duration : TimeSpan.Zero),
-                        difficultyStats[DifficultyLevel.Custom].totalCompletion + result.Completion
-                    );
-                }
-                else
-                {
-                    // 普通难度的处理
-                    difficultyStats[result.Difficulty] = (
-                        difficultyStats[result.Difficulty].total + 1,
-                        difficultyStats[result.Difficulty].wins + (result.IsWin ? 1 : 0),
-                        difficultyStats[result.Difficulty].totalDuration + (result.IsWin ? result.Duration : TimeSpan.Zero),
-                        difficultyStats[result.Difficulty].totalCompletion + result.Completion
-                    );
-                }
+                var stats = difficultyStats[result.Difficulty];
+                ++stats.total;
+                stats.wins += result.IsWin ? 1 : 0;
+                stats.totalDuration += result.IsWin ? result.Duration : TimeSpan.Zero;
+                stats.totalCompletion += result.Completion;
+                stats.shortestDuration = result.IsWin && result.Duration < stats.shortestDuration ? result.Duration : stats.shortestDuration;
+                difficultyStats[result.Difficulty] = stats;
             }
 
             // 计算平均胜利率、平均胜利用时和平均完成度
@@ -1158,13 +1144,17 @@ namespace MineClearance
                 TimeSpan avgDuration = stats.wins > 0 ? TimeSpan.FromMilliseconds(stats.totalDuration.TotalMilliseconds / stats.wins) : TimeSpan.Zero;
                 double avgCompletion = stats.totalCompletion / stats.total;
 
+                // 格式化用时为 xx:xx.xx 格式
+                string formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}.{avgDuration.Milliseconds / 10:D2}";
+
                 // 完成度格式化为百分比, 保留两位小数
                 string formattedCompletion = $"{avgCompletion,6:0.00}%";
 
-                // 格式化时间为 xx:xx:xx.xx 格式
-                string formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}:{avgDuration.Milliseconds / 10:D2}";
+                // 格式化最短胜利用时
+                string formattedShortestDuration = stats.shortestDuration == TimeSpan.MaxValue ? "无" : $"{(int)stats.shortestDuration.TotalMinutes:D2}:{stats.shortestDuration.Seconds:D2}.{stats.shortestDuration.Milliseconds / 10:D2}";
 
-                showRankingList.Add($"难度: {formattedDifficulty}, 游戏次数: {stats.total}, 胜利次数: {stats.wins}, 胜利率: {winRate:P2}, 平均胜利用时: {formattedDuration}, 平均完成度: {formattedCompletion}");
+                // 添加到排行榜列表
+                showRankingList.Add($"难度: {formattedDifficulty}, 游戏次数: {stats.total}, 胜利次数: {stats.wins}, 胜利率: {winRate:P2}, 平均胜利用时: {formattedDuration}, 平均完成度: {formattedCompletion}, 最短胜利用时: {formattedShortestDuration}");
             }
 
             showRankingList.Add("\n");

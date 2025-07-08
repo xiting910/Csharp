@@ -72,8 +72,8 @@ namespace MineClearance
             // 完成度格式化为百分比, 保留两位小数
             string formattedCompletion = $"{Completion,6:0.00}%";
 
-            // 格式化时间为 xx:xx:xx.xx 格式
-            string formattedDuration = $"{(int)Duration.TotalMinutes:D2}:{Duration.Seconds:D2}:{Duration.Milliseconds / 10:D2}";      
+            // 格式化用时为 xx:xx.xx 格式
+            string formattedDuration = $"{(int)Duration.TotalMinutes:D2}:{Duration.Seconds:D2}.{Duration.Milliseconds / 10:D2}";      
 
             // 构建最终的格式化字符串
             string formattedMessage = $"开始时间: {StartTime}, 难度: {formattedDifficulty}, 结果: {(IsWin ? "胜利" : "失败")}, 完成度: {formattedCompletion}, 用时: {formattedDuration}";
