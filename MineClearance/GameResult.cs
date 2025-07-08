@@ -63,7 +63,7 @@ namespace MineClearance
             string formattedDifficulty = Difficulty switch
             {
                 DifficultyLevel.Easy => "简单",
-                DifficultyLevel.Medium => "中等",
+                DifficultyLevel.Medium => "普通",
                 DifficultyLevel.Hard => "困难",
                 DifficultyLevel.Custom => "自定",
                 _ => "未知"

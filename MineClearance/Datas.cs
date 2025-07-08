@@ -62,10 +62,10 @@ namespace MineClearance
                     _gameResults.Clear();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // 显示错误信息
-                MessageBox.Show("初始化游戏数据失败");
+                MessageBox.Show($"初始化游戏数据失败: {ex.Message}");
             }
         }
 
@@ -82,10 +82,10 @@ namespace MineClearance
                 // 异步写入数据文件
                 await File.WriteAllTextAsync(Constants.DataFilePath, json);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // 显示错误信息
-                MessageBox.Show("保存游戏结果失败");
+                MessageBox.Show($"保存游戏结果失败: {ex.Message}");
             }
         }
 

@@ -269,7 +269,7 @@ namespace MineClearance
                 Text = "自定义",
                 Size = new Size(120, 40),
                 Location = new Point(540, 280),
-                BackColor = Color.LightYellow,
+                BackColor = Color.Yellow,
                 ForeColor = Color.DarkBlue,
                 FlatStyle = FlatStyle.Flat
             };
@@ -599,6 +599,24 @@ namespace MineClearance
         /// <param name="e">事件参数</param>
         private void BtnExit_Click(object? sender, EventArgs e)
         {
+            // 检测有没有更新文件残留
+            if (File.Exists(Constants.SevenZipPath))
+            {
+                var deleteResult = MessageBox.Show($"检测到更新文件 {Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (deleteResult == DialogResult.Yes)
+                {
+                    File.Delete(Constants.SevenZipPath);
+                }
+            }
+
+            // 删除残留的powershell脚本
+            if (File.Exists(Constants.UpdatePowerShellScriptPath))
+            {
+                File.Delete(Constants.UpdatePowerShellScriptPath);
+            }
+
+            // 关闭窗口
             Close();
         }
 
@@ -1128,7 +1146,7 @@ namespace MineClearance
                 string formattedDifficulty = level switch
                 {
                     DifficultyLevel.Easy => "简单",
-                    DifficultyLevel.Medium => "中等",
+                    DifficultyLevel.Medium => "普通",
                     DifficultyLevel.Hard => "困难",
                     DifficultyLevel.Custom => "自定义",
                     _ => "未知"
@@ -1275,10 +1293,28 @@ namespace MineClearance
 
                     if (dialogResult.Equals(DialogResult.Yes) || dialogResult.Equals(DialogResult.OK))
                     {
+                        // 检测下载的更新文件是否存在
+                        if (File.Exists(Constants.SevenZipPath))
+                        {
+                            // 如果文件已存在, 提示用户是否覆盖
+                            var overwriteResult = MessageBox.Show($"文件 {Constants.SevenZipPath} 已存在, 可能是之前程序尝试自动更新失败导致的残留, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要覆盖下载更新吗？", @"更新文件已存在", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                            if (overwriteResult == DialogResult.Yes)
+                            {
+                                // 用户选择覆盖, 删除旧文件
+                                File.Delete(Constants.SevenZipPath);
+                            }
+                            else
+                            {
+                                // 用户选择不覆盖, 取消更新
+                                Methods.IsFirstCheck = false;
+                                return;
+                            }
+                        }
+
                         try
                         {
-                            // 自己实现下载逻辑
-                            string sevenZipPath = Path.Combine(Path.GetTempPath(), Path.GetFileName(args.DownloadURL));
+                            // 下载更新文件, 并显示下载进度
                             var progressForm = new DownloadProgressForm();
                             try
                             {
@@ -1292,7 +1328,7 @@ namespace MineClearance
                                 var canReportProgress = totalBytes != -1;
 
                                 // 创建文件流以保存下载的文件
-                                using var fs = new FileStream(sevenZipPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                                using var fs = new FileStream(Constants.SevenZipPath, FileMode.Create, FileAccess.Write, FileShare.None);
                                 using var stream = await response.Content.ReadAsStreamAsync();
 
                                 // 显示下载进度表单
@@ -1343,34 +1379,25 @@ namespace MineClearance
                             }
 
                             // 下载完成后, 弹窗提示用户
-                            MessageBox.Show($"更新文件已成功下载到{sevenZipPath}\n程序将尝试自动使用 \"扫雷\" 目录下的 7za.exe 解压并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件解压后替换 \"扫雷\" 目录下的 \"MineClearance\" 文件夹以完成更新", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                            string updaterPs1 = Path.Combine(Path.GetTempPath(), "update_MineClearance.ps1");
-                            string exeDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-                            string exeName = Path.GetFileName(Application.ExecutablePath);
-                            string exePath = Path.Combine(exeDir, exeName);
-
-                            // 获取 7za.exe 的路径
-                            string sevenZipDir = Path.GetDirectoryName(exeDir) ?? string.Empty;
-                            string sevenZipExe = Path.Combine(sevenZipDir, "7za.exe");
+                            MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                             // 创建批处理脚本内容, 使用7za.exe命令解压缩
-                            File.WriteAllText(updaterPs1, $@"
+                            File.WriteAllText(Constants.UpdatePowerShellScriptPath, $@"
                                 chcp 65001 > $null
                                 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-                                Get-Process -Name ""{Path.GetFileNameWithoutExtension(exeName)}"" -ErrorAction SilentlyContinue | ForEach-Object {{ $_.Kill() }}
-                                Remove-Item -Path ""{exeDir}"" -Recurse -Force
-                                & ""{sevenZipExe}"" x -y ""{sevenZipPath}"" -o""{sevenZipDir}""
-                                Remove-Item ""{sevenZipPath}""
-                                Start-Process ""{exePath}""
+                                Get-Process -Name ""{Path.GetFileNameWithoutExtension(Constants.ExecutableFileName)}"" -ErrorAction SilentlyContinue | ForEach-Object {{ $_.Kill() }}
+                                Remove-Item -Path ""{Constants.CurrentDirectory}"" -Recurse -Force
+                                & ""{Constants.SevenZipExe}"" x -y ""{Constants.SevenZipPath}"" -o""{Constants.ParentDirectory}""
+                                Remove-Item ""{Constants.SevenZipPath}""
+                                Start-Process ""{Constants.ExecutableFilePath}""
                                 Remove-Item -Path $MyInvocation.MyCommand.Path -Force
                                 ", System.Text.Encoding.UTF8);
 
-                            // 启动批处理脚本
+                            // 启动powershell脚本
                             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                             {
                                 FileName = "powershell",
-                                Arguments = $"-ExecutionPolicy Bypass -File \"{updaterPs1}\"",
+                                Arguments = $"-ExecutionPolicy Bypass -File \"{Constants.UpdatePowerShellScriptPath}\"",
                                 UseShellExecute = true
                             });
 

@@ -57,5 +57,40 @@ namespace MineClearance
         /// 自动更新的URL
         /// </summary>
         public static readonly string AutoUpdateUrl = "https://xiting910.github.io/MineClearance/AutoUpdater.xml";
+
+        /// <summary>
+        /// 更新文件路径
+        /// </summary>
+        public static readonly string SevenZipPath = Path.Combine(Path.GetTempPath(), "MineClearance.7z");
+
+        /// <summary>
+        /// 用于更新程序的powershell脚本路径
+        /// </summary>
+        public static readonly string UpdatePowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UpdateScript.ps1");
+
+        /// <summary>
+        /// 当前程序的目录
+        /// </summary>
+        public static readonly string CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+
+        /// <summary>
+        /// 当前程序的可执行文件名
+        /// </summary>
+        public static readonly string ExecutableFileName = Path.GetFileName(Application.ExecutablePath);
+
+        /// <summary>
+        /// 当前程序的完整路径
+        /// </summary>
+        public static readonly string ExecutableFilePath = Path.Combine(CurrentDirectory, ExecutableFileName);
+
+        /// <summary>
+        /// 当前程序的目录的上级目录
+        /// </summary>
+        public static readonly string ParentDirectory = Path.GetDirectoryName(CurrentDirectory) ?? throw new InvalidOperationException("无法获取上级目录");
+
+        /// <summary>
+        /// 7za.exe的路径
+        /// </summary>
+        public static readonly string SevenZipExe = Path.Combine(ParentDirectory, "7za.exe");
     }
 }
