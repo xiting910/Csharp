@@ -508,7 +508,7 @@ namespace MineClearance
             // 如果排行榜面板已存在，则清理旧数据
             if (rankingPanel != null)
             {
-                rankingPanel.Controls.Clear();
+                Controls.Remove(rankingPanel);
                 rankingPanel.Dispose();
             }
 

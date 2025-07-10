@@ -10,17 +10,6 @@ namespace MineClearance
             // 如果游戏实例已存在，则重新创建游戏区域
             if (gameInstance != null)
             {
-                // 先移除旧的游戏面板
-                if (gamePanel != null)
-                {
-                    Controls.Remove(gamePanel);
-                    gamePanel.Dispose();
-                }
-
-                // 创建新的游戏面板
-                CreateGamePanel();
-                ShowPanel(gamePanel);
-
                 // 运行游戏实例
                 gameInstance.Run();
 
@@ -32,6 +21,17 @@ namespace MineClearance
                 gameInstance.Board.GridFlagged += OnGridFlagged;
                 gameInstance.Board.GridUnflagged += OnGridUnflagged;
                 gameInstance.Board.RemainingMinesChanged += OnRemainingMinesChanged;
+
+                // 先移除旧的游戏面板
+                if (gamePanel != null)
+                {
+                    Controls.Remove(gamePanel);
+                    gamePanel.Dispose();
+                }
+
+                // 创建新的游戏面板并显示
+                CreateGamePanel();
+                ShowPanel(gamePanel);
             }
             else
             {

@@ -154,6 +154,9 @@ namespace MineClearance
                             // 创建并启动自动更新的 PowerShell 脚本
                             Methods.StartAutoUpdateScript();
 
+                            // 取消关闭事件的绑定
+                            FormClosing -= GUI_FormClosing;
+
                             // 退出应用程序
                             Application.Exit();
                         }
