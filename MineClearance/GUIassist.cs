@@ -47,7 +47,7 @@ namespace MineClearance
             StatusLabel = new Label
             {
                 Location = new Point(10, 55),
-                Size = new Size(330, 23),
+                Size = new Size(340, 23),
                 Text = "准备下载..."
             };
             PauseResumeButton = new Button
