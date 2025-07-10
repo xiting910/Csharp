@@ -92,5 +92,10 @@ namespace MineClearance
         /// 7za.exe的路径
         /// </summary>
         public static readonly string SevenZipExe = Path.Combine(ParentDirectory, "7za.exe");
+
+        /// <summary>
+        /// 更新下载速度刷新间隔(毫秒)
+        /// </summary>
+        public static readonly int UpdateSpeedRefreshInterval = 500;
     }
 }

@@ -105,7 +105,7 @@ namespace MineClearance
             // 检查点击位置是否在游戏范围内
             if (row < 0 || row >= Height || column < 0 || column >= Width)
             {
-                return; 
+                return;
             }
 
             // 如果是第一次点击并且是右键点击, 则不处理
@@ -114,39 +114,27 @@ namespace MineClearance
                 return;
             }
 
-            // 如果是第一次点击并且不是右键点击, 则生成地雷
+            // 如果是第一次点击并且不是右键点击, 则生成地雷并打开格子
             if (_isFirstClick && !isRightClick)
             {
                 Mines.GenerateMines((row, column));
                 _isFirstClick = false;
                 FirstClick?.Invoke();
+                OpenGrid(row, column);
+                return;
             }
 
-            // 如果是右键点击
             if (isRightClick)
             {
                 ToggleFlag(row, column);
-                if (CheckWin())
-                {
-                    Won?.Invoke();
-                }
-                return;
             }
-
-            // 如果是左键点击并且格子不是未打开状态
-            if (Grids[row, column].Type != GridType.Unopened)
+            else
             {
-                return;
+                OpenGrid(row, column);
             }
-
-            // 打开格子
-            OpenGrid(row, column);
 
             // 检查是否胜利
-            if (CheckWin())
-            {
-                Won?.Invoke();
-            }
+            CheckWin();
         }
 
         /// <summary>
@@ -230,13 +218,15 @@ namespace MineClearance
         }
 
         /// <summary>
-        /// 检查游戏是否胜利
+        /// 检查游戏是否胜利, 如果胜利触发胜利事件
         /// </summary>
-        /// <returns>是否胜利</returns>
-        private bool CheckWin()
+        private void CheckWin()
         {
             // 未打开格子的数量等于0, 剩余地雷数量也等于0, 且错误标记地雷数量也等于0
-            return _unopenedCount == 0 && _remainingMines == 0 && _wrongFlagCount == 0;
+            if (_unopenedCount == 0 && _remainingMines == 0 && _wrongFlagCount == 0)
+            {
+                Won?.Invoke();
+            }
         }
 
         /// <summary>

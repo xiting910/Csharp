@@ -16,12 +16,22 @@ namespace MineClearance
         public Label StatusLabel { get; }
 
         /// <summary>
+        /// 暂停/继续下载按钮
+        /// </summary>
+        public Button PauseResumeButton { get; }
+
+        /// <summary>
+        /// 取消下载按钮
+        /// </summary>
+        public new Button CancelButton { get; }
+
+        /// <summary>
         /// 构造函数, 初始化下载进度窗体
         /// </summary>
         public DownloadProgressForm()
         {
             Text = "下载更新";
-            Size = new Size(400, 120);
+            Size = new Size(500, 120);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
@@ -29,20 +39,34 @@ namespace MineClearance
 
             ProgressBar = new ProgressBar
             {
-                Location = new Point(20, 20),
-                Size = new Size(350, 23),
+                Location = new Point(10, 20),
+                Size = new Size(460, 23),
                 Minimum = 0,
                 Maximum = 100
             };
             StatusLabel = new Label
             {
-                Location = new Point(20, 55),
-                Size = new Size(350, 23),
+                Location = new Point(10, 55),
+                Size = new Size(330, 23),
                 Text = "准备下载..."
+            };
+            PauseResumeButton = new Button
+            {
+                Location = new Point(355, 50),
+                Size = new Size(75, 23),
+                Text = "暂停/继续"
+            };
+            CancelButton = new Button
+            {
+                Location = new Point(435, 50),
+                Size = new Size(40, 23),
+                Text = "取消下载"
             };
 
             Controls.Add(ProgressBar);
             Controls.Add(StatusLabel);
+            Controls.Add(PauseResumeButton);
+            Controls.Add(CancelButton);
         }
     }
 
