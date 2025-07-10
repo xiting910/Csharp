@@ -32,6 +32,12 @@ namespace MineClearance
         /// <param name="e">事件参数</param>
         private void BtnCheckUpdate_Click(object? sender, EventArgs e)
         {
+            if (isHandlingUpdateEvent)
+            {
+                MessageBox.Show("当前已经有更新事件正在处理, 请稍后再试。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            isHandlingUpdateEvent = true;
             AutoUpdater.Start(Constants.AutoUpdateUrl);
         }
 
