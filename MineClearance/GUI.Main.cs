@@ -32,7 +32,7 @@ namespace MineClearance
             ShowPanel(menuPanel);
 
             // 程序启动时检查更新
-            isHandlingUpdateEvent = false;
+            isHandlingUpdateEvent = true;
             AutoUpdater.RunUpdateAsAdmin = false;
             AutoUpdater.Mandatory = true;
             AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
@@ -99,13 +99,6 @@ namespace MineClearance
         /// <param name="args"></param>
         private async void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
         {
-            if (isHandlingUpdateEvent)
-            {
-                MessageBox.Show("当前已经有更新事件正在处理, 请稍后再试。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            isHandlingUpdateEvent = true;
-
             if (args.Error == null)
             {
                 if (args.IsUpdateAvailable)
