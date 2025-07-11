@@ -61,7 +61,7 @@ namespace MineClearance
         /// <summary>
         /// 自动更新的URL
         /// </summary>
-        public static readonly string AutoUpdateUrl = "https://xiting910.github.io/MineClearance/AutoUpdater.xml";
+        public static readonly string AutoUpdateUrl = "https://gitee.com/xiting910/mine-clearance/raw/main/AutoUpdater.xml";
 
         /// <summary>
         /// 更新文件路径
