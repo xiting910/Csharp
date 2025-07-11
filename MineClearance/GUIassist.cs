@@ -134,4 +134,35 @@ namespace MineClearance
             Close();
         }
     }
+
+    /// <summary>
+    /// 提供等待更新事件处理完成的窗体
+    /// </summary>
+    public class WaitingForm : Form
+    {
+        public WaitingForm()
+        {
+            Text = "请稍候";
+            Size = new Size(300, 100);
+            StartPosition = FormStartPosition.CenterScreen;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            ControlBox = false;
+            ProgressBar progressBar = new()
+            {
+                Dock = DockStyle.Top,
+                Height = 20,
+                Style = ProgressBarStyle.Marquee
+            };
+            Label label = new()
+            {
+                Text = "正在等待更新事件处理完成，请稍候...",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            Controls.Add(progressBar);
+            Controls.Add(label);
+        }
+    }
 }

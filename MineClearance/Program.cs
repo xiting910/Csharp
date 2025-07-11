@@ -19,12 +19,18 @@
                 return;
             }
 
-            // 初始化数据
-            Datas.Initialize();
+            // 设置当前线程的UI文化为中文（简体）
+            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("zh-CN");
 
             // 设置应用程序的视觉样式和文本渲染方式
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // 设置未处理异常模式为捕获异常
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+
+            // 初始化数据
+            Datas.Initialize();
 
             // 创建并显示主窗口
             var mainForm = new GUI();

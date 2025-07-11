@@ -12,6 +12,10 @@ namespace MineClearance
         /// </summary>
         public GUI()
         {
+            // 绑定未捕获异常事件
+            Application.ThreadException += OnThreadException;
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+
             // 设置窗口属性
             Text = "扫雷游戏";
             Size = new Size(1200, 800);
@@ -40,6 +44,57 @@ namespace MineClearance
         }
 
         /// <summary>
+        /// 记录异常到日志文件
+        /// </summary>
+        /// <param name="ex">要记录的异常</param>
+        private static async Task LogException(Exception ex)
+        {
+            string log = $"[{DateTime.Now}] {ex}\n";
+            try
+            {
+                await File.AppendAllTextAsync(Constants.ErrorFilePath, log);
+            }
+            catch { /* 忽略日志写入异常 */ }
+        }
+
+        /// <summary>
+        /// 处理未处理的线程异常
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">线程异常事件参数</param>
+        private void OnThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            FormClosing -= GUI_FormClosing;
+            var logTask = LogException(e.Exception);
+            MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}, 错误日志见 {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            logTask.GetAwaiter().GetResult();
+            Application.Exit();
+        }
+
+        /// <summary>
+        /// 处理未处理的应用程序异常
+        /// </summary>
+        /// <param name="sender">事件发送者</param>
+        /// <param name="e">未处理异常事件参数</param>
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            FormClosing -= GUI_FormClosing;
+            Task logTask;
+            if (e.ExceptionObject is Exception ex)
+            {
+                logTask = LogException(ex);
+                MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}, 错误日志见 {Constants.ErrorFilePath}", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                logTask = LogException(new Exception("发生未知的未处理异常。"));
+                MessageBox.Show($"发生未知的未处理异常, 错误日志见 {Constants.ErrorFilePath}", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            logTask.GetAwaiter().GetResult();
+            Application.Exit();
+        }
+
+        /// <summary>
         /// 关闭程序事件
         /// </summary>
         /// <param name="sender"></param>
@@ -61,11 +116,19 @@ namespace MineClearance
                 // 如果用户选择强制关闭, 则取消更新事件处理
                 Methods.CTS.Cancel();
 
+                // 弹窗提示正在等待
+                using var waitingForm = new WaitingForm();
+                waitingForm.Show();
+
                 // 等待处理更新事件完成
                 while (isHandlingUpdateEvent)
                 {
                     Application.DoEvents();
+
+                    // 适当Sleep减少CPU占用
+                    Thread.Sleep(50);
                 }
+                waitingForm.Close();
             }
 
             // 检测有没有更新文件残留

@@ -16,6 +16,11 @@ namespace MineClearance
         public readonly static string DataFilePath = Path.Combine(DataPath, "history.json");
 
         /// <summary>
+        /// 错误文件路径
+        /// </summary>
+        public readonly static string ErrorFilePath = Path.Combine(DataPath, "error.log");
+
+        /// <summary>
         /// 简单、中等、困难的棋盘大小和地雷数量
         /// </summary>
         public static class BoardSettings
