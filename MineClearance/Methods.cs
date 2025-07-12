@@ -79,181 +79,257 @@ namespace MineClearance
         /// <returns>如果下载完成则返回true，否则返回false</returns>
         public static async Task<bool> AutoUpdate(string downloadURL)
         {
+            // 更新尝试次数
+            int retryCount = 0;
+
             // 定时器用于定时刷新进度表单
             var timer = new System.Windows.Forms.Timer
             {
                 Interval = Constants.UpdateSpeedRefreshInterval
             };
 
-            // 下载更新文件, 并显示下载进度, 支持暂停和取消
-            CTS = new CancellationTokenSource();
+            // 下载进度弹窗
             var progressForm = new DownloadProgressForm();
+
+            // 记录下载是否完成或者暂停
             var downloadCompleted = false;
             var isPaused = false;
 
-            // 绑定暂停/继续按钮事件
-            progressForm.PauseResumeButton.Click += (s, e) =>
-            {
-                isPaused = !isPaused;
-            };
-
-            // 绑定取消按钮事件
-            progressForm.CancelButton.Click += (s, e) =>
-            {
-                progressForm.Close();
-            };
-
-            // 绑定关闭事件
-            progressForm.FormClosing += (s, e) =>
+            // 处理关闭事件, 如果下载未完成且未取消则提示用户是否取消
+            void closingHandler(object? s, FormClosingEventArgs e)
             {
                 if (!downloadCompleted && !CTS.IsCancellationRequested)
                 {
                     var result = MessageBox.Show("确定要取消下载吗？", "取消下载", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
-                        // 用户选择取消下载, 发送取消请求
                         CTS.Cancel();
                     }
                     else
                     {
-                        // 阻止关闭
                         e.Cancel = true;
                     }
+                }
+            }
+
+            // 判断下载是否过慢相关变量
+            DateTime lastProgressTime = DateTime.Now;
+            var isNoProgress = false;
+
+            // 下载进度相关变量
+            var canReportProgress = false;
+            var lastUpdate = DateTime.Now;
+            var buffer = new byte[81920];
+            long totalBytes = 0;
+            long totalRead = 0;
+            long lastRead = 0;
+            double speed = 0;
+            string speedStr = "";
+            string speedUnit = "";
+            int read;
+
+            // 绑定下载进度表单更新事件
+            timer.Tick += (s, e) =>
+            {
+                // 如果下载已暂停
+                if (isPaused)
+                {
+                    lastProgressTime = DateTime.Now;
+                    progressForm.ProgressBar.Style = ProgressBarStyle.Blocks;
+                    progressForm.StatusLabel.Text = "下载已暂停";
+                    progressForm.Refresh();
+                    return;
+                }
+
+                // 无进度检测
+                var now = DateTime.Now;
+                if ((now - lastProgressTime).TotalSeconds > Constants.NoProgressRetryInterval)
+                {
+                    isNoProgress = true;
+                    CTS.Cancel();
+                    timer.Stop();
+                    return;
+                }
+
+                // 时间间隔为0直接返回
+                double seconds = (now - lastUpdate).TotalSeconds;
+                if (seconds == 0)
+                {
+                    return;
+                }
+
+                // 计算速度, 先计算B/s
+                speedUnit = "B/s";
+                speed = (totalRead - lastRead) / seconds;
+
+                // 如果速度超过1024B/s, 则转换为KB/s
+                if (speed >= 1024)
+                {
+                    speed /= 1024;
+                    speedUnit = "KB/s";
+                }
+
+                // 如果速度超过1024KB/s, 则转换为MB/s
+                if (speed >= 1024)
+                {
+                    speed /= 1024;
+                    speedUnit = "MB/s";
+                }
+
+                // 速度字符串
+                speedStr = $" (速度: {speed:F2} {speedUnit})";
+
+                // 更新最后更新时间和读取量
+                lastUpdate = now;
+                lastRead = totalRead;
+
+                if (!canReportProgress)
+                {
+                    // 如果不能报告进度
+                    progressForm.ProgressBar.Style = ProgressBarStyle.Marquee;
+                    progressForm.StatusLabel.Text = $"正在下载更新文件... (进度未知){speedStr}";
+                    progressForm.Refresh();
+                }
+                else
+                {
+                    // 可以报告进度
+                    int percent = (int)(totalRead * 100 / totalBytes);
+                    progressForm.ProgressBar.Value = percent;
+                    progressForm.ProgressBar.Style = ProgressBarStyle.Continuous;
+                    progressForm.StatusLabel.Text = $"已下载 {percent}% ({totalRead / 1024} KB / {totalBytes / 1024} KB){speedStr}";
+                    progressForm.Refresh();
                 }
             };
 
             // 下载更新文件
-            try
+            while (retryCount < Constants.NoProgressMaxRetries)
             {
-                // 使用 HttpClient 下载更新文件
-                using var httpClient = new HttpClient();
-                using var response = await httpClient.GetAsync(downloadURL, HttpCompletionOption.ResponseHeadersRead, CTS.Token);
-                response.EnsureSuccessStatusCode();
+                // 重置CancellationTokenSource
+                CTS = new CancellationTokenSource();
 
-                // 判断是否可以报告进度
-                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-                var canReportProgress = totalBytes != -1;
+                // 重置下载进度弹窗
+                progressForm = new();
 
-                // 创建文件流以保存下载的文件
-                using var fs = new FileStream(Constants.SevenZipPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                using var stream = await response.Content.ReadAsStreamAsync(CTS.Token);
+                // 绑定暂停/继续按钮事件
+                progressForm.PauseResumeButton.Click += (s, e) =>
+                {
+                    isPaused = !isPaused;
+                };
+                // 绑定取消按钮事件
+                progressForm.CancelButton.Click += (s, e) =>
+                {
+                    progressForm.Close();
+                };
+                // 绑定关闭事件
+                progressForm.FormClosing += closingHandler;
+
+                // 重置相关变量
+                totalRead = 0;
+                lastRead = 0;
+                isPaused = false;
+                isNoProgress = false;
+                lastProgressTime = DateTime.Now;
 
                 // 显示下载进度表单
                 progressForm.Show();
 
-                var buffer = new byte[81920];
-                int read;
-                long totalRead = 0;
-                long lastRead = 0;
-                var lastUpdate = DateTime.Now;
-                double speed = 0;
-                string speedStr = "";
-                string speedUnit = "";
-
-                // 绑定下载进度表单更新事件
-                timer.Tick += (s, e) =>
-                {
-                    // 如果下载已暂停
-                    if (isPaused)
-                    {
-                        progressForm.ProgressBar.Style = ProgressBarStyle.Blocks;
-                        progressForm.StatusLabel.Text = "下载已暂停";
-                        progressForm.Refresh();
-                        return;
-                    }
-
-                    // 时间间隔为0直接返回
-                    var now = DateTime.Now;
-                    double seconds = (now - lastUpdate).TotalSeconds;
-                    if (seconds == 0)
-                    {
-                        return;
-                    }
-
-                    // 计算速度, 先计算B/s
-                    speedUnit = "B/s";
-                    speed = (totalRead - lastRead) / seconds;
-
-                    // 如果速度超过1024B/s, 则转换为KB/s
-                    if (speed >= 1024)
-                    {
-                        speed /= 1024;
-                        speedUnit = "KB/s";
-                    }
-
-                    // 如果速度超过1024KB/s, 则转换为MB/s
-                    if (speed >= 1024)
-                    {
-                        speed /= 1024;
-                        speedUnit = "MB/s";
-                    }
-
-                    // 速度字符串
-                    speedStr = $" (速度: {speed:F2} {speedUnit})";
-
-                    // 更新最后更新时间和读取量
-                    lastUpdate = now;
-                    lastRead = totalRead;
-
-                    if (!canReportProgress)
-                    {
-                        // 如果不能报告进度
-                        progressForm.ProgressBar.Style = ProgressBarStyle.Marquee;
-                        progressForm.StatusLabel.Text = $"正在下载更新文件... (进度未知){speedStr}";
-                        progressForm.Refresh();
-                    }
-                    else
-                    {
-                        // 可以报告进度
-                        int percent = (int)(totalRead * 100 / totalBytes);
-                        progressForm.ProgressBar.Value = percent;
-                        progressForm.StatusLabel.Text = $"已下载 {percent}% ({totalRead / 1024} KB / {totalBytes / 1024} KB){speedStr}";
-                        progressForm.Refresh();
-                    }
-                };
+                // 开始定时器
                 timer.Start();
 
-                // 循环读取数据并写入文件
-                while ((read = await stream.ReadAsync(buffer, CTS.Token)) > 0)
+                try
                 {
-                    // 增加暂停判断
-                    while (isPaused && !CTS.IsCancellationRequested)
+                    // 使用 HttpClient 下载更新文件
+                    using var httpClient = new HttpClient
                     {
-                        await Task.Delay(100);
+                        Timeout = TimeSpan.FromSeconds(Constants.HttpRequestTimeout)
+                    };
+                    using var response = await httpClient.GetAsync(downloadURL, HttpCompletionOption.ResponseHeadersRead, CTS.Token);
+                    response.EnsureSuccessStatusCode();
+
+                    // 判断是否可以报告进度
+                    totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                    canReportProgress = totalBytes != -1;
+
+                    // 创建文件流以保存下载的文件
+                    using var fs = new FileStream(Constants.SevenZipPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                    using var stream = await response.Content.ReadAsStreamAsync(CTS.Token);
+
+                    // 循环读取数据并写入文件
+                    while ((read = await stream.ReadAsync(buffer, CTS.Token)) > 0)
+                    {
+                        await fs.WriteAsync(buffer.AsMemory(0, read), CTS.Token);
+                        lastProgressTime = DateTime.Now;
+                        totalRead += read;
+                        retryCount = 0;
+
+                        // 增加暂停判断
+                        while (isPaused && !CTS.IsCancellationRequested)
+                        {
+                            await Task.Delay(100);
+                        }
                     }
-                    await fs.WriteAsync(buffer.AsMemory(0, read), CTS.Token);
-                    totalRead += read;
+
+                    // 下载完成
+                    downloadCompleted = true;
+                    return true;
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                // 取消下载
-                if (File.Exists(Constants.SevenZipPath))
+                catch (TimeoutException tex)
                 {
-                    try { File.Delete(Constants.SevenZipPath); } catch { }
+                    // http请求超时
+                    MessageBox.Show($"http请求超时：{tex.Message}", "http请求超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
                 }
-                return false;
-            }
-            catch (Exception ex)
-            {
-                // 下载过程中发生错误
-                if (File.Exists(Constants.SevenZipPath))
+                catch (OperationCanceledException)
                 {
-                    try { File.Delete(Constants.SevenZipPath); } catch { }
+                    // 如果是因为长时间无下载进度而取消
+                    if (isNoProgress)
+                    {
+                        // 重试次数+1
+                        retryCount++;
+
+                        // 超过最大重试次数
+                        if (retryCount >= Constants.NoProgressMaxRetries)
+                        {
+                            MessageBox.Show("下载超时, 请检查网络后重试。", "下载超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return false;
+                        }
+
+                        // 弹窗提示用户下载超时，是重试还是取消
+                        var result = TimeoutMessageBox.Show("下载长时间无进度，是否重试？", "下载超时", Constants.NoProgressDialogWaitTime);
+                        if (result == DialogResult.No)
+                        {
+                            // 用户选择取消
+                            return false;
+                        }
+                        continue;
+                    }
+
+                    // 用户自己手动取消
+                    return false;
                 }
-                MessageBox.Show($"下载更新失败：{ex.Message}", "下载错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-            finally
-            {
-                timer.Stop();
-                downloadCompleted = true;
-                progressForm.Close();
+                catch (Exception ex)
+                {
+                    // 下载过程中发生错误
+                    MessageBox.Show($"下载更新失败：{ex.Message}", "下载错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                finally
+                {
+                    // 如果下载未完成，则删除下载的文件
+                    if (!downloadCompleted && File.Exists(Constants.SevenZipPath))
+                    {
+                        try { File.Delete(Constants.SevenZipPath); } catch { }
+                    }
+
+                    // 关闭进度表单和定时器
+                    progressForm.FormClosing -= closingHandler;
+                    progressForm.Close();
+                    timer.Stop();
+                }
             }
 
-            // 下载完成后, 弹窗提示用户
-            MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return true;
+            // 超过最大重试次数返回失败
+            return false;
         }
 
         /// <summary>

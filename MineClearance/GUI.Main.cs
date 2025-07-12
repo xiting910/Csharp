@@ -57,6 +57,7 @@ namespace MineClearance
             catch { /* 忽略日志写入异常 */ }
         }
 
+        // TODO: 将退出改为无视窗口关闭事件强制退出
         /// <summary>
         /// 处理未处理的线程异常
         /// </summary>
@@ -207,11 +208,14 @@ namespace MineClearance
                         // 如果下载成功, 自动启动更新脚本并退出应用程序
                         if (downloadSuccess)
                         {
-                            // 创建并启动自动更新的 PowerShell 脚本
-                            Methods.StartAutoUpdateScript();
+                            // 弹窗提示下载完成
+                            MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                             // 取消关闭事件的绑定
                             FormClosing -= GUI_FormClosing;
+
+                            // 创建并启动自动更新的 PowerShell 脚本
+                            Methods.StartAutoUpdateScript();
 
                             // 退出应用程序
                             Application.Exit();

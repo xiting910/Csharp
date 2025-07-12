@@ -157,12 +157,91 @@ namespace MineClearance
             };
             Label label = new()
             {
-                Text = "正在等待更新事件处理完成，请稍候...",
+                Text = "正在取消更新事件处理，请稍候...",
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter
             };
             Controls.Add(progressBar);
             Controls.Add(label);
+        }
+    }
+
+    /// <summary>
+    /// 提供下载长时间无进度后的提示窗体
+    /// </summary>
+    public class TimeoutMessageBox : Form
+    {
+        /// <summary>
+        /// 重试按钮
+        /// </summary>
+        private readonly Button btnRetry;
+        /// <summary>
+        /// 取消按钮
+        /// </summary>
+        private readonly Button btnCancel;
+        /// <summary>
+        /// 消息标签
+        /// </summary>
+        private readonly Label lblMsg;
+        /// <summary>
+        /// 定时器, 用于自动选择重试
+        /// </summary>
+        private readonly System.Windows.Forms.Timer timer;
+        /// <summary>
+        /// 剩余时间（秒）
+        /// </summary>
+        private int secondsLeft;
+
+        /// <summary>
+        /// 显示提示框
+        /// </summary>
+        /// <param name="text">提示文本</param>
+        /// <param name="caption">标题</param>
+        /// <param name="timeoutSeconds">超时时间（秒）</param>
+        /// <returns>用户选择的结果</returns>
+        public static DialogResult Show(string text, string caption, int timeoutSeconds)
+        {
+            using var box = new TimeoutMessageBox(text, caption, timeoutSeconds);
+            return box.ShowDialog();
+        }
+
+        /// <summary>
+        /// 构造函数, 初始化提示框
+        /// </summary>
+        private TimeoutMessageBox(string text, string caption, int timeoutSeconds)
+        {
+            Text = caption;
+            Width = 350;
+            Height = 150;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            StartPosition = FormStartPosition.CenterScreen;
+            ControlBox = false;
+
+            lblMsg = new Label { Text = text, Left = 20, Top = 20, Width = 300, Height = 40 };
+            btnRetry = new Button { Text = "重试", Left = 60, Width = 80, Top = 70, DialogResult = DialogResult.Yes };
+            btnCancel = new Button { Text = "取消", Left = 180, Width = 80, Top = 70, DialogResult = DialogResult.No };
+
+            btnRetry.Click += (s, e) => { DialogResult = DialogResult.Yes; Close(); };
+            btnCancel.Click += (s, e) => { DialogResult = DialogResult.No; Close(); };
+
+            Controls.Add(lblMsg);
+            Controls.Add(btnRetry);
+            Controls.Add(btnCancel);
+
+            secondsLeft = timeoutSeconds;
+            timer = new System.Windows.Forms.Timer { Interval = 1000 };
+            timer.Tick += (s, e) =>
+            {
+                secondsLeft--;
+                Text = $"{caption}（{secondsLeft}秒后自动重试）";
+                if (secondsLeft <= 0)
+                {
+                    timer.Stop();
+                    DialogResult = DialogResult.Yes;
+                    Close();
+                }
+            };
+            timer.Start();
         }
     }
 }

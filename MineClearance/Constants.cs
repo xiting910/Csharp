@@ -101,6 +101,26 @@ namespace MineClearance
         /// <summary>
         /// 更新下载速度刷新间隔(毫秒)
         /// </summary>
-        public static readonly int UpdateSpeedRefreshInterval = 500;
+        public static readonly int UpdateSpeedRefreshInterval = 300;
+
+        /// <summary>
+        /// http请求超时时间(秒)
+        /// </summary>
+        public static readonly int HttpRequestTimeout = 15;
+
+        /// <summary>
+        /// 无进度一定秒后重试
+        /// </summary>
+        public static readonly int NoProgressRetryInterval = 20;
+
+        /// <summary>
+        /// 无进度弹窗等待时间(秒)
+        /// </summary>
+        public static readonly int NoProgressDialogWaitTime = 5;
+
+        /// <summary>
+        /// 无进度最大重试次数
+        /// </summary>
+        public static readonly int NoProgressMaxRetries = 3;
     }
 }

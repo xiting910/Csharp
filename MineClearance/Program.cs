@@ -26,6 +26,7 @@
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // TODO: 检测所有代码的throw语句
             // 设置未处理异常模式为捕获异常
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
