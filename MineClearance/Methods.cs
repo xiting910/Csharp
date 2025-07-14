@@ -77,7 +77,7 @@ namespace MineClearance
         /// </summary>
         /// <param name="downloadURL">更新文件的下载链接</param>
         /// <returns>如果下载完成则返回true，否则返回false</returns>
-        public static async Task<bool> AutoUpdate(string downloadURL)
+        public static async Task<bool> DownloadUpdate(string downloadURL)
         {
             // 更新尝试次数
             int retryCount = 0;
@@ -98,15 +98,18 @@ namespace MineClearance
             // 处理关闭事件, 如果下载未完成且未取消则提示用户是否取消
             void closingHandler(object? s, FormClosingEventArgs e)
             {
+                // 如果下载未完成且未取消则提示用户是否取消
                 if (!downloadCompleted && !CTS.IsCancellationRequested)
                 {
                     var result = MessageBox.Show("确定要取消下载吗？", "取消下载", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
+                        // 用户选择取消, 取消下载
                         CTS.Cancel();
                     }
                     else
                     {
+                        // 用户选择不取消, 则取消关闭事件
                         e.Cancel = true;
                     }
                 }
@@ -123,9 +126,7 @@ namespace MineClearance
             long totalBytes = 0;
             long totalRead = 0;
             long lastRead = 0;
-            double speed = 0;
             string speedStr = "";
-            string speedUnit = "";
             int read;
 
             // 绑定下载进度表单更新事件
@@ -158,26 +159,8 @@ namespace MineClearance
                     return;
                 }
 
-                // 计算速度, 先计算B/s
-                speedUnit = "B/s";
-                speed = (totalRead - lastRead) / seconds;
-
-                // 如果速度超过1024B/s, 则转换为KB/s
-                if (speed >= 1024)
-                {
-                    speed /= 1024;
-                    speedUnit = "KB/s";
-                }
-
-                // 如果速度超过1024KB/s, 则转换为MB/s
-                if (speed >= 1024)
-                {
-                    speed /= 1024;
-                    speedUnit = "MB/s";
-                }
-
-                // 速度字符串
-                speedStr = $" (速度: {speed:F2} {speedUnit})";
+                // 计算下载速度
+                speedStr = CalculateDownloadSpeed(totalRead - lastRead, seconds);
 
                 // 更新最后更新时间和读取量
                 lastUpdate = now;
@@ -228,13 +211,6 @@ namespace MineClearance
                 lastRead = 0;
                 isPaused = false;
                 isNoProgress = false;
-                lastProgressTime = DateTime.Now;
-
-                // 显示下载进度表单
-                progressForm.Show();
-
-                // 开始定时器
-                timer.Start();
 
                 try
                 {
@@ -254,6 +230,15 @@ namespace MineClearance
                     using var fs = new FileStream(Constants.SevenZipPath, FileMode.Create, FileAccess.Write, FileShare.None);
                     using var stream = await response.Content.ReadAsStreamAsync(CTS.Token);
 
+                    // 开始下载
+                    lastProgressTime = DateTime.Now;
+
+                    // 显示下载进度表单
+                    progressForm.Show();
+
+                    // 开始定时器
+                    timer.Start();
+
                     // 循环读取数据并写入文件
                     while ((read = await stream.ReadAsync(buffer, CTS.Token)) > 0)
                     {
@@ -262,7 +247,7 @@ namespace MineClearance
                         totalRead += read;
                         retryCount = 0;
 
-                        // 增加暂停判断
+                        // 暂停判断
                         while (isPaused && !CTS.IsCancellationRequested)
                         {
                             await Task.Delay(100);
@@ -301,6 +286,8 @@ namespace MineClearance
                             // 用户选择取消
                             return false;
                         }
+
+                        // 重试下载
                         continue;
                     }
 
@@ -330,6 +317,43 @@ namespace MineClearance
 
             // 超过最大重试次数返回失败
             return false;
+        }
+
+        /// <summary>
+        /// 计算下载更新的速度
+        /// </summary>
+        /// <param name="totalBytes">下载的总字节数</param>
+        /// <param name="elapsedTime">下载所用时间(秒)</param>
+        /// <returns>下载速度字符串</returns>
+        private static string CalculateDownloadSpeed(long totalBytes, double elapsedTime)
+        {
+            // 计算速度, 先计算B/s
+            var speedUnit = "B/s";
+            var speed = totalBytes / elapsedTime;
+
+            // 如果速度超过1024B/s, 则转换为KB/s
+            if (speed >= 1024)
+            {
+                speed /= 1024;
+                speedUnit = "KB/s";
+            }
+
+            // 如果速度超过1024KB/s, 则转换为MB/s
+            if (speed >= 1024)
+            {
+                speed /= 1024;
+                speedUnit = "MB/s";
+            }
+
+            // 如果速度超过1024MB/s, 则转换为GB/s
+            if (speed >= 1024)
+            {
+                speed /= 1024;
+                speedUnit = "GB/s";
+            }
+
+            // 返回速度字符串
+            return $" (速度: {speed:F2} {speedUnit})";
         }
 
         /// <summary>

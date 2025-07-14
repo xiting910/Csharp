@@ -30,7 +30,7 @@ namespace MineClearance
         /// </summary>
         public DownloadProgressForm()
         {
-            Text = "下载更新";
+            Text = "下载更新中......(请不要中途切换网络)";
             Size = new Size(500, 120);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;

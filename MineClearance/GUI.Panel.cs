@@ -520,6 +520,7 @@ namespace MineClearance
         /// <summary>
         /// 更新默认排行榜
         /// </summary>
+        /// <param name="gameResults">游戏结果列表</param>
         private void UpdateDefaultRanking(List<GameResult> gameResults)
         {
             // 显示总游戏次数

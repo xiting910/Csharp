@@ -63,8 +63,7 @@ namespace MineClearance
         {
             Difficulty = DifficultyLevel.Custom;
             var (maxWidth, maxHeight) = Constants.CustomBoardSettings.GetMaxDimensions();
-            if (width <= 0 || height <= 0 || mineCount < 0 ||
-                width > maxWidth || height > maxHeight)
+            if (width <= 0 || height <= 0 || mineCount < 0 || width > maxWidth || height > maxHeight)
             {
                 throw new ArgumentOutOfRangeException(
                     $"Board dimensions must be between 1 and {maxWidth} for width and 1 and {maxHeight} for height, with mine count non-negative.");

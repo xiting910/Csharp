@@ -57,7 +57,6 @@ namespace MineClearance
             catch { /* 忽略日志写入异常 */ }
         }
 
-        // TODO: 将退出改为无视窗口关闭事件强制退出
         /// <summary>
         /// 处理未处理的线程异常
         /// </summary>
@@ -65,9 +64,17 @@ namespace MineClearance
         /// <param name="e">线程异常事件参数</param>
         private void OnThreadException(object sender, ThreadExceptionEventArgs e)
         {
+            // 取消下载
+            Methods.CTS.Cancel();
+
+            // 取消关闭事件的绑定
             FormClosing -= GUI_FormClosing;
+
+            // 记录异常到日志文件并弹窗提示错误信息
             var logTask = LogException(e.Exception);
-            MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}, 错误日志见 {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            // 确认日志写入完成后退出应用程序
             logTask.GetAwaiter().GetResult();
             Application.Exit();
         }
@@ -79,18 +86,26 @@ namespace MineClearance
         /// <param name="e">未处理异常事件参数</param>
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+            // 取消下载
+            Methods.CTS.Cancel();
+
+            // 取消关闭事件的绑定
             FormClosing -= GUI_FormClosing;
+
+            // 记录异常到日志文件并弹窗提示错误信息
             Task logTask;
             if (e.ExceptionObject is Exception ex)
             {
                 logTask = LogException(ex);
-                MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}, 错误日志见 {Constants.ErrorFilePath}", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             else
             {
                 logTask = LogException(new Exception("发生未知的未处理异常。"));
-                MessageBox.Show($"发生未知的未处理异常, 错误日志见 {Constants.ErrorFilePath}", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            // 确认日志写入完成后退出应用程序
             logTask.GetAwaiter().GetResult();
             Application.Exit();
         }
@@ -203,7 +218,7 @@ namespace MineClearance
                         }
 
                         // 自动下载更新文件
-                        bool downloadSuccess = await Methods.AutoUpdate(args.DownloadURL);
+                        bool downloadSuccess = await Methods.DownloadUpdate(args.DownloadURL);
 
                         // 如果下载成功, 自动启动更新脚本并退出应用程序
                         if (downloadSuccess)

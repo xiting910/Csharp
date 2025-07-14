@@ -106,12 +106,12 @@ namespace MineClearance
         /// <summary>
         /// http请求超时时间(秒)
         /// </summary>
-        public static readonly int HttpRequestTimeout = 15;
+        public static readonly int HttpRequestTimeout = 20;
 
         /// <summary>
         /// 无进度一定秒后重试
         /// </summary>
-        public static readonly int NoProgressRetryInterval = 20;
+        public static readonly int NoProgressRetryInterval = 15;
 
         /// <summary>
         /// 无进度弹窗等待时间(秒)
