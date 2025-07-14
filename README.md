@@ -2,18 +2,14 @@
 - [C# 编程练习项目](#c-编程练习项目)
   - [项目说明](#项目说明)
   - [系统要求](#系统要求)
-  - [运行环境](#运行环境)
-  - [兼容性说明](#兼容性说明)
   - [下载和使用](#下载和使用)
     - [前置要求](#前置要求)
-    - [克隆项目](#克隆项目)
-    - [运行项目](#运行项目)
-    - [其他](#其他)
+    - [下载](#下载)
+    - [注意事项](#注意事项)
+  - [其他](#其他)
 
 ## 项目说明
-
 这个仓库中的项目是一些C#编程的尝试，旨在练习使用C#语言的各种功能和特性。主要项目包括：
-
 - **GluttonousSnake**: 一个简单的贪吃蛇游戏实现，包含游戏逻辑、用户系统、数据存储等模块。
   - 使用了用户系统来管理程序，需要以玩家登录后才能进行游戏。
   - 输入密码时显示的是`*`，以保护隐私（这下自己都不知道、记不住密码了）。
@@ -40,45 +36,23 @@
   - 支持自动联机检测是否有更新，若有更新则会在用户同意后自动更新最新版本的游戏。
 
 ## 系统要求
-
 ⚠️ **重要提醒**: 本仓库中的项目仅支持Windows操作系统运行。
-
-## 运行环境
-- **操作系统**: Windows 11(其他版本可能也可以，但未测试)
-- **.NET版本**: .NET 8.0(项目中使用了很多现代的C#特性，建议使用最新版本)
-- **IDE**: Visual Studio Code(其实可能Visual Studio更好，但我本人更喜欢VS Code)
-
-## 兼容性说明
-由于项目使用了Windows特定的API和功能，暂不支持Linux或macOS系统且难以修改适配。
 
 ## 下载和使用
 
 ### 前置要求
-确保您的系统是Windows系统，并且已安装：
-- .NET 8.0 SDK 或更高版本
-- git 任意版本
+确保您的系统是Windows10或更高版本
 
-### 克隆项目
-```bash
-git clone https://github.com/xiting910/Csharp.git
-cd Csharp
-```
+### 下载
+`Release`页面提供了各个项目打包好后的ZIP压缩包，您可以直接下载并解压后点击其中的start.bat文件运行项目。
 
-### 运行项目
-每个子项目都可以独立运行：
-```bash
-# 运行贪吃蛇游戏
-cd GluttonousSnake
-dotnet run
+### 注意事项
+- **GluttonousSnake**:
+  - 项目的数据文件会存储在D盘根目录下, 如果您没有D盘, 不要运行从`Release`页面下载的压缩包, 请下载源代码自行修改`Constants.cs`文件中的数据路径变量来指定数据文件的存储路径。
+- **FabricServerManager**:
+  - 只支持以fabric-server-开头、以.jar结尾的`Fabric`服务器文件名
+  - 服务器只有安装了`Carpet`模组并且开启了`Carpet`的`recordPlayerCommand`选项后程序的识别指令执行功能才能正常工作
+  - 如果您的服务器启动完成的最后一条信息不是`Lithium Cached BlockState Flags are disabled!`, 请下载源代码自行修改`Constants.cs`文件中的`ServerStartSuccessMessage`变量来指定要识别的服务器启动成功消息。
 
-# 运行Fabric服务器管理器
-cd FabricServerManager
-dotnet run
-
-# 运行扫雷游戏
-cd MineClearance
-dotnet run
-```
-
-### 其他
+## 其他
 如果您对项目有任何建议或发现问题，请提交issue或pull request。
