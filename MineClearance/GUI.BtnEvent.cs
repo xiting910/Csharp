@@ -229,7 +229,7 @@ namespace MineClearance
         private void BtnClearHistory_Click(object? sender, EventArgs e)
         {
             // 添加确认对话框
-            var confirmResult = MessageBox.Show("确定要清除所有历史记录吗？\n注意: 一旦清除将无法找回！！！", "清除历史记录", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            var confirmResult = MessageBox.Show("确定要清除所有历史记录吗？\n注意: 一旦清除将无法找回！！！", "清除历史记录", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
 
             // 用户选择取消，直接返回
             if (confirmResult != DialogResult.Yes)

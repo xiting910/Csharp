@@ -1,4 +1,5 @@
 using AutoUpdaterDotNET;
+using System.Runtime.InteropServices;
 
 namespace MineClearance
 {
@@ -7,6 +8,30 @@ namespace MineClearance
     /// </summary>
     public partial class GUI : Form
     {
+        /// <summary>
+        /// 用于处理WM_MOVING消息的结构体
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            /// <summary>
+            /// 左边界
+            /// </summary>
+            public int Left;
+            /// <summary>
+            /// 上边界
+            /// </summary>
+            public int Top;
+            /// <summary>
+            /// 右边界
+            /// </summary>
+            public int Right;
+            /// <summary>
+            /// 下边界
+            /// </summary>
+            public int Bottom;
+        }
+
         /// <summary>
         /// 构造函数, 初始化GUI
         /// </summary>
@@ -120,7 +145,7 @@ namespace MineClearance
             // 如果正在处理更新事件, 向用户确认是否要强制关闭
             if (isHandlingUpdateEvent)
             {
-                var result = MessageBox.Show("正在处理更新事件, 确定要强制关闭程序吗？", "警告", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                var result = MessageBox.Show("正在处理更新事件, 确定要强制关闭程序吗？", "警告", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
 
                 // 如果用户不选择强制关闭, 则取消关闭事件
                 if (result != DialogResult.Yes)
@@ -150,7 +175,7 @@ namespace MineClearance
             // 检测有没有更新文件残留
             if (File.Exists(Constants.SevenZipPath))
             {
-                var deleteResult = MessageBox.Show($"检测到更新文件 {Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var deleteResult = MessageBox.Show($"检测到更新文件 {Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                 try
                 {
@@ -192,7 +217,7 @@ namespace MineClearance
                     }
                     else
                     {
-                        dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
                     }
 
                     if (dialogResult.Equals(DialogResult.Yes) || dialogResult.Equals(DialogResult.OK))
@@ -201,7 +226,7 @@ namespace MineClearance
                         if (File.Exists(Constants.SevenZipPath))
                         {
                             // 如果文件已存在, 提示用户是否覆盖
-                            var overwriteResult = MessageBox.Show($"文件 {Constants.SevenZipPath} 已存在, 可能是之前程序尝试自动更新失败导致的残留, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要覆盖下载更新吗？", @"更新文件已存在", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            var overwriteResult = MessageBox.Show($"文件 {Constants.SevenZipPath} 已存在, 可能是之前程序尝试自动更新失败导致的残留, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要覆盖下载更新吗？", @"更新文件已存在", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
                             if (overwriteResult == DialogResult.Yes)
                             {
@@ -256,6 +281,56 @@ namespace MineClearance
 
             isHandlingUpdateEvent = false;
             Methods.IsFirstCheck = false;
+        }
+
+        /// <summary>
+        /// 重写WndProc方法, 处理WM_MOVING消息, 用于使窗口保持在可见区域内
+        /// </summary>
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_MOVING = 0x0216;
+
+            if (m.Msg == WM_MOVING)
+            {
+                // 获取当前屏幕的工作区域
+                Rectangle workingArea = Screen.GetWorkingArea(this);
+
+                // 获取窗口的当前位置
+                object? rectObj = Marshal.PtrToStructure(m.LParam, typeof(RECT));
+
+                if (rectObj is RECT rect)
+                {
+                    // 调整位置
+                    if (rect.Left < workingArea.Left)
+                    {
+                        rect.Right = workingArea.Left + (rect.Right - rect.Left);
+                        rect.Left = workingArea.Left;
+                    }
+
+                    if (rect.Top < workingArea.Top)
+                    {
+                        rect.Bottom = workingArea.Top + (rect.Bottom - rect.Top);
+                        rect.Top = workingArea.Top;
+                    }
+
+                    if (rect.Right > workingArea.Right)
+                    {
+                        rect.Left = workingArea.Right - (rect.Right - rect.Left);
+                        rect.Right = workingArea.Right;
+                    }
+
+                    if (rect.Bottom > workingArea.Bottom)
+                    {
+                        rect.Top = workingArea.Bottom - (rect.Bottom - rect.Top);
+                        rect.Bottom = workingArea.Bottom;
+                    }
+
+                    // 将调整后的位置写回消息
+                    Marshal.StructureToPtr(rect, m.LParam, true);
+                }
+            }
+
+            base.WndProc(ref m);
         }
     }
 }

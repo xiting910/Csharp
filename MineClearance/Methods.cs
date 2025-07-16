@@ -101,7 +101,7 @@ namespace MineClearance
                 // 如果下载未完成且未取消则提示用户是否取消
                 if (!downloadCompleted && !CTS.IsCancellationRequested)
                 {
-                    var result = MessageBox.Show("确定要取消下载吗？", "取消下载", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    var result = MessageBox.Show("确定要取消下载吗？", "取消下载", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
                         // 用户选择取消, 取消下载
