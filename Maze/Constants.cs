@@ -8,7 +8,7 @@ namespace Maze
         /// <summary>
         /// 作者名字
         /// </summary>
-        public readonly static string AuthorName = "Xiting910";
+        public readonly static string AuthorName = "xiting910";
 
         /// <summary>
         /// GitHub 仓库链接
