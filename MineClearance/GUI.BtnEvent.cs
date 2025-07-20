@@ -138,35 +138,17 @@ namespace MineClearance
         /// </summary>
         /// <param name="sender">事件发送者</param>
         /// <param name="e">事件参数</param>
-        /// <exception cref="Exception">如果当前游戏实例为空</exception>
         private void BtnRestart_Click(object? sender, EventArgs e)
         {
-            // 如果当前游戏实例为空, 抛出异常
-            if (gameInstance == null)
+            try
             {
-                throw new Exception("当前游戏实例为空");
+                // 尝试重新开始游戏
+                RestartGame();
             }
-
-            // 获取当前游戏难度、高度、宽度和地雷数
-            DifficultyLevel difficulty = gameInstance.Difficulty;
-            int width = gameInstance.Board.Width;
-            int height = gameInstance.Board.Height;
-            int mineCount = gameInstance.TotalMines;
-
-            // 结束当前游戏
-            StopGameTimer();
-            EndGame();
-
-            // 使用获取的参数重新开始游戏
-            if (difficulty == DifficultyLevel.Custom)
+            catch (ArgumentNullException ex)
             {
-                gameInstance = new Game(width, height, mineCount);
+                MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-            {
-                gameInstance = new Game(difficulty);
-            }
-            StartGame();
         }
 
         /// <summary>

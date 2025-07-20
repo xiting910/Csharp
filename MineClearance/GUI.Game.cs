@@ -5,7 +5,7 @@ namespace MineClearance
         /// <summary>
         /// 启动游戏, 自动切换到游戏面板或者返回菜单
         /// </summary>
-        public void StartGame()
+        private void StartGame()
         {
             // 如果游戏实例已存在，则重新创建游戏区域
             if (gameInstance != null)
@@ -43,7 +43,7 @@ namespace MineClearance
         /// <summary>
         /// 结束游戏, 不会自动返回菜单
         /// </summary>
-        public void EndGame()
+        private void EndGame()
         {
             // 取消订阅游戏事件
             if (gameInstance != null)
@@ -77,6 +77,40 @@ namespace MineClearance
 
             // 清理游戏区域面板中的控件
             gameAreaPanel?.Controls.Clear();
+        }
+
+        /// <summary>
+        /// 重新开始当前游戏
+        /// </summary>
+        /// <exception cref="ArgumentNullException">如果当前游戏实例为空</exception>
+        private void RestartGame()
+        {
+            // 如果当前游戏实例为空, 抛出异常
+            if (gameInstance == null)
+            {
+                throw new ArgumentNullException(nameof(gameInstance), "当前游戏实例为空");
+            }
+
+            // 获取当前游戏难度、高度、宽度和地雷数
+            DifficultyLevel difficulty = gameInstance.Difficulty;
+            int width = gameInstance.Board.Width;
+            int height = gameInstance.Board.Height;
+            int mineCount = gameInstance.TotalMines;
+
+            // 结束当前游戏
+            StopGameTimer();
+            EndGame();
+
+            // 使用获取的参数重新开始游戏
+            if (difficulty == DifficultyLevel.Custom)
+            {
+                gameInstance = new Game(width, height, mineCount);
+            }
+            else
+            {
+                gameInstance = new Game(difficulty);
+            }
+            StartGame();
         }
 
         /// <summary>
@@ -150,11 +184,19 @@ namespace MineClearance
             StopGameTimer();
 
             // 弹出游戏胜利提示
-            MessageBox.Show("恭喜你，赢得了游戏！", "游戏胜利", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            EndGame();
+            var result = MessageBox.Show("恭喜你，赢得了游戏！\n绿色格子表示正确标记的地雷\n\n是否再来一局？", "游戏胜利", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
 
-            // 返回菜单面板
-            ShowPanel(menuPanel);
+            if (result == DialogResult.Yes)
+            {
+                // 如果用户选择再来一局, 则重新开始游戏
+                RestartGame();
+            }
+            else
+            {
+                // 否则结束游戏并返回菜单面板
+                EndGame();
+                ShowPanel(menuPanel);
+            }
         }
 
         /// <summary>
@@ -188,12 +230,20 @@ namespace MineClearance
             // 停止计时器
             StopGameTimer();
 
-            // 弹出游戏失败提示
-            MessageBox.Show("很遗憾，你踩到了地雷！\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n黄色格子表示错误标记的地雷", "游戏失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            EndGame();
+            // 弹出游戏失败提示，增加“再来一局”按钮
+            var result = MessageBox.Show("很遗憾，你踩到了地雷！\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n黄色格子表示错误标记的地雷\n\n是否再来一局？", "游戏失败", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
 
-            // 返回菜单面板
-            ShowPanel(menuPanel);
+            if (result == DialogResult.Yes)
+            {
+                // 如果用户选择再来一局, 则重新开始游戏
+                RestartGame();
+            }
+            else
+            {
+                // 否则结束游戏并返回菜单面板
+                EndGame();
+                ShowPanel(menuPanel);
+            }
         }
 
         /// <summary>

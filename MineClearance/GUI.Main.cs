@@ -77,6 +77,10 @@ namespace MineClearance
             string log = $"[{DateTime.Now}] {ex}\n";
             try
             {
+                if (!Directory.Exists(Constants.DataPath))
+                {
+                    Directory.CreateDirectory(Constants.DataPath);
+                }
                 await File.AppendAllTextAsync(Constants.ErrorFilePath, log);
             }
             catch { /* 忽略日志写入异常 */ }
