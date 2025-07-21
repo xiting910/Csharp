@@ -1,6 +1,22 @@
 namespace MineClearance
 {
     /// <summary>
+    /// 自定义双缓冲面板
+    /// </summary>
+    public class DoubleBufferedPanel : Panel
+    {
+        /// <summary>
+        /// 构造函数, 初始化双缓冲面板
+        /// </summary>
+        public DoubleBufferedPanel()
+        {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            UpdateStyles();
+        }
+    }
+
+    /// <summary>
     /// 提供下载进度的窗体
     /// </summary>
     public class DownloadProgressForm : Form

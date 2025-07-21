@@ -84,14 +84,14 @@ namespace Maze
         /// </summary>
         /// <param name="sender">发送者</param>
         /// <param name="e">线程异常事件参数</param>
-        public static void OnThreadException(object sender, ThreadExceptionEventArgs e)
+        public static async void OnThreadException(object sender, ThreadExceptionEventArgs e)
         {
             // 记录异常到日志文件并弹窗提示错误信息
             var logTask = LogException(e.Exception);
             MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             // 确认日志写入完成后退出应用程序
-            logTask.GetAwaiter().GetResult();
+            await logTask;
             Application.Exit();
         }
 
@@ -100,7 +100,7 @@ namespace Maze
         /// </summary>
         /// <param name="sender">发送者</param>
         /// <param name="e">应用程序域异常事件参数</param>
-        public static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        public static async void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // 记录异常到日志文件并弹窗提示错误信息
             Task logTask;
@@ -116,7 +116,7 @@ namespace Maze
             }
 
             // 确认日志写入完成后退出应用程序
-            logTask.GetAwaiter().GetResult();
+            await logTask;
             Application.Exit();
         }
 

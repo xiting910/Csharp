@@ -25,7 +25,7 @@ namespace MineClearance
         /// <summary>
         /// 游戏区域面板, 显示游戏格子
         /// </summary>
-        private Panel? gameAreaPanel;
+        private DoubleBufferedPanel? gameAreaPanel;
         /// <summary>
         /// 剩余地雷数标签
         /// </summary>

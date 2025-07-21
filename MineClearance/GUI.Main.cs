@@ -62,8 +62,8 @@ namespace MineClearance
 
             // 程序启动时检查更新
             isHandlingUpdateEvent = true;
-            AutoUpdater.RunUpdateAsAdmin = false;
             AutoUpdater.Mandatory = true;
+            AutoUpdater.RunUpdateAsAdmin = false;
             AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
             AutoUpdater.Start(Constants.AutoUpdateUrl);
         }
@@ -91,7 +91,7 @@ namespace MineClearance
         /// </summary>
         /// <param name="sender">事件发送者</param>
         /// <param name="e">线程异常事件参数</param>
-        private void OnThreadException(object sender, ThreadExceptionEventArgs e)
+        private async void OnThreadException(object sender, ThreadExceptionEventArgs e)
         {
             // 取消下载
             Methods.CTS.Cancel();
@@ -104,7 +104,7 @@ namespace MineClearance
             MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             // 确认日志写入完成后退出应用程序
-            logTask.GetAwaiter().GetResult();
+            await logTask;
             Application.Exit();
         }
 
@@ -113,7 +113,7 @@ namespace MineClearance
         /// </summary>
         /// <param name="sender">事件发送者</param>
         /// <param name="e">未处理异常事件参数</param>
-        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private async void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             // 取消下载
             Methods.CTS.Cancel();
@@ -135,7 +135,7 @@ namespace MineClearance
             }
 
             // 确认日志写入完成后退出应用程序
-            logTask.GetAwaiter().GetResult();
+            await logTask;
             Application.Exit();
         }
 
@@ -144,7 +144,7 @@ namespace MineClearance
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void GUI_FormClosing(object? sender, FormClosingEventArgs e)
+        private async void GUI_FormClosing(object? sender, FormClosingEventArgs e)
         {
             // 如果正在处理更新事件, 向用户确认是否要强制关闭
             if (isHandlingUpdateEvent)
@@ -169,10 +169,10 @@ namespace MineClearance
                 while (isHandlingUpdateEvent)
                 {
                     Application.DoEvents();
-
-                    // 适当Sleep减少CPU占用
-                    Thread.Sleep(50);
+                    await Task.Delay(100);
                 }
+
+                // 关闭等待提示窗口
                 waitingForm.Close();
             }
 
@@ -190,7 +190,7 @@ namespace MineClearance
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"删除更新文件失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"删除残留的更新文件失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
 
