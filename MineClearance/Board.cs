@@ -1,7 +1,7 @@
 namespace MineClearance;
 
 /// <summary>
-/// 表示扫雷游戏
+/// 表示扫雷游戏的场地
 /// </summary>
 public class Board
 {
@@ -51,9 +51,9 @@ public class Board
     public readonly Mines Mines;
 
     /// <summary>
-    /// 未打开格子的数量
+    /// 未打开的非地雷格子数量
     /// </summary>
-    private int _unopenedCount;
+    private int _unopenedSafeCount;
 
     /// <summary>
     /// 剩余地雷数量
@@ -61,17 +61,12 @@ public class Board
     private int _remainingMines;
 
     /// <summary>
-    /// 错误标记地雷的数量
-    /// </summary>
-    private int _wrongFlagCount;
-
-    /// <summary>
     /// 是否是第一次点击
     /// </summary>
     private bool _isFirstClick;
 
     /// <summary>
-    /// 创建一个新的游戏实例
+    /// 构造函数, 创建一个新的游戏场地实例
     /// </summary>
     /// <param name="height">游戏高度</param>
     /// <param name="width">游戏宽度</param>
@@ -90,10 +85,29 @@ public class Board
             }
         }
 
-        _unopenedCount = height * width;
+        _unopenedSafeCount = height * width - mineCount;
         _remainingMines = mineCount;
-        _wrongFlagCount = 0;
         _isFirstClick = true;
+    }
+
+    /// <summary>
+    /// 获取正确标记地雷的数量
+    /// </summary>
+    /// <returns>正确标记地雷的数量</returns>
+    public int GetCorrectFlagCount()
+    {
+        int correctFlagCount = 0;
+        for (int row = 0; row < Height; row++)
+        {
+            for (int column = 0; column < Width; column++)
+            {
+                if (Grids[row, column].Type == GridType.Flagged && Mines.MineGrid[row, column] == -1)
+                {
+                    correctFlagCount++;
+                }
+            }
+        }
+        return correctFlagCount;
     }
 
     /// <summary>
@@ -125,14 +139,15 @@ public class Board
             return;
         }
 
+        // 如果不是第一次点击且是右键点击, 则插旗或取消插旗
         if (isRightClick)
         {
             ToggleFlag(position);
+            return;
         }
-        else
-        {
-            OpenGrid(position);
-        }
+
+        // 如果不是第一次点击且不是右键点击, 则打开格子
+        OpenGrid(position);
 
         // 检查是否胜利
         CheckWin();
@@ -160,7 +175,7 @@ public class Board
 
         // 如果点击的格子不是地雷
         int surroundingMines = Mines.MineGrid[position.Row, position.Col];
-        --_unopenedCount;
+        --_unopenedSafeCount;
 
         // 如果周围地雷数量为0, 则打开周围格子
         if (surroundingMines == 0)
@@ -197,28 +212,16 @@ public class Board
             // 插旗
             Grids[position.Row, position.Col].Type = GridType.Flagged;
             GridChanged?.Invoke(new(position.Row, position.Col));
-            _unopenedCount--;
             _remainingMines--;
             RemainingMinesChanged?.Invoke(_remainingMines);
-            if (Mines.MineGrid[position.Row, position.Col] != -1)
-            {
-                // 错误标记地雷
-                _wrongFlagCount++;
-            }
         }
         else if (Grids[position.Row, position.Col].Type == GridType.Flagged)
         {
             // 取消插旗
             Grids[position.Row, position.Col].Type = GridType.Unopened;
             GridChanged?.Invoke(new(position.Row, position.Col));
-            _unopenedCount++;
             _remainingMines++;
             RemainingMinesChanged?.Invoke(_remainingMines);
-            if (Mines.MineGrid[position.Row, position.Col] != -1)
-            {
-                // 取消错误标记地雷
-                _wrongFlagCount--;
-            }
         }
     }
 
@@ -227,30 +230,10 @@ public class Board
     /// </summary>
     private void CheckWin()
     {
-        // 未打开格子的数量等于0, 剩余地雷数量也等于0, 且错误标记地雷数量也等于0
-        if (_unopenedCount == 0 && _remainingMines == 0 && _wrongFlagCount == 0)
+        // 未打开的安全格子数量等于0
+        if (_unopenedSafeCount == 0)
         {
             Won?.Invoke();
         }
-    }
-
-    /// <summary>
-    /// 获取正确标记地雷的数量
-    /// </summary>
-    /// <returns>正确标记地雷的数量</returns>
-    public int GetCorrectFlagCount()
-    {
-        int correctFlagCount = 0;
-        for (int row = 0; row < Height; row++)
-        {
-            for (int column = 0; column < Width; column++)
-            {
-                if (Grids[row, column].Type == GridType.Flagged && Mines.MineGrid[row, column] == -1)
-                {
-                    correctFlagCount++;
-                }
-            }
-        }
-        return correctFlagCount;
     }
 }

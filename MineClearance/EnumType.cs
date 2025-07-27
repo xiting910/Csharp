@@ -84,6 +84,42 @@ public enum PanelType
 }
 
 /// <summary>
+/// 底部状态栏状态
+/// </summary>
+public enum StatusBarState
+{
+    /// <summary>
+    /// 就绪
+    /// </summary>
+    Ready,
+
+    /// <summary>
+    /// 排行榜
+    /// </summary>
+    Ranking,
+
+    /// <summary>
+    /// 准备游戏
+    /// </summary>
+    Preparing,
+
+    /// <summary>
+    /// 游戏进行中
+    /// </summary>
+    InGame,
+
+    /// <summary>
+    /// 游戏胜利
+    /// </summary>
+    GameWon,
+
+    /// <summary>
+    /// 游戏失败
+    /// </summary>
+    GameLost
+}
+
+/// <summary>
 /// 排行榜显示模式
 /// </summary>
 public enum RankingDisplayMode

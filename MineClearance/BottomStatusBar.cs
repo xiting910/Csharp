@@ -94,9 +94,18 @@ public class BottomStatusBar : StatusStrip
     /// <summary>
     /// 设置左侧状态文本
     /// </summary>
-    /// <param name="status">状态文本</param>
-    public void SetStatus(string status)
+    /// <param name="status">状态</param>
+    public void SetStatus(StatusBarState status)
     {
-        _statusLabel.Text = status;
+        _statusLabel.Text = status switch
+        {
+            StatusBarState.Ready => "状态: 就绪",
+            StatusBarState.Ranking => "状态: 排行榜",
+            StatusBarState.Preparing => "状态: 准备游戏",
+            StatusBarState.InGame => "状态: 游戏进行中",
+            StatusBarState.GameWon => "状态: 游戏胜利",
+            StatusBarState.GameLost => "状态: 游戏失败",
+            _ => "状态: 未知"
+        };
     }
 }

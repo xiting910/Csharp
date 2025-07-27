@@ -18,7 +18,7 @@ public class Game
     /// <summary>
     /// 游戏难度
     /// </summary>
-    public DifficultyLevel Difficulty { get; set; }
+    public DifficultyLevel Difficulty { get; private set; }
 
     /// <summary>
     /// 游戏的开始时间(首次点击时间)
@@ -28,12 +28,12 @@ public class Game
     /// <summary>
     /// 地雷总数
     /// </summary>
-    public int TotalMines { get; set; }
+    public int TotalMines { get; private set; }
 
     /// <summary>
     /// 游戏棋盘
     /// </summary>
-    public Board Board { get; set; }
+    public Board Board { get; private set; }
 
     /// <summary>
     /// 构造非自定义难度的扫雷游戏
@@ -85,7 +85,7 @@ public class Game
         // 监听棋盘的第一次点击事件
         Board.FirstClick += () =>
         {
-            StartTime = DateTime.Now; // 记录开始时间
+            StartTime = DateTime.Now;
         };
 
         // 监听棋盘的打开地雷事件, 触发时计算游戏结果, 并触发 GameLost 事件
@@ -109,7 +109,8 @@ public class Game
                 completion * 100.0,
                 Board.Width,
                 Board.Height,
-                TotalMines));
+                TotalMines)
+            );
         };
 
         // 监听棋盘的胜利事件, 触发时计算游戏结果, 并触发 GameWon 事件

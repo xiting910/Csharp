@@ -58,11 +58,6 @@ public partial class MainForm : Form
     private readonly BottomStatusBar _bottomStatusBar;
 
     /// <summary>
-    /// 游戏实例
-    /// </summary>
-    public Game? GameInstance { get; set; }
-
-    /// <summary>
     /// 初始化主窗体
     /// </summary>
     public MainForm()
@@ -89,6 +84,9 @@ public partial class MainForm : Form
         _gamePreparePanel = new(this, _gamePanel);
         _bottomStatusBar = new(Constants.AuthorName, Constants.GitHubRepoUrl);
         Controls.Add(_bottomStatusBar);
+
+        // 订阅底部状态栏状态改变事件
+        _gamePanel.StatusBarStateChanged += _bottomStatusBar.SetStatus;
 
         // 显示菜单面板
         ShowPanel(PanelType.Menu);
@@ -118,20 +116,19 @@ public partial class MainForm : Form
         {
             case PanelType.Menu:
                 if (_menuPanel != null) _menuPanel.Visible = true;
-                _bottomStatusBar.SetStatus("状态: 就绪");
+                _bottomStatusBar.SetStatus(StatusBarState.Ready);
                 break;
             case PanelType.GamePrepare:
                 if (_gamePreparePanel != null) _gamePreparePanel.Visible = true;
-                _bottomStatusBar.SetStatus("状态: 准备游戏");
+                _bottomStatusBar.SetStatus(StatusBarState.Preparing);
                 break;
             case PanelType.Game:
                 if (_gamePanel != null) _gamePanel.Visible = true;
-                _bottomStatusBar.SetStatus("状态: 游戏进行中");
                 break;
             case PanelType.Ranking:
                 _rankingPanel?.RestartRankingPanel();
                 if (_rankingPanel != null) _rankingPanel.Visible = true;
-                _bottomStatusBar.SetStatus("状态: 排行榜");
+                _bottomStatusBar.SetStatus(StatusBarState.Ranking);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(targetPanel), targetPanel, null);
@@ -164,10 +161,10 @@ public partial class MainForm : Form
             using var waitingForm = new WaitingForm();
             waitingForm.Show();
 
-            // 等待处理更新事件完成
-            while (Methods.IsHandlingUpdateEvent)
+            // 等待处理更新事件完成时间
+            var waitUntil = DateTime.Now.AddSeconds(10);
+            while (Methods.IsHandlingUpdateEvent && DateTime.Now < waitUntil)
             {
-                Application.DoEvents();
                 await Task.Delay(100);
             }
 

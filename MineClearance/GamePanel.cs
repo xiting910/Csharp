@@ -6,9 +6,9 @@ namespace MineClearance;
 public partial class GamePanel : Panel
 {
     /// <summary>
-    /// 返回菜单事件
+    /// 底部状态栏状态改变事件
     /// </summary>
-    private event Action? BackToMenu;
+    public event Action<StatusBarState>? StatusBarStateChanged;
 
     /// <summary>
     /// 游戏顶部信息栏
@@ -41,14 +41,19 @@ public partial class GamePanel : Panel
     private Game? _gameInstance;
 
     /// <summary>
+    /// 游戏是否胜利
+    /// </summary>
+    private bool _isGameWon;
+
+    /// <summary>
+    /// 游戏是否失败
+    /// </summary>
+    private bool _isGameLost;
+
+    /// <summary>
     /// 鼠标按下状态
     /// </summary>
     private bool _isMouseDown;
-
-    /// <summary>
-    /// 游戏是否结束
-    /// </summary>
-    private bool _isGameOver;
 
     /// <summary>
     /// 鼠标按下的按钮类型
@@ -77,15 +82,6 @@ public partial class GamePanel : Panel
             Interval = 10
         };
         _gameTimer.Tick += GameTimer_Tick;
-
-        // 设置面板的返回菜单事件
-        BackToMenu += () =>
-        {
-            // 结束当前游戏并返回菜单
-            _gameTimer.Stop();
-            EndGame();
-            mainForm.ShowPanel(PanelType.Menu);
-        };
 
         // 初始化鼠标状态
         _isMouseDown = false;
@@ -125,8 +121,10 @@ public partial class GamePanel : Panel
         };
         btnBackMenu.Click += (sender, e) =>
         {
-            // 触发返回菜单事件
-            BackToMenu?.Invoke();
+            // 结束当前游戏并返回菜单
+            _gameTimer.Stop();
+            EndGame();
+            mainForm.ShowPanel(PanelType.Menu);
         };
 
         // 添加重新开始按钮
@@ -202,6 +200,9 @@ public partial class GamePanel : Panel
     /// <param name="game">游戏实例</param>
     public void StartGame(Game game)
     {
+        // 触发底部状态栏状态改变事件
+        StatusBarStateChanged?.Invoke(StatusBarState.InGame);
+
         // 当前鼠标状态重置
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
@@ -209,7 +210,8 @@ public partial class GamePanel : Panel
 
         // 设置游戏实例
         _gameInstance = game;
-        _isGameOver = false;
+        _isGameWon = false;
+        _isGameLost = false;
 
         // 运行游戏实例
         _gameInstance.Run();
@@ -327,6 +329,12 @@ public partial class GamePanel : Panel
     /// </summary>
     private void GameAreaMouseDown(object? sender, MouseEventArgs e)
     {
+        // 如果游戏已经结束, 不做任何处理
+        if (_isGameWon || _isGameLost)
+        {
+            return;
+        }
+
         // 设置鼠标按下状态
         _isMouseDown = true;
         _mouseButton = e.Button;
@@ -360,6 +368,12 @@ public partial class GamePanel : Panel
     /// </summary>
     private void GameAreaMouseMove(object? sender, MouseEventArgs e)
     {
+        // 如果游戏已经结束, 不做任何处理
+        if (_isGameWon || _isGameLost)
+        {
+            return;
+        }
+
         if (sender is DoubleBufferedPanel)
         {
             // 获取鼠标位置对应的格子坐标
@@ -468,9 +482,13 @@ public partial class GamePanel : Panel
                 fillColor = Color.White;
                 break;
             case GridType.Unopened:
-                if (_isGameOver && isRealMine)
+                if (_isGameLost && isRealMine)
                 {
                     fillColor = Color.Red;
+                }
+                else if (_isGameWon && isRealMine)
+                {
+                    fillColor = Color.Green;
                 }
                 else
                 {
@@ -478,7 +496,7 @@ public partial class GamePanel : Panel
                 }
                 break;
             case GridType.Flagged:
-                if (_isGameOver)
+                if (_isGameLost || _isGameWon)
                 {
                     fillColor = isRealMine ? Color.Green : Color.Yellow;
                 }
@@ -536,8 +554,27 @@ public partial class GamePanel : Panel
     /// <param name="gameResult">游戏结果</param>
     private void OnGameWon(GameResult gameResult)
     {
-        // 游戏结束
-        _isGameOver = true;
+        // 触发底部状态栏状态改变事件
+        StatusBarStateChanged?.Invoke(StatusBarState.GameWon);
+
+        // 游戏胜利
+        _isGameWon = true;
+
+        // 显示所有地雷位置
+        for (var row = 0; row < _gameInstance?.Board.Height; ++row)
+        {
+            for (var col = 0; col < _gameInstance?.Board.Width; ++col)
+            {
+                var realMine = _gameInstance.Board.Mines.MineGrid[row, col] == -1;
+                if (realMine)
+                {
+                    _gameAreaPanel.Invalidate(new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+                }
+            }
+        }
+
+        // 显示剩余地雷数量为0
+        _minesLeftLabel.Text = "剩余地雷: 0";
 
         // 保存游戏结果
         Task.Run(() => Datas.AddGameResultAsync(gameResult));
@@ -546,17 +583,12 @@ public partial class GamePanel : Panel
         _gameTimer.Stop();
 
         // 弹出游戏胜利提示, 并询问是否再来一局
-        var result = MessageBox.Show("恭喜你，赢得了游戏！\n绿色格子表示正确标记的地雷\n\n是否再来一局?", "游戏胜利", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+        var result = MessageBox.Show("恭喜你，赢得了游戏！\n绿色格子表示地雷\n是否再来一局?", "游戏胜利", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
 
         if (result == DialogResult.Yes)
         {
             // 重新开始游戏
             RestartGame();
-        }
-        else
-        {
-            // 返回主菜单
-            BackToMenu?.Invoke();
         }
     }
 
@@ -566,13 +598,16 @@ public partial class GamePanel : Panel
     /// <param name="gameResult">游戏结果</param>
     private void OnGameLost(GameResult gameResult)
     {
-        // 游戏结束
-        _isGameOver = true;
+        // 触发底部状态栏状态改变事件
+        StatusBarStateChanged?.Invoke(StatusBarState.GameLost);
+
+        // 游戏失败
+        _isGameLost = true;
 
         // 显示所有地雷位置
-        for (int row = 0; row < _gameInstance?.Board.Height; ++row)
+        for (var row = 0; row < _gameInstance?.Board.Height; ++row)
         {
-            for (int col = 0; col < _gameInstance?.Board.Width; ++col)
+            for (var col = 0; col < _gameInstance?.Board.Width; ++col)
             {
                 var grid = _gameInstance.Board.Grids[row, col];
                 var realMine = _gameInstance.Board.Mines.MineGrid[row, col] == -1;
@@ -590,17 +625,12 @@ public partial class GamePanel : Panel
         _gameTimer.Stop();
 
         // 弹出游戏失败提示, 并询问是否再来一局
-        var result = MessageBox.Show("很遗憾，你踩到了地雷！\n深红色格子表示踩到的地雷\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n黄色格子表示错误标记的地雷\n\n是否再来一局?", "游戏失败", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
+        var result = MessageBox.Show("很遗憾，你踩到了地雷！\n深红色格子表示踩到的地雷\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n黄色格子表示错误标记的地雷\n是否再来一局?", "游戏失败", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
 
         if (result == DialogResult.Yes)
         {
             // 重新开始游戏
             RestartGame();
-        }
-        else
-        {
-            // 返回主菜单
-            BackToMenu?.Invoke();
         }
     }
 
