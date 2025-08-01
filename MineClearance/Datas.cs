@@ -3,6 +3,33 @@ using System.Text.Json;
 namespace MineClearance;
 
 /// <summary>
+/// 带有版本号和最后更新时间的数据类.
+/// 旧版本只有游戏结果列表, 且自定义难度的Difficulty为3, 称为版本0.
+/// 版本1开始引入了GameData类, 包含了最后更新时间和版本号, 同时增加满屏难度, 满屏难度的Difficulty为3, 自定义难度的Difficulty变为4.
+/// </summary>
+/// <param name="lastUpdate">最后更新时间</param>
+/// <param name="gameResults">游戏结果列表</param>
+/// <param name="version">数据版本</param>
+public class GameData(DateTime lastUpdate, List<GameResult> gameResults, int version = 0)
+{
+    /// <summary>
+    /// 数据版本
+    /// </summary>
+    public int Version { get; set; } = version;
+
+    /// <summary>
+    /// 最后更新时间
+    /// </summary>
+    public DateTime LastUpdate { get; set; } = lastUpdate;
+
+
+    /// <summary>
+    /// 游戏结果列表
+    /// </summary>
+    public List<GameResult> GameResults { get; set; } = gameResults;
+}
+
+/// <summary>
 /// 数据类, 记录和控制所有历史游戏数据
 /// </summary>
 public static class Datas
@@ -46,14 +73,47 @@ public static class Datas
             }
 
             // 读取数据文件内容
-            string json = File.ReadAllText(Constants.DataFilePath);
+            var json = File.ReadAllText(Constants.DataFilePath);
             if (!string.IsNullOrWhiteSpace(json))
             {
-                var gameResults = JsonSerializer.Deserialize<List<GameResult>>(json, _jsonOptions);
-
-                if (gameResults != null)
+                try
                 {
+                    // 尝试反序列化为 GameData 对象
+                    var gameData = JsonSerializer.Deserialize<GameData>(json, _jsonOptions);
+                    if (gameData != null)
+                    {
+                        // 更新游戏结果列表
+                        _gameResults.AddRange(gameData.GameResults);
+                    }
+                }
+                catch (JsonException)
+                {
+                    // 如果反序列化为 GameData 对象失败, 可能是旧版本数据格式, 直接处理为 GameResult 列表
+                    var gameResults = JsonSerializer.Deserialize<List<GameResult>>(json, _jsonOptions);
+
+                    // 将所有"满屏"难度的游戏结果转换为"自定义"难度
+                    gameResults = gameResults?.Select(result =>
+                    {
+                        if (result.Difficulty == DifficultyLevel.FullScreen)
+                        {
+                            return new GameResult(
+                                DifficultyLevel.Custom,
+                                result.StartTime,
+                                result.Duration,
+                                result.IsWin,
+                                result.Completion,
+                                result.BoardWidth,
+                                result.BoardHeight,
+                                result.MineCount);
+                        }
+                        return result;
+                    }).ToList() ?? [];
+
+                    // 更新游戏结果列表
                     _gameResults.AddRange(gameResults);
+
+                    // 保存转换后的数据
+                    SaveGameResultsAsync().Wait();
                 }
             }
             else
@@ -76,8 +136,11 @@ public static class Datas
     {
         try
         {
-            // 将游戏结果序列化为 JSON 字符串
-            string json = JsonSerializer.Serialize(_gameResults, _jsonOptions);
+            // 要保存的数据
+            var data = new GameData(DateTime.Now, _gameResults, 1);
+
+            // 将数据序列化为 JSON 字符串
+            var json = JsonSerializer.Serialize(data, _jsonOptions);
 
             // 异步写入数据文件
             await File.WriteAllTextAsync(Constants.DataFilePath, json);

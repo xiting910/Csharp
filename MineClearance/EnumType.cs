@@ -52,6 +52,11 @@ public enum DifficultyLevel
     Hard,
 
     /// <summary>
+    /// 满屏
+    /// </summary>
+    FullScreen,
+
+    /// <summary>
     /// 自定义
     /// </summary>
     Custom

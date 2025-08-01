@@ -41,6 +41,11 @@ public partial class GamePanel : Panel
     private Game? _gameInstance;
 
     /// <summary>
+    /// 游戏左上角格子的位置
+    /// </summary>
+    private Position _gameStartPosition;
+
+    /// <summary>
     /// 游戏是否胜利
     /// </summary>
     private bool _isGameWon;
@@ -61,7 +66,7 @@ public partial class GamePanel : Panel
     private MouseButtons _mouseButton;
 
     /// <summary>
-    /// 鼠标当前所在的格子位置
+    /// 鼠标当前所在的游戏格子位置
     /// </summary>
     private Position _mouseGridPosition;
 
@@ -87,6 +92,9 @@ public partial class GamePanel : Panel
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
         _mouseGridPosition = new(-1, -1);
+
+        // 设置游戏左上角格子位置
+        _gameStartPosition = new(0, 0);
 
         // 信息面板高度
         var infoPanelHeight = 95;
@@ -123,20 +131,34 @@ public partial class GamePanel : Panel
         // 添加提示信息
         Label hintLabel = new()
         {
-            Text = "提示: 左键打开格子, 右键标记地雷（在打开一个格子之前无效）, 灰色格子为未打开, 绿色格子表示插旗",
-            Location = new(500, labelY),
+            Text = "提示: 左键打开格子, 右键标记地雷（在打开一个格子之前无效）, 支持按住鼠标滑动操作多个格子, 灰色格子为未打开, 绿色格子表示插旗\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子\n右键点击数字格子时, 如果周围周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子",
+            Location = new(500, 0),
             AutoSize = true
         };
 
         // 按钮Y轴位置
         var buttonY = 25;
 
+        // 添加显示/隐藏提示按钮
+        Button btnToggleHint = new()
+        {
+            Text = "显示/隐藏提示",
+            BackColor = Color.YellowGreen,
+            Location = new(Constants.MainFormWidth - 540, buttonY),
+            FlatStyle = FlatStyle.Flat,
+            AutoSize = true
+        };
+        btnToggleHint.Click += (sender, e) =>
+        {
+            hintLabel.Visible = !hintLabel.Visible;
+        };
+
         // 添加重新开始按钮
         Button btnRestart = new()
         {
             Text = "重新开始",
             BackColor = Color.Yellow,
-            Location = new(Constants.MainFormWidth - 400, buttonY),
+            Location = new(Constants.MainFormWidth - 330, buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -147,7 +169,7 @@ public partial class GamePanel : Panel
         {
             Text = "返回菜单",
             BackColor = Color.LightCoral,
-            Location = new(Constants.MainFormWidth - 200, buttonY),
+            Location = new(Constants.MainFormWidth - 180, buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -163,6 +185,7 @@ public partial class GamePanel : Panel
         _infoPanel.Controls.Add(_minesLeftLabel);
         _infoPanel.Controls.Add(_gameTimeLabel);
         _infoPanel.Controls.Add(hintLabel);
+        _infoPanel.Controls.Add(btnToggleHint);
         _infoPanel.Controls.Add(btnRestart);
         _infoPanel.Controls.Add(btnBackMenu);
 
@@ -188,9 +211,9 @@ public partial class GamePanel : Panel
         {
             // 获取当前绘图区域
             var clip = e.ClipRectangle;
-            var rowStart = Math.Max(0, clip.Top / Constants.GridSize);
+            var rowStart = clip.Top / Constants.GridSize;
             var rowEnd = clip.Bottom / Constants.GridSize;
-            var colStart = Math.Max(0, clip.Left / Constants.GridSize);
+            var colStart = clip.Left / Constants.GridSize;
             var colEnd = clip.Right / Constants.GridSize;
 
             // 遍历指定区域的格子并绘制
@@ -227,6 +250,10 @@ public partial class GamePanel : Panel
         _gameInstance = game;
         _isGameWon = false;
         _isGameLost = false;
+
+        // 设置游戏左上角格子位置, 使游戏能在面板居中显示
+        var colOffset = (Constants.MaxBoardWidth - _gameInstance.Board.Width) / 2;
+        _gameStartPosition = new(0, colOffset);
 
         // 运行游戏实例
         _gameInstance.Run();
@@ -281,10 +308,10 @@ public partial class GamePanel : Panel
         }
 
         // 获取当前游戏难度、高度、宽度和地雷数
-        DifficultyLevel difficulty = _gameInstance.Difficulty;
-        int width = _gameInstance.Board.Width;
-        int height = _gameInstance.Board.Height;
-        int mineCount = _gameInstance.TotalMines;
+        var difficulty = _gameInstance.Difficulty;
+        var width = _gameInstance.Board.Width;
+        var height = _gameInstance.Board.Height;
+        var mineCount = _gameInstance.TotalMines;
 
         // 结束当前游戏
         _gameTimer.Stop();
@@ -369,11 +396,11 @@ public partial class GamePanel : Panel
             // 如果鼠标位置在格子上, 触发相应的左键或右键操作
             if (_mouseButton == MouseButtons.Left)
             {
-                _gameInstance?.Board.OnGridClick(pos, false);
+                _gameInstance?.Board.OnLeftClick(pos);
             }
             else if (_mouseButton == MouseButtons.Right)
             {
-                _gameInstance?.Board.OnGridClick(pos, true);
+                _gameInstance?.Board.OnRightClick(pos);
             }
         }
     }
@@ -409,7 +436,12 @@ public partial class GamePanel : Panel
             // 如果先前鼠标格子位置不为(-1,-1), 则重绘先前格子
             if (prevPos != new Position(-1, -1))
             {
-                _gameAreaPanel.Invalidate(new Rectangle(prevPos.Col * Constants.GridSize, prevPos.Row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+                // 获取先前格子行列坐标
+                var prevRow = prevPos.Row + _gameStartPosition.Row;
+                var prevCol = prevPos.Col + _gameStartPosition.Col;
+
+                // 重绘先前格子
+                _gameAreaPanel.Invalidate(new Rectangle(prevCol * Constants.GridSize, prevRow * Constants.GridSize, Constants.GridSize, Constants.GridSize));
             }
 
             // 如果pos为(-1,-1), 则返回
@@ -421,18 +453,22 @@ public partial class GamePanel : Panel
             // 如果鼠标按下且鼠标按钮为右键, 则标记地雷
             if (_isMouseDown && _mouseButton == MouseButtons.Right)
             {
-                _gameInstance?.Board.OnGridClick(pos, true);
+                _gameInstance?.Board.OnRightClick(pos);
             }
             // 如果鼠标按下且鼠标按钮为左键, 则打开格子
             else if (_isMouseDown && _mouseButton == MouseButtons.Left)
             {
-                _gameInstance?.Board.OnGridClick(pos, false);
+                _gameInstance?.Board.OnLeftClick(pos);
             }
             // 如果鼠标未按下, 则聚焦
             else if (!_isMouseDown)
             {
+                // 获取当前格子行列坐标
+                var currRow = _mouseGridPosition.Row + _gameStartPosition.Row;
+                var currCol = _mouseGridPosition.Col + _gameStartPosition.Col;
+
                 // 重绘当前鼠标格子
-                _gameAreaPanel.Invalidate(new Rectangle(_mouseGridPosition.Col * Constants.GridSize, _mouseGridPosition.Row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+                _gameAreaPanel.Invalidate(new Rectangle(currCol * Constants.GridSize, currRow * Constants.GridSize, Constants.GridSize, Constants.GridSize));
             }
         }
     }
@@ -448,15 +484,15 @@ public partial class GamePanel : Panel
     }
 
     /// <summary>
-    /// 根据鼠标当前位置返回所在的格子位置
+    /// 根据鼠标当前位置返回所在的游戏格子位置
     /// </summary>
     /// <param name="mousePosition">鼠标位置</param>
     /// <returns>对应的格子位置, 如果不在任何格子上则返回(-1,-1)</returns>
     private Position GetGridPositionAtMousePosition(Point mousePosition)
     {
-        // 计算鼠标位置对应的格子行列
-        var col = mousePosition.X / Constants.GridSize;
-        var row = mousePosition.Y / Constants.GridSize;
+        // 计算鼠标位置对应的游戏格子行列
+        var col = mousePosition.X / Constants.GridSize - _gameStartPosition.Col;
+        var row = mousePosition.Y / Constants.GridSize - _gameStartPosition.Row;
 
         if (row >= 0 && row < _gameInstance?.Board.Height && col >= 0 && col < _gameInstance?.Board.Width)
         {
@@ -476,22 +512,26 @@ public partial class GamePanel : Panel
     /// <param name="col">列索引</param>
     private void DrawGrid(Graphics g, int row, int col)
     {
+        // 获取格子矩形区域
+        var rect = new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize);
+
+        // 获取游戏的行列坐标
+        var gameRow = row - _gameStartPosition.Row;
+        var gameCol = col - _gameStartPosition.Col;
+
         // 如果游戏实例为空或行列索引无效, 不绘制
-        if (_gameInstance == null || row < 0 || col < 0 || row >= _gameInstance.Board.Height || col >= _gameInstance.Board.Width)
+        if (_gameInstance == null || gameRow < 0 || gameCol < 0 || gameRow >= _gameInstance.Board.Height || gameCol >= _gameInstance.Board.Width)
         {
             return;
         }
 
         // 当前格子是否真的是地雷格子
-        var isRealMine = _gameInstance.Board.Mines.MineGrid[row, col] == -1;
-
-        // 获取格子矩形区域
-        var rect = new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize);
+        var isRealMine = _gameInstance.Board.Mines.MineGrid[gameRow, gameCol] == -1;
 
         // 根据格子类型选择颜色和文本
         var fillColor = Color.LightGray;
         var text = "";
-        switch (_gameInstance.Board.Grids[row, col].Type)
+        switch (_gameInstance.Board.Grids[gameRow, gameCol].Type)
         {
             case GridType.Empty:
                 fillColor = Color.White;
@@ -507,7 +547,7 @@ public partial class GamePanel : Panel
                 }
                 else
                 {
-                    fillColor = _mouseGridPosition == new Position(row, col) ? Color.Gray : Color.LightGray;
+                    fillColor = _mouseGridPosition == new Position(gameRow, gameCol) ? Color.Gray : Color.LightGray;
                 }
                 break;
             case GridType.Flagged:
@@ -517,12 +557,12 @@ public partial class GamePanel : Panel
                 }
                 else
                 {
-                    fillColor = _mouseGridPosition == new Position(row, col) ? Color.DarkGreen : Color.Green;
+                    fillColor = _mouseGridPosition == new Position(gameRow, gameCol) ? Color.DarkGreen : Color.Green;
                 }
                 break;
             case GridType.Number:
                 fillColor = Color.White;
-                text = _gameInstance.Board.Grids[row, col].SurroundingMines.ToString();
+                text = _gameInstance.Board.Grids[gameRow, gameCol].SurroundingMines.ToString();
                 break;
             case GridType.Mine:
                 fillColor = Color.DarkRed;
@@ -575,21 +615,11 @@ public partial class GamePanel : Panel
         // 游戏胜利
         _isGameWon = true;
 
-        // 显示所有地雷位置
-        for (var row = 0; row < _gameInstance?.Board.Height; ++row)
-        {
-            for (var col = 0; col < _gameInstance?.Board.Width; ++col)
-            {
-                var realMine = _gameInstance.Board.Mines.MineGrid[row, col] == -1;
-                if (realMine)
-                {
-                    _gameAreaPanel.Invalidate(new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
-                }
-            }
-        }
+        // 重绘游戏区域面板
+        _gameAreaPanel.Invalidate();
 
         // 显示剩余地雷数量为0
-        _minesLeftLabel.Text = "剩余地雷: 0";
+        _minesLeftLabel.Text = "剩余地雷数: 0";
 
         // 保存游戏结果
         Task.Run(() => Datas.AddGameResultAsync(gameResult));
@@ -619,19 +649,8 @@ public partial class GamePanel : Panel
         // 游戏失败
         _isGameLost = true;
 
-        // 显示所有地雷位置
-        for (var row = 0; row < _gameInstance?.Board.Height; ++row)
-        {
-            for (var col = 0; col < _gameInstance?.Board.Width; ++col)
-            {
-                var grid = _gameInstance.Board.Grids[row, col];
-                var realMine = _gameInstance.Board.Mines.MineGrid[row, col] == -1;
-                if (realMine || grid.Type == GridType.Flagged)
-                {
-                    _gameAreaPanel.Invalidate(new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
-                }
-            }
-        }
+        // 重绘游戏区域面板
+        _gameAreaPanel.Invalidate();
 
         // 保存游戏结果
         Task.Run(() => Datas.AddGameResultAsync(gameResult));
@@ -654,8 +673,12 @@ public partial class GamePanel : Panel
     /// </summary>
     private void OnGridChanged(Position position)
     {
-        // 更新格子显示
-        _gameAreaPanel.Invalidate(new Rectangle(position.Col * Constants.GridSize, position.Row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+        // 获取格子行列坐标
+        var row = position.Row + _gameStartPosition.Row;
+        var col = position.Col + _gameStartPosition.Col;
+
+        // 重绘指定格子
+        _gameAreaPanel.Invalidate(new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
     }
 
     /// <summary>

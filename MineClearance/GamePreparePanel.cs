@@ -72,7 +72,7 @@ public partial class GamePreparePanel : Panel
             Text = "普通",
             Size = new(buttonWidth, buttonHeight),
             Location = new(buttonLeft, buttonTop),
-            BackColor = Color.LightBlue,
+            BackColor = Color.Yellow,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
@@ -89,7 +89,7 @@ public partial class GamePreparePanel : Panel
             Text = "困难",
             Size = new(buttonWidth, buttonHeight),
             Location = new(buttonLeft, buttonTop),
-            BackColor = Color.DarkRed,
+            BackColor = Color.Red,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
@@ -100,13 +100,30 @@ public partial class GamePreparePanel : Panel
         };
         buttonTop += buttonHeight + buttonMargin;
 
+        // 添加满屏按钮
+        Button btnFullScreen = new()
+        {
+            Text = "满屏",
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
+            BackColor = Color.DarkRed,
+            ForeColor = Color.DarkBlue,
+            FlatStyle = FlatStyle.Flat
+        };
+        btnFullScreen.Click += (sender, e) =>
+        {
+            gamePanel.StartGame(new(DifficultyLevel.FullScreen));
+            mainForm.ShowPanel(PanelType.Game);
+        };
+        buttonTop += buttonHeight + buttonMargin;
+
         // 添加自定义按钮
         Button btnCustom = new()
         {
             Text = "自定义",
             Size = new(buttonWidth, buttonHeight),
             Location = new(buttonLeft, buttonTop),
-            BackColor = Color.Yellow,
+            BackColor = Color.LightBlue,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
@@ -154,6 +171,7 @@ public partial class GamePreparePanel : Panel
         Controls.Add(btnEasy);
         Controls.Add(btnMedium);
         Controls.Add(btnHard);
+        Controls.Add(btnFullScreen);
         Controls.Add(btnCustom);
         Controls.Add(btnBackMenu);
 

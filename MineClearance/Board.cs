@@ -111,11 +111,10 @@ public class Board
     }
 
     /// <summary>
-    /// 鼠标点击格子
+    /// 左键点击格子
     /// </summary>
     /// <param name="position">格子的行列索引</param>
-    /// <param name="isRightClick">是否为右键点击</param>
-    public void OnGridClick(Position position, bool isRightClick)
+    public void OnLeftClick(Position position)
     {
         // 检查点击位置是否在游戏范围内
         if (position.Row < 0 || position.Row >= Height || position.Col < 0 || position.Col >= Width)
@@ -123,35 +122,137 @@ public class Board
             return;
         }
 
-        // 如果是第一次点击并且是右键点击, 则不处理
-        if (_isFirstClick && isRightClick)
-        {
-            return;
-        }
-
-        // 如果是第一次点击并且不是右键点击, 则生成地雷并打开格子
-        if (_isFirstClick && !isRightClick)
+        // 如果是第一次点击
+        if (_isFirstClick)
         {
             Mines.GenerateMines(position);
             _isFirstClick = false;
             FirstClick?.Invoke();
+        }
+
+        // 如果点击的格子为未打开状态, 则打开格子
+        if (Grids[position.Row, position.Col].Type == GridType.Unopened)
+        {
             OpenGrid(position);
             CheckWin();
             return;
         }
 
-        // 如果不是第一次点击且是右键点击, 则插旗或取消插旗
-        if (isRightClick)
+        // 如果点击的格子为数字格子, 且周围已经插旗的数量等于数字格子显示的数字, 则打开周围未插旗的格子
+        if (Grids[position.Row, position.Col].Type == GridType.Number)
         {
-            ToggleFlag(position);
+            var flaggedCount = 0;
+            for (var r = position.Row - 1; r <= position.Row + 1; ++r)
+            {
+                for (var c = position.Col - 1; c <= position.Col + 1; ++c)
+                {
+                    if (r >= 0 && r < Height && c >= 0 && c < Width)
+                    {
+                        if (Grids[r, c].Type == GridType.Flagged)
+                        {
+                            ++flaggedCount;
+                        }
+                    }
+                }
+            }
+
+            if (flaggedCount == Grids[position.Row, position.Col].SurroundingMines)
+            {
+                for (var r = position.Row - 1; r <= position.Row + 1; ++r)
+                {
+                    for (var c = position.Col - 1; c <= position.Col + 1; ++c)
+                    {
+                        if (r >= 0 && r < Height && c >= 0 && c < Width)
+                        {
+                            OpenGrid(new(r, c));
+                        }
+                    }
+                }
+            }
+
+            // 检查是否胜利
+            CheckWin();
+        }
+    }
+
+    /// <summary>
+    /// 右键点击格子
+    /// </summary>
+    /// <param name="position">格子的行列索引</param>
+    public void OnRightClick(Position position)
+    {
+        // 检查点击位置是否在游戏范围内
+        if (position.Row < 0 || position.Row >= Height || position.Col < 0 || position.Col >= Width)
+        {
             return;
         }
 
-        // 如果不是第一次点击且不是右键点击, 则打开格子
-        OpenGrid(position);
+        // 如果是第一次点击, 则不处理右键点击
+        if (_isFirstClick)
+        {
+            return;
+        }
 
-        // 检查是否胜利
-        CheckWin();
+        if (Grids[position.Row, position.Col].Type == GridType.Unopened)
+        {
+            // 插旗
+            Grids[position.Row, position.Col].Type = GridType.Flagged;
+            GridChanged?.Invoke(new(position.Row, position.Col));
+            _remainingMines--;
+            RemainingMinesChanged?.Invoke(_remainingMines);
+        }
+        else if (Grids[position.Row, position.Col].Type == GridType.Flagged)
+        {
+            // 取消插旗
+            Grids[position.Row, position.Col].Type = GridType.Unopened;
+            GridChanged?.Invoke(new(position.Row, position.Col));
+            _remainingMines++;
+            RemainingMinesChanged?.Invoke(_remainingMines);
+        }
+        else if (Grids[position.Row, position.Col].Type == GridType.Number)
+        {
+            // 如果点击的是数字格子, 则检查周围插旗和未插旗的格子数量
+            var flaggedCount = 0;
+            var unopenedCount = 0;
+            for (var r = position.Row - 1; r <= position.Row + 1; ++r)
+            {
+                for (var c = position.Col - 1; c <= position.Col + 1; ++c)
+                {
+                    if (r >= 0 && r < Height && c >= 0 && c < Width)
+                    {
+                        if (Grids[r, c].Type == GridType.Flagged)
+                        {
+                            ++flaggedCount;
+                        }
+                        else if (Grids[r, c].Type == GridType.Unopened)
+                        {
+                            ++unopenedCount;
+                        }
+                    }
+                }
+            }
+
+            // 如果周围插旗数量和未插旗数量加起来等于数字格子显示的数字, 则插旗所有未插旗的格子
+            if (flaggedCount + unopenedCount == Grids[position.Row, position.Col].SurroundingMines)
+            {
+                for (var r = position.Row - 1; r <= position.Row + 1; ++r)
+                {
+                    for (var c = position.Col - 1; c <= position.Col + 1; ++c)
+                    {
+                        if (r >= 0 && r < Height && c >= 0 && c < Width)
+                        {
+                            if (Grids[r, c].Type == GridType.Unopened)
+                            {
+                                Grids[r, c].Type = GridType.Flagged;
+                                GridChanged?.Invoke(new(r, c));
+                                _remainingMines--;
+                                RemainingMinesChanged?.Invoke(_remainingMines);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -175,16 +276,16 @@ public class Board
         }
 
         // 如果点击的格子不是地雷
-        int surroundingMines = Mines.MineGrid[position.Row, position.Col];
+        var surroundingMines = Mines.MineGrid[position.Row, position.Col];
         --_unopenedSafeCount;
 
         // 如果周围地雷数量为0, 则打开周围格子
         if (surroundingMines == 0)
         {
             Grids[position.Row, position.Col].Type = GridType.Empty;
-            for (int r = position.Row - 1; r <= position.Row + 1; r++)
+            for (var r = position.Row - 1; r <= position.Row + 1; ++r)
             {
-                for (int c = position.Col - 1; c <= position.Col + 1; c++)
+                for (var c = position.Col - 1; c <= position.Col + 1; ++c)
                 {
                     if (r >= 0 && r < Height && c >= 0 && c < Width)
                     {
@@ -200,30 +301,6 @@ public class Board
 
         Grids[position.Row, position.Col].SurroundingMines = surroundingMines;
         GridChanged?.Invoke(new(position.Row, position.Col));
-    }
-
-    /// <summary>
-    /// 插旗/取消插旗
-    /// </summary>
-    /// <param name="position">格子的行列索引</param>
-    private void ToggleFlag(Position position)
-    {
-        if (Grids[position.Row, position.Col].Type == GridType.Unopened)
-        {
-            // 插旗
-            Grids[position.Row, position.Col].Type = GridType.Flagged;
-            GridChanged?.Invoke(new(position.Row, position.Col));
-            _remainingMines--;
-            RemainingMinesChanged?.Invoke(_remainingMines);
-        }
-        else if (Grids[position.Row, position.Col].Type == GridType.Flagged)
-        {
-            // 取消插旗
-            Grids[position.Row, position.Col].Type = GridType.Unopened;
-            GridChanged?.Invoke(new(position.Row, position.Col));
-            _remainingMines++;
-            RemainingMinesChanged?.Invoke(_remainingMines);
-        }
     }
 
     /// <summary>

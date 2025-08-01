@@ -96,7 +96,7 @@ public static class Constants
     public const int NoProgressMaxRetries = 3;
 
     /// <summary>
-    /// 简单、中等、困难的棋盘大小和地雷数量
+    /// 简单、中等、困难和满屏的棋盘大小和地雷数量
     /// </summary>
     public static class BoardSettings
     {
@@ -107,6 +107,7 @@ public static class Constants
                 DifficultyLevel.Easy => (9, 9, 10),
                 DifficultyLevel.Medium => (16, 16, 40),
                 DifficultyLevel.Hard => (30, 16, 99),
+                DifficultyLevel.FullScreen => (50, 30, 300),
                 _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
             };
         }
@@ -141,9 +142,4 @@ public static class Constants
     /// 网格大小
     /// </summary>
     public const int GridSize = 50;
-
-    /// <summary>
-    /// 雷的密度阈值, 大于等于此值时, 不确保地雷周围全是地雷的情况不会出现
-    /// </summary>
-    public const float MineDensityThreshold = 0.3f;
 }

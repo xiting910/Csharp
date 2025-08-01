@@ -65,6 +65,7 @@ public class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan
             DifficultyLevel.Easy => "简单",
             DifficultyLevel.Medium => "普通",
             DifficultyLevel.Hard => "困难",
+            DifficultyLevel.FullScreen => "满屏",
             DifficultyLevel.Custom => "自定",
             _ => "未知"
         };
