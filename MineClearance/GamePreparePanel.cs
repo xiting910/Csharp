@@ -100,19 +100,19 @@ public partial class GamePreparePanel : Panel
         };
         buttonTop += buttonHeight + buttonMargin;
 
-        // 添加满屏按钮
-        Button btnFullScreen = new()
+        // 添加地狱按钮
+        Button btnHell = new()
         {
-            Text = "满屏",
+            Text = "地狱",
             Size = new(buttonWidth, buttonHeight),
             Location = new(buttonLeft, buttonTop),
             BackColor = Color.DarkRed,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnFullScreen.Click += (sender, e) =>
+        btnHell.Click += (sender, e) =>
         {
-            gamePanel.StartGame(new(DifficultyLevel.FullScreen));
+            gamePanel.StartGame(new(DifficultyLevel.Hell));
             mainForm.ShowPanel(PanelType.Game);
         };
         buttonTop += buttonHeight + buttonMargin;
@@ -171,7 +171,7 @@ public partial class GamePreparePanel : Panel
         Controls.Add(btnEasy);
         Controls.Add(btnMedium);
         Controls.Add(btnHard);
-        Controls.Add(btnFullScreen);
+        Controls.Add(btnHell);
         Controls.Add(btnCustom);
         Controls.Add(btnBackMenu);
 

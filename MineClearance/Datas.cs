@@ -5,7 +5,7 @@ namespace MineClearance;
 /// <summary>
 /// 带有版本号和最后更新时间的数据类.
 /// 旧版本只有游戏结果列表, 且自定义难度的Difficulty为3, 称为版本0.
-/// 版本1开始引入了GameData类, 包含了最后更新时间和版本号, 同时增加满屏难度, 满屏难度的Difficulty为3, 自定义难度的Difficulty变为4.
+/// 版本1开始引入了GameData类, 包含了最后更新时间和版本号, 同时增加地狱难度, 地狱难度的Difficulty为3, 自定义难度的Difficulty变为4.
 /// </summary>
 /// <param name="lastUpdate">最后更新时间</param>
 /// <param name="gameResults">游戏结果列表</param>
@@ -91,10 +91,10 @@ public static class Datas
                     // 如果反序列化为 GameData 对象失败, 可能是旧版本数据格式, 直接处理为 GameResult 列表
                     var gameResults = JsonSerializer.Deserialize<List<GameResult>>(json, _jsonOptions);
 
-                    // 将所有"满屏"难度的游戏结果转换为"自定义"难度
+                    // 将所有"地狱"难度的游戏结果转换为"自定义"难度
                     gameResults = gameResults?.Select(result =>
                     {
-                        if (result.Difficulty == DifficultyLevel.FullScreen)
+                        if (result.Difficulty == DifficultyLevel.Hell)
                         {
                             return new GameResult(
                                 DifficultyLevel.Custom,

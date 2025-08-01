@@ -96,7 +96,7 @@ public static class Constants
     public const int NoProgressMaxRetries = 3;
 
     /// <summary>
-    /// 简单、中等、困难和满屏的棋盘大小和地雷数量
+    /// 简单、中等、困难和地狱的棋盘大小和地雷数量
     /// </summary>
     public static class BoardSettings
     {
@@ -107,7 +107,7 @@ public static class Constants
                 DifficultyLevel.Easy => (9, 9, 10),
                 DifficultyLevel.Medium => (16, 16, 40),
                 DifficultyLevel.Hard => (30, 16, 99),
-                DifficultyLevel.FullScreen => (50, 30, 300),
+                DifficultyLevel.Hell => (50, 30, 300),
                 _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
             };
         }

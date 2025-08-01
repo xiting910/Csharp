@@ -52,9 +52,9 @@ public enum DifficultyLevel
     Hard,
 
     /// <summary>
-    /// 满屏
+    /// 地狱
     /// </summary>
-    FullScreen,
+    Hell,
 
     /// <summary>
     /// 自定义

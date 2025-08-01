@@ -68,7 +68,7 @@ public partial class RankingPanel : Panel
         {
             Text = "清除历史",
             Location = new(Constants.MainFormWidth - 400, 30),
-            BackColor = Color.DarkRed,
+            BackColor = Color.Red,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -206,7 +206,7 @@ public partial class RankingPanel : Panel
                 { DifficultyLevel.Easy, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
                 { DifficultyLevel.Medium, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
                 { DifficultyLevel.Hard, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
-                { DifficultyLevel.FullScreen, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
+                { DifficultyLevel.Hell, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
                 { DifficultyLevel.Custom, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) }
             };
         foreach (var result in gameResults)
@@ -229,7 +229,7 @@ public partial class RankingPanel : Panel
                 DifficultyLevel.Easy => "简单",
                 DifficultyLevel.Medium => "普通",
                 DifficultyLevel.Hard => "困难",
-                DifficultyLevel.FullScreen => "满屏",
+                DifficultyLevel.Hell => "地狱",
                 DifficultyLevel.Custom => "自定义",
                 _ => "未知"
             };
