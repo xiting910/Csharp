@@ -38,7 +38,7 @@ public partial class RankingPanel : Panel
         rankingTopPanel = new()
         {
             Name = "RankingTopPanel",
-            Size = new(mainForm.Width, 100),
+            Size = new(mainForm.Width, (int)(52 * Constants.DpiScale)),
             BackColor = Color.LightSalmon,
             Location = new(0, 0)
         };
@@ -47,15 +47,18 @@ public partial class RankingPanel : Panel
         {
             Text = "历史记录",
             Font = new("Arial", 24, FontStyle.Bold),
-            Location = new(10, 10),
+            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
             AutoSize = true
         };
         rankingTopPanel.Controls.Add(titleLabel);
 
+        // 按钮Y位置调整
+        var buttonYPosition = (int)(15 * Constants.DpiScale);
+
         Button btnBackMenu = new()
         {
             Text = "返回菜单",
-            Location = new(Constants.MainFormWidth - 200, 30),
+            Location = new(Constants.MainFormWidth - (int)(100 * Constants.DpiScale), buttonYPosition),
             BackColor = Color.LightCoral,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -67,7 +70,7 @@ public partial class RankingPanel : Panel
         Button btnClearHistory = new()
         {
             Text = "清除历史",
-            Location = new(Constants.MainFormWidth - 400, 30),
+            Location = new(Constants.MainFormWidth - (int)(200 * Constants.DpiScale), buttonYPosition),
             BackColor = Color.Red,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -79,7 +82,7 @@ public partial class RankingPanel : Panel
         Button btnShowStatistics = new()
         {
             Text = "显示统计信息",
-            Location = new(400, 30),
+            Location = new((int)(200 * Constants.DpiScale), buttonYPosition),
             BackColor = Color.LightGreen,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -91,7 +94,7 @@ public partial class RankingPanel : Panel
         Button btnSortByStartTime = new()
         {
             Text = "按开始时间排序",
-            Location = new(650, 30),
+            Location = new((int)(325 * Constants.DpiScale), buttonYPosition),
             BackColor = Color.LightGreen,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -103,7 +106,7 @@ public partial class RankingPanel : Panel
         Button btnSortByDuration = new()
         {
             Text = "按难度和用时排序",
-            Location = new(900, 30),
+            Location = new((int)(450 * Constants.DpiScale), buttonYPosition),
             BackColor = Color.LightGreen,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -131,7 +134,7 @@ public partial class RankingPanel : Panel
         {
             Name = "RankingListBox",
             BackColor = Color.White,
-            Size = new(Width - 25, Height - rankingTopPanel.Height),
+            Size = new(Width - (int)(12.5f * Constants.DpiScale), Height - rankingTopPanel.Height),
             Location = new(0, rankingTopPanel.Height)
         };
 

@@ -1,9 +1,11 @@
+using System.Runtime.InteropServices;
+
 namespace MineClearance;
 
 /// <summary>
 /// 常量类, 提供一些常量
 /// </summary>
-public static class Constants
+public static partial class Constants
 {
     /// <summary>
     /// 作者名字
@@ -114,21 +116,6 @@ public static class Constants
     }
 
     /// <summary>
-    /// 主窗体的宽度
-    /// </summary>
-    public const int MainFormWidth = 2527;
-
-    /// <summary>
-    /// 主窗体的高度
-    /// </summary>
-    public const int MainFormHeight = 1703;
-
-    /// <summary>
-    /// 底部状态栏的高度
-    /// </summary>
-    public const int BottomStatusBarHeight = 110;
-
-    /// <summary>
     /// 扫雷棋盘的最大宽度
     /// </summary>
     public const int MaxBoardWidth = 50;
@@ -139,7 +126,48 @@ public static class Constants
     public const int MaxBoardHeight = 30;
 
     /// <summary>
+    /// 主窗体的宽度
+    /// </summary>
+    public static int MainFormWidth => (int)(1264 * DpiScale);
+
+    /// <summary>
+    /// 主窗体的高度
+    /// </summary>
+    public static int MainFormHeight => (int)(853 * DpiScale);
+
+    /// <summary>
+    /// 底部状态栏的高度
+    /// </summary>
+    public static int BottomStatusBarHeight => (int)(55 * DpiScale);
+
+    /// <summary>
     /// 网格大小
     /// </summary>
-    public const int GridSize = 50;
+    public static int GridSize => (int)(25 * DpiScale);
+
+    /// <summary>
+    /// DPI缩放比例
+    /// </summary>
+    public static float DpiScale { get; private set; } = 1.0f;
+
+    /// <summary>
+    /// 初始化DPI缩放比例（Windows 10 及以上，获取系统DPI）
+    /// </summary>
+    public static void InitDpiScale()
+    {
+        // Windows 10 Creators Update (1703) 及以上支持 GetDpiForSystem
+        if (Environment.OSVersion.Version.Major >= 10)
+        {
+            DpiScale = GetDpiForSystem() / 96f;
+        }
+        else
+        {
+            // 兼容旧系统
+            using var g = Graphics.FromHwnd(IntPtr.Zero);
+            DpiScale = g.DpiX / 96f;
+        }
+    }
+
+    [LibraryImport("user32.dll")]
+    private static partial uint GetDpiForSystem();
 }

@@ -32,6 +32,9 @@ internal class Program
         // 初始化应用程序配置
         ApplicationConfiguration.Initialize();
 
+        // 初始化 DPI 缩放
+        Constants.InitDpiScale();
+
         // 初始化数据
         Datas.Initialize();
 

@@ -97,10 +97,10 @@ public partial class GamePanel : Panel
         _gameStartPosition = new(0, 0);
 
         // 信息面板高度
-        var infoPanelHeight = 95;
+        var infoPanelHeight = (int)(47 * Constants.DpiScale);
 
         // 标签Y轴位置
-        var labelY = 30;
+        var labelY = (int)(15 * Constants.DpiScale);
 
         // 初始化信息面板
         _infoPanel = new()
@@ -115,7 +115,7 @@ public partial class GamePanel : Panel
         {
             Text = $"剩余地雷数: {_gameInstance?.TotalMines}",
             ForeColor = Color.DarkGreen,
-            Location = new(10, labelY),
+            Location = new((int)(5 * Constants.DpiScale), labelY),
             AutoSize = true
         };
 
@@ -124,7 +124,7 @@ public partial class GamePanel : Panel
         {
             Text = "游戏时间: 00:00",
             ForeColor = Color.DarkBlue,
-            Location = new(250, labelY),
+            Location = new((int)(125 * Constants.DpiScale), labelY),
             AutoSize = true
         };
 
@@ -132,19 +132,19 @@ public partial class GamePanel : Panel
         Label hintLabel = new()
         {
             Text = "提示: 左键打开格子, 右键标记地雷（在打开一个格子之前无效）, 支持按住鼠标滑动操作多个格子, 灰色格子为未打开, 绿色格子表示插旗\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子\n右键点击数字格子时, 如果周围周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子",
-            Location = new(500, 0),
+            Location = new((int)(250 * Constants.DpiScale), 0),
             AutoSize = true
         };
 
         // 按钮Y轴位置
-        var buttonY = 25;
+        var buttonY = (int)(12.5 * Constants.DpiScale);
 
         // 添加显示/隐藏提示按钮
         Button btnToggleHint = new()
         {
             Text = "显示/隐藏提示",
             BackColor = Color.YellowGreen,
-            Location = new(Constants.MainFormWidth - 540, buttonY),
+            Location = new(Constants.MainFormWidth - (int)(270 * Constants.DpiScale), buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -158,7 +158,7 @@ public partial class GamePanel : Panel
         {
             Text = "重新开始",
             BackColor = Color.Yellow,
-            Location = new(Constants.MainFormWidth - 330, buttonY),
+            Location = new(Constants.MainFormWidth - (int)(165 * Constants.DpiScale), buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -169,7 +169,7 @@ public partial class GamePanel : Panel
         {
             Text = "返回菜单",
             BackColor = Color.LightCoral,
-            Location = new(Constants.MainFormWidth - 180, buttonY),
+            Location = new(Constants.MainFormWidth - (int)(90 * Constants.DpiScale), buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };

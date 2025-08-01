@@ -19,12 +19,12 @@ public partial class GamePreparePanel : Panel
         BackColor = Color.LightYellow;
 
         // 标题标签宽度和高度
-        var titleLabelWidth = 300;
-        var titleLabelHeight = 100;
+        var titleLabelWidth = (int)(150 * Constants.DpiScale);
+        var titleLabelHeight = (int)(50 * Constants.DpiScale);
 
         // 标题标签左侧位置和顶部位置
         var titleLabelLeft = (Constants.MainFormWidth - titleLabelWidth) / 2;
-        var titleLabelTop = 50;
+        var titleLabelTop = (int)(25 * Constants.DpiScale);
 
         // 添加标题标签
         Label titleLabel = new()
@@ -39,11 +39,11 @@ public partial class GamePreparePanel : Panel
         };
 
         // 按钮宽度和高度
-        var buttonWidth = 250;
-        var buttonHeight = 80;
+        var buttonWidth = (int)(125 * Constants.DpiScale);
+        var buttonHeight = (int)(40 * Constants.DpiScale);
 
         // 按钮间距
-        var buttonMargin = 30;
+        var buttonMargin = (int)(15 * Constants.DpiScale);
 
         // 按钮左侧位置和顶部位置
         var buttonLeft = (Constants.MainFormWidth - buttonWidth) / 2;

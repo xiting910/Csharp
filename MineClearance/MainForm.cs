@@ -65,7 +65,7 @@ public partial class MainForm : Form
         // 绑定未捕获异常事件
         Application.ThreadException += OnThreadException;
         AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-
+        
         // 设置窗口属性
         Text = "扫雷游戏";
         Size = new(Constants.MainFormWidth, Constants.MainFormHeight);

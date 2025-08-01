@@ -52,8 +52,8 @@ public class DownloadProgressForm : Form
     public DownloadProgressForm()
     {
         // 窗体宽度和高度
-        var formWidth = 1000;
-        var formHeight = 280;
+        var formWidth = (int)(500 * Constants.DpiScale);
+        var formHeight = (int)(140 * Constants.DpiScale);
 
         // 设置窗体属性
         Text = "下载更新";
@@ -67,33 +67,33 @@ public class DownloadProgressForm : Form
         InfoLabel = new Label
         {
             Text = "正在下载更新, 请不要中途切换网络或关闭程序......",
-            Location = new(10, 10),
+            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleCenter
         };
         ProgressBar = new ProgressBar
         {
-            Location = new(10, 70),
-            Size = new(formWidth - 50, 50),
+            Location = new((int)(5 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
+            Size = new(formWidth - (int)(25 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             Minimum = 0,
             Maximum = 100
         };
         StatusLabel = new Label
         {
-            Location = new(10, 150),
-            Size = new(650, 50),
+            Location = new((int)(5 * Constants.DpiScale), (int)(75 * Constants.DpiScale)),
+            Size = new((int)(325 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             Text = "准备下载..."
         };
         PauseResumeButton = new Button
         {
-            Location = new(formWidth - 340, 140),
-            Size = new(150, 50),
+            Location = new(formWidth - (int)(170 * Constants.DpiScale), (int)(70 * Constants.DpiScale)),
+            Size = new((int)(75 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             Text = "暂停/继续"
         };
         CancelButton = new Button
         {
-            Location = new(formWidth - 180, 140),
-            Size = new(150, 50),
+            Location = new(formWidth - (int)(90 * Constants.DpiScale), (int)(70 * Constants.DpiScale)),
+            Size = new((int)(75 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             Text = "取消下载"
         };
 
@@ -125,8 +125,8 @@ public partial class CustomDifficultyDialog : Form
     public CustomDifficultyDialog()
     {
         // 对话框宽度和高度
-        var dialogWidth = 500;
-        var dialogHeight = 350;
+        var dialogWidth = (int)(250 * Constants.DpiScale);
+        var dialogHeight = (int)(175 * Constants.DpiScale);
 
         // 初始化控件和布局
         Text = "自定义难度";
@@ -137,14 +137,14 @@ public partial class CustomDifficultyDialog : Form
         MinimizeBox = false;
 
         // 输入标签和输入框的宽度、高度和位置
-        var inputLabelWidth = 120;
-        var inputWidth = 160;
-        var inputHeight = 50;
+        var inputLabelWidth = (int)(60 * Constants.DpiScale);
+        var inputWidth = (int)(80 * Constants.DpiScale);
+        var inputHeight = (int)(25 * Constants.DpiScale);
         var inputX = (dialogWidth - inputLabelWidth - inputWidth) / 2;
-        var inputY = 30;
+        var inputY = (int)(15 * Constants.DpiScale);
 
         // 两个输入框之间的垂直间距
-        var verticalSpacing = 50;
+        var verticalSpacing = (int)(25 * Constants.DpiScale);
 
         // 创建宽度输入标签和输入框
         var widthLabel = new Label
@@ -200,15 +200,15 @@ public partial class CustomDifficultyDialog : Form
         okButton = new Button
         {
             Text = "确定",
-            Location = new(dialogWidth - 240, dialogHeight - 130),
-            Size = new(80, 50),
+            Location = new(dialogWidth - (int)(120 * Constants.DpiScale), dialogHeight - (int)(65 * Constants.DpiScale)),
+            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             DialogResult = DialogResult.OK
         };
         cancelButton = new Button
         {
             Text = "取消",
-            Location = new(dialogWidth - 120, dialogHeight - 130),
-            Size = new(80, 50),
+            Location = new(dialogWidth - (int)(60 * Constants.DpiScale), dialogHeight - (int)(65 * Constants.DpiScale)),
+            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             DialogResult = DialogResult.Cancel
         };
 
@@ -247,7 +247,7 @@ public class WaitingForm : Form
     public WaitingForm()
     {
         Text = "请稍候";
-        Size = new(500, 180);
+        Size = new((int)(250 * Constants.DpiScale), (int)(90 * Constants.DpiScale));
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -256,7 +256,7 @@ public class WaitingForm : Form
         ProgressBar progressBar = new()
         {
             Dock = DockStyle.Top,
-            Height = 40,
+            Height = (int)(20 * Constants.DpiScale),
             Style = ProgressBarStyle.Marquee
         };
         Label label = new()
@@ -315,7 +315,7 @@ public class TimeoutMessageBox : Form
     private TimeoutMessageBox(string text, string caption, int timeoutSeconds)
     {
         Text = caption;
-        Size = new(400, 200);
+        Size = new((int)(200 * Constants.DpiScale), (int)(100 * Constants.DpiScale));
         FormBorderStyle = FormBorderStyle.FixedDialog;
         StartPosition = FormStartPosition.CenterScreen;
         ControlBox = false;
@@ -323,21 +323,21 @@ public class TimeoutMessageBox : Form
         lblMsg = new Label
         {
             Text = text,
-            Location = new(10, 10),
+            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
             AutoSize = true,
         };
         btnRetry = new Button
         {
             Text = "重试",
-            Location = new(50, 70),
-            Size = new(80, 50),
+            Location = new((int)(25 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
+            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             DialogResult = DialogResult.Yes
         };
         btnCancel = new Button
         {
             Text = "取消",
-            Location = new(200, 70),
-            Size = new(80, 50),
+            Location = new((int)(100 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
+            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
             DialogResult = DialogResult.No
         };
 
@@ -403,7 +403,7 @@ public class CustomMessageBox : Form
         {
             Text = message,
             AutoSize = true,
-            Location = new(10, 10)
+            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
         };
         form.Controls.Add(label);
 
@@ -411,7 +411,7 @@ public class CustomMessageBox : Form
         form._doNotShowAgainCheckBox = new CheckBox
         {
             Text = "本次运行不再提示",
-            Location = new(10, label.Bottom + 15),
+            Location = new((int)(5 * Constants.DpiScale), label.Bottom + (int)(7.5f * Constants.DpiScale)),
             AutoSize = true
         };
         form.Controls.Add(form._doNotShowAgainCheckBox);
@@ -433,12 +433,12 @@ public class CustomMessageBox : Form
         form.Controls.Add(btnNo);
 
         // 计算对话框的宽度和高度
-        var width = Math.Max(label.Width + 20, form._doNotShowAgainCheckBox.Width + btnYes.Width + btnNo.Width + 40);
-        var height = form._doNotShowAgainCheckBox.Bottom + 20;
+        var width = Math.Max(label.Width + (int)(10 * Constants.DpiScale), form._doNotShowAgainCheckBox.Width + btnYes.Width + btnNo.Width + (int)(20 * Constants.DpiScale));
+        var height = form._doNotShowAgainCheckBox.Bottom + (int)(10 * Constants.DpiScale);
 
         // 设置按钮位置
-        btnNo.Location = new(width - btnNo.Width - 10, label.Bottom + 10);
-        btnYes.Location = new(btnNo.Left - btnYes.Width - 10, btnNo.Top);
+        btnNo.Location = new(width - btnNo.Width - (int)(5 * Constants.DpiScale), label.Bottom + (int)(5 * Constants.DpiScale));
+        btnYes.Location = new(btnNo.Left - btnYes.Width - (int)(5 * Constants.DpiScale), btnNo.Top);
 
         // 设置对话框的大小和位置
         form.ClientSize = new(width, height);
