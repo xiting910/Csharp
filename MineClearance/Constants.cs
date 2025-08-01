@@ -8,85 +8,32 @@ public static class Constants
     /// <summary>
     /// 作者名字
     /// </summary>
-    public readonly static string AuthorName = "xiting910";
+    public const string AuthorName = "xiting910";
 
     /// <summary>
     /// GitHub 仓库链接
     /// </summary>
-    public readonly static string GitHubRepoUrl = "https://github.com/xiting910/Csharp/tree/main/MineClearance";
+    public const string GitHubRepoUrl = "https://github.com/xiting910/Csharp/tree/main/MineClearance";
 
     /// <summary>
     /// 数据存储路径
     /// </summary>
-    public readonly static string DataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MineClearanceData");
+    public static readonly string DataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MineClearanceData");
 
     /// <summary>
     /// 数据文件路径
     /// </summary>
-    public readonly static string DataFilePath = Path.Combine(DataPath, "history.json");
+    public static readonly string DataFilePath = Path.Combine(DataPath, "history.json");
 
     /// <summary>
     /// 错误文件路径
     /// </summary>
-    public readonly static string ErrorFilePath = Path.Combine(DataPath, "error.log");
-
-    /// <summary>
-    /// 简单、中等、困难的棋盘大小和地雷数量
-    /// </summary>
-    public static class BoardSettings
-    {
-        public static (int width, int height, int mineCount) GetSettings(DifficultyLevel level)
-        {
-            return level switch
-            {
-                DifficultyLevel.Easy => (9, 9, 10),
-                DifficultyLevel.Medium => (16, 16, 40),
-                DifficultyLevel.Hard => (30, 16, 99),
-                _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
-            };
-        }
-    }
-
-    /// <summary>
-    /// 自定义棋盘最大宽度和高度
-    /// </summary>
-    public static class CustomBoardSettings
-    {
-        public static (int maxWidth, int maxHeight) GetMaxDimensions()
-        {
-            return (50, 30);
-        }
-    }
-
-    /// <summary>
-    /// 主窗体的宽度
-    /// </summary>
-    public static readonly int MainFormWidth = 1100;
-
-    /// <summary>
-    /// 主窗体的高度
-    /// </summary>
-    public static readonly int MainFormHeight = 760;
-
-    /// <summary>
-    /// 底部状态栏的高度
-    /// </summary>
-    public static readonly int BottomStatusBarHeight = 60;
-
-    /// <summary>
-    /// 网格大小
-    /// </summary>
-    public static readonly int GridSize = 25;
-
-    /// <summary>
-    /// 雷的密度阈值, 大于等于此值时, 不确保地雷周围全是地雷的情况不会出现
-    /// </summary>
-    public static readonly float MineDensityThreshold = 0.3f;
+    public static readonly string ErrorFilePath = Path.Combine(DataPath, "error.log");
 
     /// <summary>
     /// 自动更新的URL
     /// </summary>
-    public static readonly string AutoUpdateUrl = "https://gitee.com/xiting910/mine-clearance/raw/main/AutoUpdater.xml";
+    public const string AutoUpdateUrl = "https://gitee.com/xiting910/mine-clearance/raw/main/AutoUpdater.xml";
 
     /// <summary>
     /// 更新文件路径
@@ -126,25 +73,77 @@ public static class Constants
     /// <summary>
     /// 更新下载速度刷新间隔(毫秒)
     /// </summary>
-    public static readonly int UpdateSpeedRefreshInterval = 300;
+    public const int UpdateSpeedRefreshInterval = 300;
 
     /// <summary>
     /// http请求超时时间(秒)
     /// </summary>
-    public static readonly int HttpRequestTimeout = 20;
+    public const int HttpRequestTimeout = 20;
 
     /// <summary>
     /// 无进度一定秒后重试
     /// </summary>
-    public static readonly int NoProgressRetryInterval = 15;
+    public const int NoProgressRetryInterval = 15;
 
     /// <summary>
     /// 无进度弹窗等待时间(秒)
     /// </summary>
-    public static readonly int NoProgressDialogWaitTime = 5;
+    public const int NoProgressDialogWaitTime = 5;
 
     /// <summary>
     /// 无进度最大重试次数
     /// </summary>
-    public static readonly int NoProgressMaxRetries = 3;
+    public const int NoProgressMaxRetries = 3;
+
+    /// <summary>
+    /// 简单、中等、困难的棋盘大小和地雷数量
+    /// </summary>
+    public static class BoardSettings
+    {
+        public static (int width, int height, int mineCount) GetSettings(DifficultyLevel level)
+        {
+            return level switch
+            {
+                DifficultyLevel.Easy => (9, 9, 10),
+                DifficultyLevel.Medium => (16, 16, 40),
+                DifficultyLevel.Hard => (30, 16, 99),
+                _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+            };
+        }
+    }
+
+    /// <summary>
+    /// 主窗体的宽度
+    /// </summary>
+    public const int MainFormWidth = 2527;
+
+    /// <summary>
+    /// 主窗体的高度
+    /// </summary>
+    public const int MainFormHeight = 1703;
+
+    /// <summary>
+    /// 底部状态栏的高度
+    /// </summary>
+    public const int BottomStatusBarHeight = 110;
+
+    /// <summary>
+    /// 扫雷棋盘的最大宽度
+    /// </summary>
+    public const int MaxBoardWidth = 50;
+
+    /// <summary>
+    /// 扫雷棋盘的最大高度
+    /// </summary>
+    public const int MaxBoardHeight = 30;
+
+    /// <summary>
+    /// 网格大小
+    /// </summary>
+    public const int GridSize = 50;
+
+    /// <summary>
+    /// 雷的密度阈值, 大于等于此值时, 不确保地雷周围全是地雷的情况不会出现
+    /// </summary>
+    public const float MineDensityThreshold = 0.3f;
 }

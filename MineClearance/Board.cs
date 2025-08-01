@@ -136,6 +136,7 @@ public class Board
             _isFirstClick = false;
             FirstClick?.Invoke();
             OpenGrid(position);
+            CheckWin();
             return;
         }
 

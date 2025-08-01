@@ -85,7 +85,7 @@ public static partial class Methods
     public static async Task<bool> DownloadUpdate(string downloadURL)
     {
         // 更新尝试次数
-        int retryCount = 0;
+        var retryCount = 0;
 
         // 定时器用于定时刷新进度表单
         var timer = new System.Windows.Forms.Timer
@@ -131,8 +131,8 @@ public static partial class Methods
         long totalBytes = 0;
         long totalRead = 0;
         long lastRead = 0;
-        string speedStr = "";
-        int read;
+        var speedStr = "";
+        var read = 0;
 
         // 绑定下载进度表单更新事件
         timer.Tick += (s, e) =>
@@ -158,7 +158,7 @@ public static partial class Methods
             }
 
             // 时间间隔为0直接返回
-            double seconds = (now - lastUpdate).TotalSeconds;
+            var seconds = (now - lastUpdate).TotalSeconds;
             if (seconds == 0)
             {
                 return;
@@ -253,9 +253,10 @@ public static partial class Methods
                     retryCount = 0;
 
                     // 暂停判断
-                    while (isPaused && !CTS.IsCancellationRequested)
+                    while (isPaused)
                     {
-                        await Task.Delay(100);
+                        CTS.Token.ThrowIfCancellationRequested();
+                        await Task.Delay(100, CTS.Token);
                     }
                 }
 
@@ -266,7 +267,7 @@ public static partial class Methods
             catch (TimeoutException tex)
             {
                 // http请求超时
-                MessageBox.Show($"http请求超时：{tex.Message}", "http请求超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"http请求超时: {tex.Message}", "http请求超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             catch (OperationCanceledException)
@@ -332,33 +333,17 @@ public static partial class Methods
     /// <returns>下载速度字符串</returns>
     private static string CalculateDownloadSpeed(long totalBytes, double elapsedTime)
     {
-        // 计算速度, 先计算B/s
-        var speedUnit = "B/s";
+        var units = new[] { "B/s", "KB/s", "MB/s", "GB/s", "TB/s" };
         var speed = totalBytes / elapsedTime;
+        var unitIndex = 0;
 
-        // 如果速度超过1024B/s, 则转换为KB/s
-        if (speed >= 1024)
+        while (speed >= 1024 && unitIndex < units.Length - 1)
         {
             speed /= 1024;
-            speedUnit = "KB/s";
+            ++unitIndex;
         }
 
-        // 如果速度超过1024KB/s, 则转换为MB/s
-        if (speed >= 1024)
-        {
-            speed /= 1024;
-            speedUnit = "MB/s";
-        }
-
-        // 如果速度超过1024MB/s, 则转换为GB/s
-        if (speed >= 1024)
-        {
-            speed /= 1024;
-            speedUnit = "GB/s";
-        }
-
-        // 返回速度字符串
-        return $" (速度: {speed:F2} {speedUnit})";
+        return $" (速度: {speed:F2} {units[unitIndex]})";
     }
 
     /// <summary>

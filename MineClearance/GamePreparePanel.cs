@@ -18,18 +18,43 @@ public partial class GamePreparePanel : Panel
         Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight);
         BackColor = Color.LightYellow;
 
-        // 按钮宽度
-        var buttonWidth = 120;
+        // 标题标签宽度和高度
+        var titleLabelWidth = 300;
+        var titleLabelHeight = 100;
 
-        // 按钮左侧位置
+        // 标题标签左侧位置和顶部位置
+        var titleLabelLeft = (Constants.MainFormWidth - titleLabelWidth) / 2;
+        var titleLabelTop = 50;
+
+        // 添加标题标签
+        Label titleLabel = new()
+        {
+            Text = "扫雷游戏",
+            Font = new("Microsoft YaHei", 24, FontStyle.Bold),
+            ForeColor = Color.DarkRed,
+            BackColor = Color.Transparent,
+            Size = new(titleLabelWidth, titleLabelHeight),
+            Location = new(titleLabelLeft, titleLabelTop),
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+
+        // 按钮宽度和高度
+        var buttonWidth = 250;
+        var buttonHeight = 80;
+
+        // 按钮间距
+        var buttonMargin = 30;
+
+        // 按钮左侧位置和顶部位置
         var buttonLeft = (Constants.MainFormWidth - buttonWidth) / 2;
+        var buttonTop = titleLabelTop + titleLabelHeight + buttonMargin;
 
         // 添加简单按钮
         Button btnEasy = new()
         {
             Text = "简单",
-            Size = new(buttonWidth, 40),
-            Location = new(buttonLeft, 100),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
             BackColor = Color.LightGreen,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
@@ -39,13 +64,14 @@ public partial class GamePreparePanel : Panel
             gamePanel.StartGame(new(DifficultyLevel.Easy));
             mainForm.ShowPanel(PanelType.Game);
         };
+        buttonTop += buttonHeight + buttonMargin;
 
         // 添加普通按钮
         Button btnMedium = new()
         {
             Text = "普通",
-            Size = new(buttonWidth, 40),
-            Location = new(buttonLeft, 160),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
             BackColor = Color.LightBlue,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
@@ -55,13 +81,14 @@ public partial class GamePreparePanel : Panel
             gamePanel.StartGame(new(DifficultyLevel.Medium));
             mainForm.ShowPanel(PanelType.Game);
         };
+        buttonTop += buttonHeight + buttonMargin;
 
         // 添加困难按钮
         Button btnHard = new()
         {
             Text = "困难",
-            Size = new(buttonWidth, 40),
-            Location = new(buttonLeft, 220),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
             BackColor = Color.DarkRed,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
@@ -71,13 +98,14 @@ public partial class GamePreparePanel : Panel
             gamePanel.StartGame(new(DifficultyLevel.Hard));
             mainForm.ShowPanel(PanelType.Game);
         };
+        buttonTop += buttonHeight + buttonMargin;
 
         // 添加自定义按钮
         Button btnCustom = new()
         {
             Text = "自定义",
-            Size = new(buttonWidth, 40),
-            Location = new(buttonLeft, 280),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
             BackColor = Color.Yellow,
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
@@ -107,44 +135,27 @@ public partial class GamePreparePanel : Panel
                 }
             }
         };
+        buttonTop += buttonHeight + buttonMargin;
 
         // 添加返回菜单按钮
         Button btnBackMenu = new()
         {
             Text = "返回",
-            Size = new(buttonWidth, 40),
-            Location = new(buttonLeft, 340),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
             BackColor = Color.LightCoral,
             ForeColor = Color.White,
             FlatStyle = FlatStyle.Flat
         };
         btnBackMenu.Click += (sender, e) => mainForm.ShowPanel(PanelType.Menu);
 
-        // 标题标签宽度
-        var titleLabelWidth = 300;
-
-        // 标题标签左侧位置
-        var titleLabelLeft = (Constants.MainFormWidth - titleLabelWidth) / 2;
-
-        // 添加标题标签
-        Label titleLabel = new()
-        {
-            Text = "扫雷游戏",
-            Font = new("Microsoft YaHei", 24, FontStyle.Bold),
-            ForeColor = Color.DarkRed,
-            BackColor = Color.Transparent,
-            Size = new(titleLabelWidth, 50),
-            Location = new(titleLabelLeft, 30),
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-
         // 添加控件到游戏准备面板
+        Controls.Add(titleLabel);
         Controls.Add(btnEasy);
         Controls.Add(btnMedium);
         Controls.Add(btnHard);
         Controls.Add(btnCustom);
         Controls.Add(btnBackMenu);
-        Controls.Add(titleLabel);
 
         // 将游戏准备面板添加到窗体
         mainForm.Controls.Add(this);

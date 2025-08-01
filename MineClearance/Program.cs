@@ -29,6 +29,9 @@ internal class Program
         // 设置未处理异常模式为捕获异常
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
+        // 初始化应用程序配置
+        ApplicationConfiguration.Initialize();
+
         // 初始化数据
         Datas.Initialize();
 

@@ -142,6 +142,9 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private async void MainFormClosing(object? sender, FormClosingEventArgs e)
     {
+        // 先取消关闭
+        e.Cancel = true;
+
         // 如果正在处理更新事件, 向用户确认是否要强制关闭
         if (Methods.IsHandlingUpdateEvent)
         {
@@ -150,7 +153,6 @@ public partial class MainForm : Form
             // 如果用户不选择强制关闭, 则取消关闭事件
             if (result != DialogResult.Yes)
             {
-                e.Cancel = true;
                 return;
             }
 
@@ -195,6 +197,12 @@ public partial class MainForm : Form
         {
             try { File.Delete(Constants.UpdatePowerShellScriptPath); } catch { }
         }
+
+        // 取消关闭事件的绑定
+        FormClosing -= MainFormClosing;
+
+        // 关闭应用程序
+        Close();
     }
 
     /// <summary>

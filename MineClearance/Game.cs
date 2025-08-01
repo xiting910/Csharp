@@ -42,11 +42,11 @@ public class Game
     /// <exception cref="ArgumentException">如果难度为自定义, 则抛出异常</exception>
     public Game(DifficultyLevel difficulty)
     {
-        Difficulty = difficulty;
         if (difficulty == DifficultyLevel.Custom)
         {
-            throw new ArgumentException("Custom difficulty requires specific board settings.");
+            throw new ArgumentException("自定义难度需要特定的棋盘设置");
         }
+        Difficulty = difficulty;
         var (width, height, mineCount) = Constants.BoardSettings.GetSettings(difficulty);
         TotalMines = mineCount;
         Board = new Board(width, height, mineCount);
@@ -62,18 +62,19 @@ public class Game
     /// <exception cref="ArgumentException">如果地雷数量超过棋盘格子总数, 则抛出异常</exception>
     public Game(int width, int height, int mineCount)
     {
-        Difficulty = DifficultyLevel.Custom;
-        var (maxWidth, maxHeight) = Constants.CustomBoardSettings.GetMaxDimensions();
+        // 检查棋盘尺寸和地雷数量的合法性
+        var maxWidth = Constants.MaxBoardWidth;
+        var maxHeight = Constants.MaxBoardHeight;
         if (width <= 0 || height <= 0 || mineCount < 0 || width > maxWidth || height > maxHeight)
         {
-            throw new ArgumentOutOfRangeException(
-                $"Board dimensions must be between 1 and {maxWidth} for width and 1 and {maxHeight} for height, with mine count non-negative.");
+            throw new ArgumentException("棋盘尺寸不合法");
         }
         if (mineCount >= width * height)
         {
-            throw new ArgumentException("Mine count must be less than total cells.");
+            throw new ArgumentException("地雷数量必须少于总格子数");
         }
         TotalMines = mineCount;
+        Difficulty = DifficultyLevel.Custom;
         Board = new Board(width, height, mineCount);
     }
 

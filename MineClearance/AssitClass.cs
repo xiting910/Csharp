@@ -22,7 +22,12 @@ public class DoubleBufferedPanel : Panel
 public class DownloadProgressForm : Form
 {
     /// <summary>
-    /// 下载进度条和状态标签
+    /// 信息标签
+    /// </summary>
+    public Label InfoLabel { get; }
+
+    /// <summary>
+    /// 下载进度条
     /// </summary>
     public ProgressBar ProgressBar { get; }
 
@@ -46,39 +51,54 @@ public class DownloadProgressForm : Form
     /// </summary>
     public DownloadProgressForm()
     {
-        Text = "下载更新中......(请不要中途切换网络)";
-        Size = new Size(500, 120);
+        // 窗体宽度和高度
+        var formWidth = 1000;
+        var formHeight = 280;
+
+        // 设置窗体属性
+        Text = "下载更新";
+        Size = new(formWidth, formHeight);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
 
+        // 初始化控件
+        InfoLabel = new Label
+        {
+            Text = "正在下载更新, 请不要中途切换网络或关闭程序......",
+            Location = new(10, 10),
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleCenter
+        };
         ProgressBar = new ProgressBar
         {
-            Location = new Point(10, 20),
-            Size = new Size(460, 23),
+            Location = new(10, 70),
+            Size = new(formWidth - 50, 50),
             Minimum = 0,
             Maximum = 100
         };
         StatusLabel = new Label
         {
-            Location = new Point(10, 55),
-            Size = new Size(340, 23),
+            Location = new(10, 150),
+            Size = new(650, 50),
             Text = "准备下载..."
         };
         PauseResumeButton = new Button
         {
-            Location = new Point(355, 50),
-            Size = new Size(75, 23),
+            Location = new(formWidth - 340, 140),
+            Size = new(150, 50),
             Text = "暂停/继续"
         };
         CancelButton = new Button
         {
-            Location = new Point(435, 50),
-            Size = new Size(40, 23),
+            Location = new(formWidth - 180, 140),
+            Size = new(150, 50),
             Text = "取消下载"
         };
 
+        // 添加控件到窗体
+        Controls.Add(InfoLabel);
         Controls.Add(ProgressBar);
         Controls.Add(StatusLabel);
         Controls.Add(PauseResumeButton);
@@ -104,27 +124,95 @@ public partial class CustomDifficultyDialog : Form
 
     public CustomDifficultyDialog()
     {
+        // 对话框宽度和高度
+        var dialogWidth = 500;
+        var dialogHeight = 350;
+
         // 初始化控件和布局
         Text = "自定义难度";
-        Size = new Size(300, 200);
+        Size = new(dialogWidth, dialogHeight);
+        StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
-        StartPosition = FormStartPosition.CenterParent;
 
-        // 创建控件
-        var widthLabel = new Label { Text = "宽度:", Location = new Point(20, 20), Size = new Size(60, 23) };
-        widthInput = new NumericUpDown { Location = new Point(90, 20), Size = new Size(100, 23), Minimum = 1, Maximum = 40, Value = 16 };
+        // 输入标签和输入框的宽度、高度和位置
+        var inputLabelWidth = 120;
+        var inputWidth = 160;
+        var inputHeight = 50;
+        var inputX = (dialogWidth - inputLabelWidth - inputWidth) / 2;
+        var inputY = 30;
 
-        var heightLabel = new Label { Text = "高度:", Location = new Point(20, 50), Size = new Size(60, 23) };
-        heightInput = new NumericUpDown { Location = new Point(90, 50), Size = new Size(100, 23), Minimum = 1, Maximum = 25, Value = 16 };
+        // 两个输入框之间的垂直间距
+        var verticalSpacing = 50;
 
-        var mineLabel = new Label { Text = "地雷数:", Location = new Point(20, 80), Size = new Size(60, 23) };
-        mineCountInput = new NumericUpDown { Location = new Point(90, 80), Size = new Size(100, 23), Minimum = 1, Maximum = 999, Value = 40 };
+        // 创建宽度输入标签和输入框
+        var widthLabel = new Label
+        {
+            Text = "宽度:",
+            Location = new(inputX, inputY),
+            Size = new(inputLabelWidth, inputHeight)
+        };
+        widthInput = new NumericUpDown
+        {
+            Location = new(inputX + inputLabelWidth, inputY),
+            Size = new(inputWidth, inputHeight),
+            Minimum = 1,
+            Maximum = Constants.MaxBoardWidth,
+            Value = 16
+        };
+        inputY += verticalSpacing;
 
-        okButton = new Button { Text = "确定", Location = new Point(110, 120), Size = new Size(75, 23), DialogResult = DialogResult.OK };
-        cancelButton = new Button { Text = "取消", Location = new Point(200, 120), Size = new Size(75, 23), DialogResult = DialogResult.Cancel };
+        // 创建高度输入标签和输入框
+        var heightLabel = new Label
+        {
+            Text = "高度:",
+            Location = new(inputX, inputY),
+            Size = new(inputLabelWidth, inputHeight)
+        };
+        heightInput = new NumericUpDown
+        {
+            Location = new(inputX + inputLabelWidth, inputY),
+            Size = new(inputWidth, inputHeight),
+            Minimum = 1,
+            Maximum = Constants.MaxBoardHeight,
+            Value = 16
+        };
+        inputY += verticalSpacing;
 
+        // 创建地雷数输入标签和输入框
+        var mineLabel = new Label
+        {
+            Text = "地雷数:",
+            Location = new(inputX, inputY),
+            Size = new(inputLabelWidth, inputHeight)
+        };
+        mineCountInput = new NumericUpDown
+        {
+            Location = new(inputX + inputLabelWidth, inputY),
+            Size = new(inputWidth, inputHeight),
+            Minimum = 1,
+            Maximum = Constants.MaxBoardWidth * Constants.MaxBoardHeight - 1,
+            Value = 40
+        };
+
+        // 创建确定和取消按钮
+        okButton = new Button
+        {
+            Text = "确定",
+            Location = new(dialogWidth - 240, dialogHeight - 130),
+            Size = new(80, 50),
+            DialogResult = DialogResult.OK
+        };
+        cancelButton = new Button
+        {
+            Text = "取消",
+            Location = new(dialogWidth - 120, dialogHeight - 130),
+            Size = new(80, 50),
+            DialogResult = DialogResult.Cancel
+        };
+
+        // 添加OK按钮的点击事件处理
         okButton.Click += OkButton_Click;
 
         // 添加控件到窗体
@@ -159,7 +247,7 @@ public class WaitingForm : Form
     public WaitingForm()
     {
         Text = "请稍候";
-        Size = new Size(300, 100);
+        Size = new(500, 180);
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -168,7 +256,7 @@ public class WaitingForm : Form
         ProgressBar progressBar = new()
         {
             Dock = DockStyle.Top,
-            Height = 20,
+            Height = 40,
             Style = ProgressBarStyle.Marquee
         };
         Label label = new()
@@ -227,15 +315,31 @@ public class TimeoutMessageBox : Form
     private TimeoutMessageBox(string text, string caption, int timeoutSeconds)
     {
         Text = caption;
-        Width = 350;
-        Height = 150;
+        Size = new(400, 200);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         StartPosition = FormStartPosition.CenterScreen;
         ControlBox = false;
 
-        lblMsg = new Label { Text = text, Left = 20, Top = 20, Width = 300, Height = 40 };
-        btnRetry = new Button { Text = "重试", Left = 60, Width = 80, Top = 70, DialogResult = DialogResult.Yes };
-        btnCancel = new Button { Text = "取消", Left = 180, Width = 80, Top = 70, DialogResult = DialogResult.No };
+        lblMsg = new Label
+        {
+            Text = text,
+            Location = new(10, 10),
+            AutoSize = true,
+        };
+        btnRetry = new Button
+        {
+            Text = "重试",
+            Location = new(50, 70),
+            Size = new(80, 50),
+            DialogResult = DialogResult.Yes
+        };
+        btnCancel = new Button
+        {
+            Text = "取消",
+            Location = new(200, 70),
+            Size = new(80, 50),
+            DialogResult = DialogResult.No
+        };
 
         btnRetry.Click += (s, e) => { DialogResult = DialogResult.Yes; Close(); };
         btnCancel.Click += (s, e) => { DialogResult = DialogResult.No; Close(); };

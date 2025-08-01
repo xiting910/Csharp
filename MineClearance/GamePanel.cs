@@ -88,19 +88,26 @@ public partial class GamePanel : Panel
         _mouseButton = MouseButtons.None;
         _mouseGridPosition = new(-1, -1);
 
+        // 信息面板高度
+        var infoPanelHeight = 95;
+
+        // 标签Y轴位置
+        var labelY = 30;
+
         // 初始化信息面板
         _infoPanel = new()
         {
-            Size = new Size(Constants.MainFormWidth, 40),
-            Location = new Point(0, 0),
-            BackColor = Color.LightBlue,
+            Size = new(Constants.MainFormWidth, infoPanelHeight),
+            Location = new(0, 0),
+            BackColor = Color.Cyan,
         };
 
         // 添加剩下的地雷数标签
         _minesLeftLabel = new()
         {
             Text = $"剩余地雷数: {_gameInstance?.TotalMines}",
-            Location = new Point(200, 10),
+            ForeColor = Color.DarkGreen,
+            Location = new(10, labelY),
             AutoSize = true
         };
 
@@ -108,15 +115,40 @@ public partial class GamePanel : Panel
         _gameTimeLabel = new()
         {
             Text = "游戏时间: 00:00",
-            Location = new Point(300, 10),
+            ForeColor = Color.DarkBlue,
+            Location = new(250, labelY),
             AutoSize = true
         };
+
+        // 添加提示信息
+        Label hintLabel = new()
+        {
+            Text = "提示: 左键打开格子, 右键标记地雷（在打开一个格子之前无效）, 灰色格子为未打开, 绿色格子表示插旗",
+            Location = new(500, labelY),
+            AutoSize = true
+        };
+
+        // 按钮Y轴位置
+        var buttonY = 25;
+
+        // 添加重新开始按钮
+        Button btnRestart = new()
+        {
+            Text = "重新开始",
+            BackColor = Color.Yellow,
+            Location = new(Constants.MainFormWidth - 400, buttonY),
+            FlatStyle = FlatStyle.Flat,
+            AutoSize = true
+        };
+        btnRestart.Click += BtnRestart_Click;
 
         // 添加返回菜单按钮
         Button btnBackMenu = new()
         {
             Text = "返回菜单",
-            Location = new Point(10, 5),
+            BackColor = Color.LightCoral,
+            Location = new(Constants.MainFormWidth - 200, buttonY),
+            FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
         btnBackMenu.Click += (sender, e) =>
@@ -127,36 +159,19 @@ public partial class GamePanel : Panel
             mainForm.ShowPanel(PanelType.Menu);
         };
 
-        // 添加重新开始按钮
-        Button btnRestart = new()
-        {
-            Text = "重新开始",
-            Location = new Point(100, 5),
-            AutoSize = true
-        };
-        btnRestart.Click += BtnRestart_Click;
-
-        // 添加提示信息
-        Label hintLabel = new()
-        {
-            Text = "提示: 左键打开格子, 右键标记地雷（在打开一个格子之前无效）, 灰色格子为未打开, 绿色格子表示插旗",
-            Location = new Point(500, 10),
-            AutoSize = true
-        };
-
         // 添加信息面板控件
         _infoPanel.Controls.Add(_minesLeftLabel);
         _infoPanel.Controls.Add(_gameTimeLabel);
-        _infoPanel.Controls.Add(btnBackMenu);
-        _infoPanel.Controls.Add(btnRestart);
         _infoPanel.Controls.Add(hintLabel);
+        _infoPanel.Controls.Add(btnRestart);
+        _infoPanel.Controls.Add(btnBackMenu);
 
         // 初始化游戏区域面板
         _gameAreaPanel = new()
         {
             BackColor = Color.White,
-            Location = new(0, 40),
-            Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight - 40)
+            Location = new(0, infoPanelHeight),
+            Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight - infoPanelHeight)
         };
 
         // 添加鼠标按下事件
@@ -650,6 +665,6 @@ public partial class GamePanel : Panel
     {
         // 更新剩余地雷数量显示
         remainingMines = Math.Max(0, remainingMines);
-        _minesLeftLabel.Text = $"剩余地雷: {remainingMines}";
+        _minesLeftLabel.Text = $"剩余地雷数: {remainingMines}";
     }
 }
