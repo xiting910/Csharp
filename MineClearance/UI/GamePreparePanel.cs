@@ -8,9 +8,7 @@ public partial class GamePreparePanel : Panel
     /// <summary>
     /// 初始化准备游戏面板
     /// </summary>
-    /// <param name="mainForm">主窗体</param>
-    /// <param name="gamePanel">游戏面板</param>
-    public GamePreparePanel(MainForm mainForm, GamePanel gamePanel)
+    public GamePreparePanel()
     {
         // 设置准备游戏面板属性
         Name = "GamePreparationPanel";
@@ -59,11 +57,7 @@ public partial class GamePreparePanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnEasy.Click += (sender, e) =>
-        {
-            gamePanel.StartGame(new(DifficultyLevel.Easy));
-            mainForm.ShowPanel(PanelType.Game);
-        };
+        btnEasy.Click += (sender, e) => GamePanel.StartNewGame(new(DifficultyLevel.Easy));
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加普通按钮
@@ -76,11 +70,7 @@ public partial class GamePreparePanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnMedium.Click += (sender, e) =>
-        {
-            gamePanel.StartGame(new(DifficultyLevel.Medium));
-            mainForm.ShowPanel(PanelType.Game);
-        };
+        btnMedium.Click += (sender, e) => GamePanel.StartNewGame(new(DifficultyLevel.Medium));
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加困难按钮
@@ -93,11 +83,7 @@ public partial class GamePreparePanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnHard.Click += (sender, e) =>
-        {
-            gamePanel.StartGame(new(DifficultyLevel.Hard));
-            mainForm.ShowPanel(PanelType.Game);
-        };
+        btnHard.Click += (sender, e) => GamePanel.StartNewGame(new(DifficultyLevel.Hard));
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加地狱按钮
@@ -110,11 +96,7 @@ public partial class GamePreparePanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnHell.Click += (sender, e) =>
-        {
-            gamePanel.StartGame(new(DifficultyLevel.Hell));
-            mainForm.ShowPanel(PanelType.Game);
-        };
+        btnHell.Click += (sender, e) => GamePanel.StartNewGame(new(DifficultyLevel.Hell));
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加自定义按钮
@@ -136,9 +118,7 @@ public partial class GamePreparePanel : Panel
                 var (width, height, mineCount) = dialog.CustomDifficulty;
                 try
                 {
-                    var gameInstance = new Game(width, height, mineCount);
-                    gamePanel.StartGame(gameInstance);
-                    mainForm.ShowPanel(PanelType.Game);
+                    GamePanel.StartNewGame(new(width, height, mineCount));
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
@@ -164,7 +144,7 @@ public partial class GamePreparePanel : Panel
             ForeColor = Color.White,
             FlatStyle = FlatStyle.Flat
         };
-        btnBackMenu.Click += (sender, e) => mainForm.ShowPanel(PanelType.Menu);
+        btnBackMenu.Click += (sender, e) => MainForm.ShowPanel(PanelType.Menu);
 
         // 添加控件到游戏准备面板
         Controls.Add(titleLabel);
@@ -174,8 +154,5 @@ public partial class GamePreparePanel : Panel
         Controls.Add(btnHell);
         Controls.Add(btnCustom);
         Controls.Add(btnBackMenu);
-
-        // 将游戏准备面板添加到窗体
-        mainForm.Controls.Add(this);
     }
 }

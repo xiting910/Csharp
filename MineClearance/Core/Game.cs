@@ -18,7 +18,7 @@ public class Game
     /// <summary>
     /// 游戏难度
     /// </summary>
-    public DifficultyLevel Difficulty { get; private set; }
+    public DifficultyLevel Difficulty { get; private init; }
 
     /// <summary>
     /// 游戏的开始时间(首次点击时间)
@@ -28,12 +28,12 @@ public class Game
     /// <summary>
     /// 地雷总数
     /// </summary>
-    public int TotalMines { get; private set; }
+    public int TotalMines { get; private init; }
 
     /// <summary>
     /// 游戏棋盘
     /// </summary>
-    public Board Board { get; private set; }
+    public Board Board { get; private init; }
 
     /// <summary>
     /// 构造非自定义难度的扫雷游戏
@@ -98,8 +98,14 @@ public class Game
             // 计算游戏时长
             var duration = endTime - StartTime;
 
+            // 总的非地雷格子数量
+            var totalSafeCount = Board.Width * Board.Height - TotalMines;
+
+            // 已经打开的非地雷格子数量
+            var openedSafeCount = totalSafeCount - Board.UnopenedSafeCount;
+
             // 计算完成度
-            var completion = (double)Board.GetCorrectFlagCount() / TotalMines;
+            var completion = (double)openedSafeCount / totalSafeCount;
 
             // 触发 GameLost 事件
             GameLost?.Invoke(new GameResult(

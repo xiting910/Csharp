@@ -3,33 +3,6 @@ using System.Text.Json;
 namespace MineClearance;
 
 /// <summary>
-/// 带有版本号和最后更新时间的数据类.
-/// 旧版本只有游戏结果列表, 且自定义难度的Difficulty为3, 称为版本0.
-/// 版本1开始引入了GameData类, 包含了最后更新时间和版本号, 同时增加地狱难度, 地狱难度的Difficulty为3, 自定义难度的Difficulty变为4.
-/// </summary>
-/// <param name="lastUpdate">最后更新时间</param>
-/// <param name="gameResults">游戏结果列表</param>
-/// <param name="version">数据版本</param>
-public class GameData(DateTime lastUpdate, List<GameResult> gameResults, int version = 0)
-{
-    /// <summary>
-    /// 数据版本
-    /// </summary>
-    public int Version { get; set; } = version;
-
-    /// <summary>
-    /// 最后更新时间
-    /// </summary>
-    public DateTime LastUpdate { get; set; } = lastUpdate;
-
-
-    /// <summary>
-    /// 游戏结果列表
-    /// </summary>
-    public List<GameResult> GameResults { get; set; } = gameResults;
-}
-
-/// <summary>
 /// 数据类, 记录和控制所有历史游戏数据
 /// </summary>
 public static class Datas
@@ -125,7 +98,7 @@ public static class Datas
         catch (Exception ex)
         {
             // 显示错误信息
-            MessageBox.Show($"初始化游戏数据失败: {ex.Message}");
+            MessageBox.Show($"初始化游戏数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -139,16 +112,14 @@ public static class Datas
             // 要保存的数据
             var data = new GameData(DateTime.Now, _gameResults, 1);
 
-            // 将数据序列化为 JSON 字符串
-            var json = JsonSerializer.Serialize(data, _jsonOptions);
-
-            // 异步写入数据文件
-            await File.WriteAllTextAsync(Constants.DataFilePath, json);
+            // 异步序列化 data 到游戏历史记录文件
+            await using var stream = File.Create(Constants.DataFilePath);
+            await JsonSerializer.SerializeAsync(stream, data, _jsonOptions);
         }
         catch (Exception ex)
         {
             // 显示错误信息
-            MessageBox.Show($"保存游戏结果失败: {ex.Message}");
+            MessageBox.Show($"保存游戏结果失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

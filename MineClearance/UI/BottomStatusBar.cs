@@ -28,6 +28,11 @@ public class BottomStatusBar : StatusStrip
     private readonly ToolStripStatusLabel _infoLabel2;
 
     /// <summary>
+    /// 状态栏状态切换事件
+    /// </summary>
+    private static event Action<StatusBarState>? StatusBarStateChanged;
+
+    /// <summary>
     /// 构造函数，初始化状态栏
     /// </summary>
     /// <param name="author">作者信息</param>
@@ -89,13 +94,25 @@ public class BottomStatusBar : StatusStrip
         Items.Add(_infoLabel1);
         Items.Add(_repoLinkLabel);
         Items.Add(_infoLabel2);
+
+        // 订阅状态栏状态切换事件
+        StatusBarStateChanged += SetStatus;
+    }
+
+    /// <summary>
+    /// 切换状态栏状态
+    /// </summary>
+    /// <param name="status">新的状态</param>
+    public static void ChangeStatus(StatusBarState status)
+    {
+        StatusBarStateChanged?.Invoke(status);
     }
 
     /// <summary>
     /// 设置左侧状态文本
     /// </summary>
     /// <param name="status">状态</param>
-    public void SetStatus(StatusBarState status)
+    private void SetStatus(StatusBarState status)
     {
         _statusLabel.Text = status switch
         {
@@ -107,5 +124,19 @@ public class BottomStatusBar : StatusStrip
             StatusBarState.GameLost => "状态: 游戏失败",
             _ => "状态: 未知"
         };
+    }
+
+    /// <summary>
+    /// 重写Dispose方法, 取消静态事件的订阅, 防止内存泄漏
+    /// </summary>
+    /// <param name="disposing">是否释放托管资源</param>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // 取消静态事件的订阅，防止内存泄漏
+            StatusBarStateChanged -= SetStatus;
+        }
+        base.Dispose(disposing);
     }
 }

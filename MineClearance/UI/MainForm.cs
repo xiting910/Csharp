@@ -33,24 +33,9 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// 菜单面板, 包含新游戏、显示排行榜和退出按钮
+    /// 面板字典, 存储不同类型的面板
     /// </summary>
-    private readonly MenuPanel _menuPanel;
-
-    /// <summary>
-    /// 游戏准备面板, 选择难度或者自定义
-    /// </summary>
-    private readonly GamePreparePanel _gamePreparePanel;
-
-    /// <summary>
-    /// 游戏面板, 显示当前游戏状态
-    /// </summary>
-    private readonly GamePanel _gamePanel;
-
-    /// <summary>
-    /// 排行榜面板, 显示历史记录
-    /// </summary>
-    private readonly RankingPanel _rankingPanel;
+    private readonly Dictionary<PanelType, Panel> _panels;
 
     /// <summary>
     /// 底部状态栏
@@ -58,14 +43,15 @@ public partial class MainForm : Form
     private readonly BottomStatusBar _bottomStatusBar;
 
     /// <summary>
+    /// 面板切换事件
+    /// </summary>
+    private static event Action<PanelType>? OnPanelSwitched;
+
+    /// <summary>
     /// 初始化主窗体
     /// </summary>
     public MainForm()
     {
-        // 绑定未捕获异常事件
-        Application.ThreadException += OnThreadException;
-        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-        
         // 设置窗口属性
         Text = "扫雷游戏";
         Size = new(Constants.MainFormWidth, Constants.MainFormHeight);
@@ -77,16 +63,26 @@ public partial class MainForm : Form
         // 绑定关闭事件
         FormClosing += MainFormClosing;
 
-        // 初始化面板
-        _gamePanel = new(this);
-        _menuPanel = new(this);
-        _rankingPanel = new(this);
-        _gamePreparePanel = new(this, _gamePanel);
+        // 初始化所有面板
+        _panels = new Dictionary<PanelType, Panel>
+        {
+            { PanelType.Game, new GamePanel() },
+            { PanelType.Menu, new MenuPanel() },
+            { PanelType.Ranking, new RankingPanel() },
+            { PanelType.GamePrepare, new GamePreparePanel() }
+        };
+
+        // 初始化底部状态栏
         _bottomStatusBar = new(Constants.AuthorName, Constants.GitHubRepoUrl);
+
+        // 添加所有面板到窗体
+        Controls.AddRange([.. _panels.Values]);
+
+        // 添加底部状态栏到窗体
         Controls.Add(_bottomStatusBar);
 
-        // 订阅底部状态栏状态改变事件
-        _gamePanel.StatusBarStateChanged += _bottomStatusBar.SetStatus;
+        // 订阅面板切换事件
+        OnPanelSwitched += SwitchToPanel;
 
         // 显示菜单面板
         ShowPanel(PanelType.Menu);
@@ -100,38 +96,40 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// 切换到指定面板
+    /// 显示指定类型的面板
     /// </summary>
-    /// <param name="targetPanel">目标面板</param>
-    public void ShowPanel(PanelType targetPanel)
+    /// <param name="panelType">面板类型</param>
+    public static void ShowPanel(PanelType panelType)
+    {
+        OnPanelSwitched?.Invoke(panelType);
+    }
+
+    /// <summary>
+    /// 切换到指定类型的面板
+    /// </summary>
+    /// <param name="panelType">面板类型</param>
+    private void SwitchToPanel(PanelType panelType)
     {
         // 隐藏所有面板
-        if (_menuPanel != null) _menuPanel.Visible = false;
-        if (_gamePreparePanel != null) _gamePreparePanel.Visible = false;
-        if (_gamePanel != null) _gamePanel.Visible = false;
-        if (_rankingPanel != null) _rankingPanel.Visible = false;
-
-        // 显示目标面板
-        switch (targetPanel)
+        foreach (var panel in _panels.Values)
         {
-            case PanelType.Menu:
-                if (_menuPanel != null) _menuPanel.Visible = true;
-                _bottomStatusBar.SetStatus(StatusBarState.Ready);
-                break;
-            case PanelType.GamePrepare:
-                if (_gamePreparePanel != null) _gamePreparePanel.Visible = true;
-                _bottomStatusBar.SetStatus(StatusBarState.Preparing);
-                break;
-            case PanelType.Game:
-                if (_gamePanel != null) _gamePanel.Visible = true;
-                break;
-            case PanelType.Ranking:
-                _rankingPanel?.RestartRankingPanel();
-                if (_rankingPanel != null) _rankingPanel.Visible = true;
-                _bottomStatusBar.SetStatus(StatusBarState.Ranking);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(targetPanel), targetPanel, null);
+            panel.Visible = false;
+        }
+
+        // 更新底部状态栏
+        BottomStatusBar.ChangeStatus(Methods.GetBottomStatusBarState(panelType));
+
+        // 显示指定类型的面板
+        if (_panels.TryGetValue(panelType, out var selectedPanel))
+        {
+            // 如果是排行榜面板, 则先重启
+            if (selectedPanel is RankingPanel rankingPanel)
+            {
+                rankingPanel.RestartRankingPanel();
+            }
+
+            // 设置面板可见
+            selectedPanel.Visible = true;
         }
     }
 
@@ -142,6 +140,13 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private async void MainFormClosing(object? sender, FormClosingEventArgs e)
     {
+        // 如果强制关闭标志为真, 则直接关闭
+        if (Methods.IsForceClose)
+        {
+            // 直接返回
+            return;
+        }
+
         // 先取消关闭
         e.Cancel = true;
 
@@ -198,8 +203,8 @@ public partial class MainForm : Form
             try { File.Delete(Constants.UpdatePowerShellScriptPath); } catch { }
         }
 
-        // 取消关闭事件的绑定
-        FormClosing -= MainFormClosing;
+        // 设置强制关闭标志
+        Methods.IsForceClose = true;
 
         // 关闭应用程序
         Close();
@@ -221,6 +226,8 @@ public partial class MainForm : Form
                 DialogResult dialogResult;
                 if (args.Mandatory.Value)
                 {
+                    // 如果是强制更新, 则设置强制更新标志
+                    Methods.IsForceUpdate = true;
                     dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。这是强制更新。按确定开始更新应用程序。", @"更新可用", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
@@ -292,74 +299,17 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// 记录异常到日志文件
+    /// 重写Dispose方法, 取消静态事件的订阅, 防止内存泄漏
     /// </summary>
-    /// <param name="ex">要记录的异常</param>
-    private static async Task LogException(Exception ex)
+    /// <param name="disposing">是否释放托管资源</param>
+    protected override void Dispose(bool disposing)
     {
-        string log = $"[{DateTime.Now}] {ex}\n";
-        try
+        if (disposing)
         {
-            if (!Directory.Exists(Constants.DataPath))
-            {
-                Directory.CreateDirectory(Constants.DataPath);
-            }
-            await File.AppendAllTextAsync(Constants.ErrorFilePath, log);
+            // 取消静态事件订阅，防止内存泄漏
+            OnPanelSwitched -= SwitchToPanel;
         }
-        catch { /* 忽略日志写入异常 */ }
-    }
-
-    /// <summary>
-    /// 处理未处理的线程异常
-    /// </summary>
-    /// <param name="sender">事件发送者</param>
-    /// <param name="e">线程异常事件参数</param>
-    private async void OnThreadException(object sender, ThreadExceptionEventArgs e)
-    {
-        // 取消下载
-        Methods.CTS.Cancel();
-
-        // 取消关闭事件的绑定
-        FormClosing -= MainFormClosing;
-
-        // 记录异常到日志文件并弹窗提示错误信息
-        var logTask = LogException(e.Exception);
-        MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-        // 确认日志写入完成后退出应用程序
-        await logTask;
-        Application.Exit();
-    }
-
-    /// <summary>
-    /// 处理未处理的应用程序异常
-    /// </summary>
-    /// <param name="sender">事件发送者</param>
-    /// <param name="e">未处理异常事件参数</param>
-    private async void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-        // 取消下载
-        Methods.CTS.Cancel();
-
-        // 取消关闭事件的绑定
-        FormClosing -= MainFormClosing;
-
-        // 记录异常到日志文件并弹窗提示错误信息
-        Task logTask;
-        if (e.ExceptionObject is Exception ex)
-        {
-            logTask = LogException(ex);
-            MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-        else
-        {
-            logTask = LogException(new Exception("发生未知的未处理异常。"));
-            MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        // 确认日志写入完成后退出应用程序
-        await logTask;
-        Application.Exit();
+        base.Dispose(disposing);
     }
 
     /// <summary>

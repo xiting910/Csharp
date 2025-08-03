@@ -71,7 +71,7 @@ public class Mines(int width, int height, int mineCount)
         // 如果地雷数量小于allPositions的数量, 则从中随机选择地雷位置
         if (_mineCount < allPositions.Length)
         {
-            Methods.RandomInstance.Shuffle(allPositions);
+            Random.Shared.Shuffle(allPositions);
             minePositions = [.. allPositions.Take(_mineCount)];
         }
         else
@@ -85,7 +85,7 @@ public class Mines(int width, int height, int mineCount)
             // 如果剩余地雷数量大于0, 则从安全位置中随机选择位置填充地雷
             if (remainingMines > 0)
             {
-                Methods.RandomInstance.Shuffle(safePositions);
+                Random.Shared.Shuffle(safePositions);
                 minePositions.AddRange(safePositions.Take(remainingMines));
             }
         }
@@ -117,11 +117,11 @@ public class Mines(int width, int height, int mineCount)
     /// <returns>周围地雷的数量</returns>
     private int CountAdjacentMines(int row, int column)
     {
-        int mineCount = 0;
+        var mineCount = 0;
 
-        for (int r = row - 1; r <= row + 1; r++)
+        for (var r = row - 1; r <= row + 1; ++r)
         {
-            for (int c = column - 1; c <= column + 1; c++)
+            for (var c = column - 1; c <= column + 1; ++c)
             {
                 if (r < 0 || r >= _height || c < 0 || c >= _width) continue;
                 if (MineGrid[r, c] == -1) mineCount++;

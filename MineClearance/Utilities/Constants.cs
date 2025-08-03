@@ -109,7 +109,7 @@ public static partial class Constants
                 DifficultyLevel.Easy => (9, 9, 10),
                 DifficultyLevel.Medium => (16, 16, 40),
                 DifficultyLevel.Hard => (30, 16, 99),
-                DifficultyLevel.Hell => (50, 30, 300),
+                DifficultyLevel.Hell => (50, 30, 309),
                 _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
             };
         }
@@ -124,6 +124,11 @@ public static partial class Constants
     /// 扫雷棋盘的最大高度
     /// </summary>
     public const int MaxBoardHeight = 30;
+
+    /// <summary>
+    /// 无效位置
+    /// </summary>
+    public static readonly Position InvalidPosition = new(-1, -1);
 
     /// <summary>
     /// 主窗体的宽度

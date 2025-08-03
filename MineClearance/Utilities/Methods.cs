@@ -11,6 +11,16 @@ public static partial class Methods
     private static partial Regex ChangeLogRegex();
 
     /// <summary>
+    /// 是否要强制关闭程序
+    /// </summary>
+    public static bool IsForceClose { get; set; } = false;
+
+    /// <summary>
+    /// 是否需要强制更新
+    /// </summary>
+    public static bool IsForceUpdate { get; set; } = false;
+
+    /// <summary>
     /// 是否正在处理更新事件
     /// </summary>
     public static bool IsHandlingUpdateEvent { get; set; } = false;
@@ -19,11 +29,6 @@ public static partial class Methods
     /// 当前是否为第一次检查更新
     /// </summary>
     public static bool IsFirstCheck { get; set; } = true;
-
-    /// <summary>
-    /// 线程安全的随机数生成器
-    /// </summary>
-    public static Random RandomInstance => Random.Shared;
 
     /// <summary>
     /// 取消下载的令牌源
@@ -37,6 +42,24 @@ public static partial class Methods
     public static bool IsWindows()
     {
         return Environment.OSVersion.Platform == PlatformID.Win32NT;
+    }
+
+    /// <summary>
+    /// 根据当前面板类型获取对应底部状态栏状态
+    /// </summary>
+    /// <param name="panelType">当前面板类型</param>
+    /// <returns>返回对应的底部状态栏状态</returns>
+    /// <exception cref="ArgumentOutOfRangeException">如果面板类型未知则抛出异常</exception>
+    public static StatusBarState GetBottomStatusBarState(PanelType panelType)
+    {
+        return panelType switch
+        {
+            PanelType.Menu => StatusBarState.Ready,
+            PanelType.GamePrepare => StatusBarState.Preparing,
+            PanelType.Game => StatusBarState.InGame,
+            PanelType.Ranking => StatusBarState.Ranking,
+            _ => throw new ArgumentOutOfRangeException(nameof(panelType), "未知的面板类型")
+        };
     }
 
     /// <summary>

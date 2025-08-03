@@ -1,7 +1,7 @@
 namespace MineClearance;
 
 /// <summary>
-/// 表示扫雷游戏中格子的类型
+/// 格子类型枚举
 /// </summary>
 public enum GridType
 {
@@ -21,6 +21,11 @@ public enum GridType
     Number,
 
     /// <summary>
+    /// 警告数字格子, 表示玩家在其周围插旗的数量超过了实际地雷数量
+    /// </summary>
+    WarningNumber,
+
+    /// <summary>
     /// 标记的地雷
     /// </summary>
     Flagged,
@@ -32,7 +37,7 @@ public enum GridType
 }
 
 /// <summary>
-/// 难度级别
+/// 难度级别枚举
 /// </summary>
 public enum DifficultyLevel
 {
@@ -63,7 +68,7 @@ public enum DifficultyLevel
 }
 
 /// <summary>
-/// 要显示的面板
+/// 面板类型枚举
 /// </summary>
 public enum PanelType
 {
@@ -89,7 +94,7 @@ public enum PanelType
 }
 
 /// <summary>
-/// 底部状态栏状态
+/// 底部状态栏状态枚举
 /// </summary>
 public enum StatusBarState
 {
@@ -125,7 +130,7 @@ public enum StatusBarState
 }
 
 /// <summary>
-/// 排行榜显示模式
+/// 排行榜显示模式枚举
 /// </summary>
 public enum RankingDisplayMode
 {

@@ -23,8 +23,7 @@ public partial class RankingPanel : Panel
     /// <summary>
     /// 初始化排行榜面板
     /// </summary>
-    /// <param name="mainForm">主窗体</param>
-    public RankingPanel(MainForm mainForm)
+    public RankingPanel()
     {
         // 设置排行榜面板属性
         Name = "RankingPanel";
@@ -38,7 +37,7 @@ public partial class RankingPanel : Panel
         rankingTopPanel = new()
         {
             Name = "RankingTopPanel",
-            Size = new(mainForm.Width, (int)(52 * Constants.DpiScale)),
+            Size = new(Constants.MainFormWidth, (int)(52 * Constants.DpiScale)),
             BackColor = Color.LightSalmon,
             Location = new(0, 0)
         };
@@ -63,7 +62,7 @@ public partial class RankingPanel : Panel
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
-        btnBackMenu.Click += (sender, e) => mainForm.ShowPanel(PanelType.Menu);
+        btnBackMenu.Click += (sender, e) => MainForm.ShowPanel(PanelType.Menu);
         rankingTopPanel.Controls.Add(btnBackMenu);
 
         // 添加按钮以清除历史记录
@@ -120,9 +119,6 @@ public partial class RankingPanel : Panel
         // 添加排行榜顶部面板和列表框到排行榜面板
         Controls.Add(rankingTopPanel);
         Controls.Add(rankingListBox);
-
-        // 添加排行榜面板到主窗体
-        mainForm.Controls.Add(this);
     }
 
     /// <summary>
@@ -227,7 +223,7 @@ public partial class RankingPanel : Panel
         foreach (var (level, stats) in difficultyStats)
         {
             // 格式化难度名称
-            string formattedDifficulty = level switch
+            var formattedDifficulty = level switch
             {
                 DifficultyLevel.Easy => "简单",
                 DifficultyLevel.Medium => "普通",
@@ -243,18 +239,18 @@ public partial class RankingPanel : Panel
                 continue;
             }
 
-            double winRate = (double)stats.wins / stats.total;
-            TimeSpan avgDuration = stats.wins > 0 ? TimeSpan.FromMilliseconds(stats.totalDuration.TotalMilliseconds / stats.wins) : TimeSpan.Zero;
-            double avgCompletion = stats.totalCompletion / stats.total;
+            var winRate = (double)stats.wins / stats.total;
+            var avgDuration = stats.wins > 0 ? TimeSpan.FromMilliseconds(stats.totalDuration.TotalMilliseconds / stats.wins) : TimeSpan.Zero;
+            var avgCompletion = stats.totalCompletion / stats.total;
 
             // 格式化用时为 xx:xx.xx 格式
-            string formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}.{avgDuration.Milliseconds / 10:D2}";
+            var formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}.{avgDuration.Milliseconds / 10:D2}";
 
             // 完成度格式化为百分比, 保留两位小数
-            string formattedCompletion = $"{avgCompletion,6:0.00}%";
+            var formattedCompletion = $"{avgCompletion,6:0.00}%";
 
             // 格式化最短胜利用时
-            string formattedShortestDuration = stats.shortestDuration == TimeSpan.MaxValue ? "无" : $"{(int)stats.shortestDuration.TotalMinutes:D2}:{stats.shortestDuration.Seconds:D2}.{stats.shortestDuration.Milliseconds / 10:D2}";
+            var formattedShortestDuration = stats.shortestDuration == TimeSpan.MaxValue ? "无" : $"{(int)stats.shortestDuration.TotalMinutes:D2}:{stats.shortestDuration.Seconds:D2}.{stats.shortestDuration.Milliseconds / 10:D2}";
 
             // 添加到排行榜列表
             showRankingList.Add($"难度: {formattedDifficulty}, 游戏次数: {stats.total}, 胜利次数: {stats.wins}, 胜利率: {winRate:P2}, 平均胜利用时: {formattedDuration}, 平均完成度: {formattedCompletion}, 最短胜利用时: {formattedShortestDuration}");

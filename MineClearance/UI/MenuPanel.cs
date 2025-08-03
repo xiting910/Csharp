@@ -10,8 +10,7 @@ public partial class MenuPanel : Panel
     /// <summary>
     /// 初始化菜单面板
     /// </summary>
-    /// <param name="mainForm">主窗体</param>
-    public MenuPanel(MainForm mainForm)
+    public MenuPanel()
     {
         // 设置菜单面板属性
         Name = "MenuPanel";
@@ -60,7 +59,7 @@ public partial class MenuPanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnNewGame.Click += (sender, e) => mainForm.ShowPanel(PanelType.GamePrepare);
+        btnNewGame.Click += BtnNewGame_Click;
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加显示排行榜按钮
@@ -73,7 +72,7 @@ public partial class MenuPanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnShowRanking.Click += (sender, e) => mainForm.ShowPanel(PanelType.Ranking);
+        btnShowRanking.Click += BtnShowRanking_Click;
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加检查更新按钮
@@ -99,7 +98,7 @@ public partial class MenuPanel : Panel
             ForeColor = Color.White,
             FlatStyle = FlatStyle.Flat
         };
-        btnExit.Click += (sender, e) => mainForm.Close();
+        btnExit.Click += (sender, e) => Application.Exit();
 
         // 添加控件到菜单面板
         Controls.Add(titleLabel);
@@ -107,9 +106,38 @@ public partial class MenuPanel : Panel
         Controls.Add(btnShowRanking);
         Controls.Add(btnCheckUpdate);
         Controls.Add(btnExit);
+    }
 
-        // 将菜单面板添加到窗体
-        mainForm.Controls.Add(this);
+    /// <summary>
+    /// 新游戏按钮点击事件处理
+    /// </summary>
+    private void BtnNewGame_Click(object? sender, EventArgs e)
+    {
+        // 如果需要强制更新, 则提示用户
+        if (Methods.IsForceUpdate)
+        {
+            MessageBox.Show("当前需要强制更新, 请先更新应用程序后再开始新游戏。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // 显示游戏准备面板
+        MainForm.ShowPanel(PanelType.GamePrepare);
+    }
+
+    /// <summary>
+    /// 游戏历史记录按钮点击事件处理
+    /// </summary>
+    private void BtnShowRanking_Click(object? sender, EventArgs e)
+    {
+        // 如果需要强制更新, 则提示用户
+        if (Methods.IsForceUpdate)
+        {
+            MessageBox.Show("当前需要强制更新, 请先更新应用程序后再查看游戏历史记录。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // 显示排行榜面板
+        MainForm.ShowPanel(PanelType.Ranking);
     }
 
     /// <summary>
