@@ -291,6 +291,9 @@ public partial class SettingForm : Form
             return;
         }
 
+        // 关闭开机自启
+        AutoStartHelper.DisableAutoStart();
+
         // 设置强制关闭标志
         Methods.IsForceClose = true;
 
