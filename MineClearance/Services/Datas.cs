@@ -89,11 +89,6 @@ public static class Datas
                     SaveGameResultsAsync().Wait();
                 }
             }
-            else
-            {
-                // 如果文件内容为空, 初始化为空列表
-                _gameResults.Clear();
-            }
         }
         catch (Exception ex)
         {
@@ -109,6 +104,13 @@ public static class Datas
     {
         try
         {
+            // 检查数据存储路径是否存在
+            if (!Directory.Exists(Constants.DataPath))
+            {
+                // 如果不存在, 创建数据存储路径
+                Directory.CreateDirectory(Constants.DataPath);
+            }
+
             // 要保存的数据
             var data = new GameData(DateTime.Now, _gameResults, 1);
 

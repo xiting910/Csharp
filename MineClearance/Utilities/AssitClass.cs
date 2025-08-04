@@ -17,92 +17,18 @@ public class DoubleBufferedPanel : Panel
 }
 
 /// <summary>
-/// 提供下载进度的窗体
+/// 自定义双缓冲列表视图
 /// </summary>
-public class DownloadProgressForm : Form
+public class DoubleBufferedListView : ListView
 {
     /// <summary>
-    /// 信息标签
+    /// 构造函数, 初始化双缓冲列表视图
     /// </summary>
-    public Label InfoLabel { get; }
-
-    /// <summary>
-    /// 下载进度条
-    /// </summary>
-    public ProgressBar ProgressBar { get; }
-
-    /// <summary>
-    /// 状态标签, 显示下载状态信息
-    /// </summary>
-    public Label StatusLabel { get; }
-
-    /// <summary>
-    /// 暂停/继续下载按钮
-    /// </summary>
-    public Button PauseResumeButton { get; }
-
-    /// <summary>
-    /// 取消下载按钮
-    /// </summary>
-    public new Button CancelButton { get; }
-
-    /// <summary>
-    /// 构造函数, 初始化下载进度窗体
-    /// </summary>
-    public DownloadProgressForm()
+    public DoubleBufferedListView()
     {
-        // 窗体宽度和高度
-        var formWidth = (int)(500 * Constants.DpiScale);
-        var formHeight = (int)(140 * Constants.DpiScale);
-
-        // 设置窗体属性
-        Text = "下载更新";
-        Size = new(formWidth, formHeight);
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        StartPosition = FormStartPosition.CenterScreen;
-
-        // 初始化控件
-        InfoLabel = new Label
-        {
-            Text = "正在下载更新, 请不要中途切换网络或关闭程序......",
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
-            AutoSize = true,
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-        ProgressBar = new ProgressBar
-        {
-            Location = new((int)(5 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
-            Size = new(formWidth - (int)(25 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
-            Minimum = 0,
-            Maximum = 100
-        };
-        StatusLabel = new Label
-        {
-            Location = new((int)(5 * Constants.DpiScale), (int)(75 * Constants.DpiScale)),
-            Size = new((int)(325 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
-            Text = "准备下载..."
-        };
-        PauseResumeButton = new Button
-        {
-            Location = new(formWidth - (int)(170 * Constants.DpiScale), (int)(70 * Constants.DpiScale)),
-            Size = new((int)(75 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
-            Text = "暂停/继续"
-        };
-        CancelButton = new Button
-        {
-            Location = new(formWidth - (int)(90 * Constants.DpiScale), (int)(70 * Constants.DpiScale)),
-            Size = new((int)(75 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
-            Text = "取消下载"
-        };
-
-        // 添加控件到窗体
-        Controls.Add(InfoLabel);
-        Controls.Add(ProgressBar);
-        Controls.Add(StatusLabel);
-        Controls.Add(PauseResumeButton);
-        Controls.Add(CancelButton);
+        DoubleBuffered = true;
+        SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+        UpdateStyles();
     }
 }
 
@@ -271,192 +197,131 @@ public class WaitingForm : Form
 }
 
 /// <summary>
-/// 提供下载长时间无进度后的提示窗体
+/// 提供确认卸载的窗体
 /// </summary>
-public class TimeoutMessageBox : Form
+public class UninstallConfirmDialog : Form
 {
     /// <summary>
-    /// 重试按钮
+    /// 获取是否保留数据的选项
     /// </summary>
-    private readonly Button btnRetry;
+    public bool KeepData => keepDataCheckBox.Checked;
+
+    /// <summary>
+    /// 信息标签
+    /// </summary>
+    private readonly Label messageLabel;
+
+    /// <summary>
+    /// 保留数据复选框
+    /// </summary>
+    private readonly CheckBox keepDataCheckBox;
+
+    /// <summary>
+    /// 确认按钮
+    /// </summary>
+    private readonly Button okButton;
+
     /// <summary>
     /// 取消按钮
     /// </summary>
-    private readonly Button btnCancel;
-    /// <summary>
-    /// 消息标签
-    /// </summary>
-    private readonly Label lblMsg;
-    /// <summary>
-    /// 定时器, 用于自动选择重试
-    /// </summary>
-    private readonly System.Windows.Forms.Timer timer;
-    /// <summary>
-    /// 剩余时间（秒）
-    /// </summary>
-    private int secondsLeft;
+    private readonly Button cancelButton;
 
     /// <summary>
-    /// 显示提示框
+    /// 构造函数, 初始化确认卸载对话框
     /// </summary>
-    /// <param name="text">提示文本</param>
-    /// <param name="caption">标题</param>
-    /// <param name="timeoutSeconds">超时时间（秒）</param>
-    /// <returns>用户选择的结果</returns>
-    public static DialogResult Show(string text, string caption, int timeoutSeconds)
+    /// <param name="message">对话框显示的消息</param>
+    public UninstallConfirmDialog(string message)
     {
-        using var box = new TimeoutMessageBox(text, caption, timeoutSeconds);
-        return box.ShowDialog();
-    }
+        // 对话框大小
+        var dialogWidth = (int)(300 * Constants.DpiScale);
+        var dialogHeight = (int)(120 * Constants.DpiScale);
 
-    /// <summary>
-    /// 构造函数, 初始化提示框
-    /// </summary>
-    private TimeoutMessageBox(string text, string caption, int timeoutSeconds)
-    {
-        Text = caption;
-        Size = new((int)(200 * Constants.DpiScale), (int)(100 * Constants.DpiScale));
+        // 设置对话框属性
+        Text = "确认卸载";
+        Width = dialogWidth;
+        Height = dialogHeight;
+        MaximizeBox = false;
+        MinimizeBox = false;
+        StartPosition = FormStartPosition.CenterParent;
         FormBorderStyle = FormBorderStyle.FixedDialog;
-        StartPosition = FormStartPosition.CenterScreen;
-        ControlBox = false;
 
-        lblMsg = new Label
-        {
-            Text = text,
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
-            AutoSize = true,
-        };
-        btnRetry = new Button
-        {
-            Text = "重试",
-            Location = new((int)(25 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
-            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
-            DialogResult = DialogResult.Yes
-        };
-        btnCancel = new Button
-        {
-            Text = "取消",
-            Location = new((int)(100 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
-            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
-            DialogResult = DialogResult.No
-        };
+        // 信息标签的大小
+        var labelWidth = dialogWidth - (int)(15 * Constants.DpiScale) * 2;
+        var labelHeight = (int)(20 * Constants.DpiScale);
 
-        btnRetry.Click += (s, e) => { DialogResult = DialogResult.Yes; Close(); };
-        btnCancel.Click += (s, e) => { DialogResult = DialogResult.No; Close(); };
+        // 信息标签位置
+        var labelX = (dialogWidth - labelWidth) / 2;
+        var labelY = (int)(10 * Constants.DpiScale);
 
-        Controls.Add(lblMsg);
-        Controls.Add(btnRetry);
-        Controls.Add(btnCancel);
-
-        secondsLeft = timeoutSeconds;
-        timer = new System.Windows.Forms.Timer { Interval = 1000 };
-        timer.Tick += (s, e) =>
-        {
-            secondsLeft--;
-            Text = $"{caption}（{secondsLeft}秒后自动重试）";
-            if (secondsLeft <= 0)
-            {
-                timer.Stop();
-                DialogResult = DialogResult.Yes;
-                Close();
-            }
-        };
-        timer.Start();
-    }
-}
-
-/// <summary>
-/// 自定义确认对话框, 支持不再提示勾选框, 以及不同按钮的唯一标识
-/// </summary>
-public class CustomMessageBox : Form
-{
-    /// <summary>
-    /// 保存每个弹窗的“不再显示”状态
-    /// </summary>
-    private static readonly Dictionary<string, bool> _doNotShowAgainDict = [];
-
-    /// <summary>
-    /// 不再提示勾选框
-    /// </summary>
-    private CheckBox? _doNotShowAgainCheckBox;
-
-    /// <summary>
-    /// 显示自定义消息框, 如果该key已设置为不再显示，直接返回Yes
-    /// </summary>
-    /// <param name="message">消息内容</param>
-    /// <param name="caption">标题</param>
-    /// /// <param name="key">唯一标识（如按钮名）</param>
-    public static DialogResult Show(string message, string caption, string key)
-    {
-        // 如果该key已设置为不再显示，直接返回Yes
-        if (_doNotShowAgainDict.TryGetValue(key, out bool skip) && skip)
-        {
-            return DialogResult.Yes;
-        }
-
-        // 创建自定义消息框实例
-        using var form = new CustomMessageBox();
-        form.Text = caption;
-
-        // 设置消息内容和按钮
-        var label = new Label
+        // 初始化信息标签
+        messageLabel = new()
         {
             Text = message,
-            AutoSize = true,
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
+            Location = new(labelX, labelY),
+            Size = new(labelWidth, labelHeight),
+            TextAlign = ContentAlignment.MiddleCenter
         };
-        form.Controls.Add(label);
 
-        // 创建"本次运行不再提示"勾选框
-        form._doNotShowAgainCheckBox = new CheckBox
+        // 保留数据复选框大小
+        var checkBoxWidth = (int)(100 * Constants.DpiScale);
+        var checkBoxHeight = (int)(30 * Constants.DpiScale);
+
+        // 保留数据复选框位置
+        var checkBoxX = (int)(10 * Constants.DpiScale);
+        var checkBoxY = labelY + labelHeight + (int)(20 * Constants.DpiScale);
+
+        // 初始化保留数据复选框
+        keepDataCheckBox = new()
         {
-            Text = "本次运行不再提示",
-            Location = new((int)(5 * Constants.DpiScale), label.Bottom + (int)(7.5f * Constants.DpiScale)),
-            AutoSize = true
+            Text = "保留数据",
+            Left = checkBoxX,
+            Top = checkBoxY,
+            Width = checkBoxWidth,
+            Height = checkBoxHeight
         };
-        form.Controls.Add(form._doNotShowAgainCheckBox);
 
-        // 创建"是"和"否"按钮
-        var btnYes = new Button
+        // 按钮大小
+        var buttonWidth = (int)(80 * Constants.DpiScale);
+        var buttonHeight = (int)(30 * Constants.DpiScale);
+
+        // 按钮水平间距
+        var buttonSpacing = (int)(10 * Constants.DpiScale);
+
+        // 按钮位置
+        var buttonX = dialogWidth - buttonWidth * 2 - buttonSpacing * 3;
+        var buttonY = dialogHeight - buttonHeight - (int)(40 * Constants.DpiScale);
+
+        // 初始化确认按钮
+        okButton = new()
         {
-            Text = "是",
-            DialogResult = DialogResult.Yes,
-            AutoSize = true
+            Text = "确定",
+            DialogResult = DialogResult.OK,
+            Left = buttonX,
+            Top = buttonY,
+            Width = buttonWidth,
+            Height = buttonHeight
         };
-        var btnNo = new Button
+        buttonX += buttonWidth + buttonSpacing;
+
+        // 初始化取消按钮
+        cancelButton = new()
         {
-            Text = "否",
-            DialogResult = DialogResult.No,
-            AutoSize = true
+            Text = "取消",
+            DialogResult = DialogResult.Cancel,
+            Left = buttonX,
+            Top = buttonY,
+            Width = buttonWidth,
+            Height = buttonHeight
         };
-        form.Controls.Add(btnYes);
-        form.Controls.Add(btnNo);
 
-        // 计算对话框的宽度和高度
-        var width = Math.Max(label.Width + (int)(10 * Constants.DpiScale), form._doNotShowAgainCheckBox.Width + btnYes.Width + btnNo.Width + (int)(20 * Constants.DpiScale));
-        var height = form._doNotShowAgainCheckBox.Bottom + (int)(10 * Constants.DpiScale);
+        // 添加控件到对话框
+        Controls.Add(messageLabel);
+        Controls.Add(keepDataCheckBox);
+        Controls.Add(okButton);
+        Controls.Add(cancelButton);
 
-        // 设置按钮位置
-        btnNo.Location = new(width - btnNo.Width - (int)(5 * Constants.DpiScale), label.Bottom + (int)(5 * Constants.DpiScale));
-        btnYes.Location = new(btnNo.Left - btnYes.Width - (int)(5 * Constants.DpiScale), btnNo.Top);
-
-        // 设置对话框的大小和位置
-        form.ClientSize = new(width, height);
-        form.StartPosition = FormStartPosition.CenterScreen;
-        form.FormBorderStyle = FormBorderStyle.FixedDialog;
-        form.MaximizeBox = false;
-        form.MinimizeBox = false;
-
-        // 显示对话框
-        var result = form.ShowDialog();
-
-        // 如果勾选了"不再提示", 设置当前key为不再显示
-        if (form._doNotShowAgainCheckBox.Checked)
-        {
-            _doNotShowAgainDict[key] = true;
-        }
-
-        // 返回用户选择的结果
-        return result;
+        // 设置默认按钮
+        AcceptButton = okButton;
+        CancelButton = cancelButton;
     }
 }

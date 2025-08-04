@@ -1,4 +1,6 @@
-﻿namespace MineClearance;
+﻿using AutoUpdaterDotNET;
+
+namespace MineClearance;
 
 /// <summary>
 /// 主程序类
@@ -35,6 +37,13 @@ internal static class Program
 
         // 初始化应用程序配置
         ApplicationConfiguration.Initialize();
+
+        // 初始化自动更新相关设置
+        AutoUpdater.Mandatory = true;
+        AutoUpdater.RunUpdateAsAdmin = false;
+
+        // 订阅更新检查事件
+        AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
 
         // 初始化 DPI 缩放
         Constants.InitDpiScale();

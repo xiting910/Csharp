@@ -88,6 +88,19 @@ public partial class MenuPanel : Panel
         btnCheckUpdate.Click += BtnCheckUpdate_Click;
         buttonTop += buttonHeight + buttonMargin;
 
+        // 创建设置按钮
+        Button btnSettings = new()
+        {
+            Text = "设置",
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonLeft, buttonTop),
+            BackColor = Color.LightGray,
+            ForeColor = Color.DarkBlue,
+            FlatStyle = FlatStyle.Flat
+        };
+        btnSettings.Click += BtnSettings_Click;
+        buttonTop += buttonHeight + buttonMargin;
+
         // 添加退出按钮
         Button btnExit = new()
         {
@@ -105,6 +118,7 @@ public partial class MenuPanel : Panel
         Controls.Add(btnNewGame);
         Controls.Add(btnShowRanking);
         Controls.Add(btnCheckUpdate);
+        Controls.Add(btnSettings);
         Controls.Add(btnExit);
     }
 
@@ -152,5 +166,21 @@ public partial class MenuPanel : Panel
         }
         Methods.IsHandlingUpdateEvent = true;
         AutoUpdater.Start(Constants.AutoUpdateUrl);
+    }
+
+    /// <summary>
+    /// 设置按钮点击事件处理
+    /// </summary>
+    private void BtnSettings_Click(object? sender, EventArgs e)
+    {
+        // 如果需要强制更新, 则提示用户
+        if (Methods.IsForceUpdate)
+        {
+            MessageBox.Show("当前需要强制更新, 请先更新应用程序后再打开设置。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // 显示设置窗口
+        SettingForm.ShowForm();
     }
 }

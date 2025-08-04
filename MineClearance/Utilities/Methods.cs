@@ -1,3 +1,4 @@
+using AutoUpdaterDotNET;
 using System.Text.RegularExpressions;
 
 namespace MineClearance;
@@ -63,24 +64,124 @@ public static partial class Methods
     }
 
     /// <summary>
+    /// 处理自动更新检查事件
+    /// </summary>
+    /// <param name="args">更新信息事件参数</param>
+    public async static void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+    {
+        if (args.Error == null)
+        {
+            if (args.IsUpdateAvailable)
+            {
+                // 获取更新日志内容
+                var changelog = await GetLatestUpdateLog(args.ChangelogURL, args.CurrentVersion);
+
+                DialogResult dialogResult;
+                if (args.Mandatory.Value)
+                {
+                    // 如果是强制更新, 则设置强制更新标志
+                    IsForceUpdate = true;
+                    dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。这是强制更新。按确定开始更新应用程序。", @"更新可用", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                }
+
+                if (dialogResult.Equals(DialogResult.Yes) || dialogResult.Equals(DialogResult.OK))
+                {
+                    // 检测下载的更新文件是否存在
+                    if (File.Exists(Constants.SevenZipPath))
+                    {
+                        // 是否覆盖
+                        var overwrite = true;
+
+                        // 如果没有开启隐藏更新提示信息, 提示用户是否覆盖
+                        if (!Settings.Config.HideUpdateDetails)
+                        {
+                            var overwriteResult = MessageBox.Show($"文件 {Constants.SevenZipPath} 已存在, 可能是之前程序尝试自动更新失败导致的残留, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要覆盖下载更新吗？", @"更新文件已存在", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                            overwrite = overwriteResult == DialogResult.Yes;
+                        }
+
+                        if (overwrite)
+                        {
+                            // 用户选择覆盖, 删除旧文件
+                            try { File.Delete(Constants.SevenZipPath); } catch { }
+                        }
+                        else
+                        {
+                            // 用户选择不覆盖, 取消更新
+                            IsHandlingUpdateEvent = false;
+                            IsFirstCheck = false;
+                            return;
+                        }
+                    }
+
+                    // 自动下载更新文件
+                    var downloadSuccess = await DownloadUpdate(args.DownloadURL);
+
+                    // 如果下载成功, 自动启动更新脚本并退出应用程序
+                    if (downloadSuccess)
+                    {
+                        // 如果没有开启隐藏更新提示信息, 弹窗提示下载完成
+                        if (!Settings.Config.HideUpdateDetails)
+                        {
+                            MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+
+                        // 设置强制关闭标志
+                        IsForceClose = true;
+
+                        // 创建并启动自动更新的 PowerShell 脚本
+                        Script.StartAutoUpdateScript();
+
+                        // 退出应用程序
+                        Application.Exit();
+                    }
+                }
+            }
+            else if (!IsFirstCheck)
+            {
+                MessageBox.Show($@"您当前的版本 {args.InstalledVersion} 已经是最新版本, 无需更新。", @"没有可用的更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+        else if (!IsFirstCheck)
+        {
+            if (args.Error is System.Net.WebException)
+            {
+                MessageBox.Show(@"无法连接到更新服务器。请检查您的互联网连接, 然后稍后再试。", @"更新检查失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                MessageBox.Show(args.Error.Message, args.Error.GetType().ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        IsHandlingUpdateEvent = false;
+        IsFirstCheck = false;
+    }
+
+    /// <summary>
     /// 获取最新版本更新日志
     /// </summary>
+    /// <param name="changelogURL">更新日志的URL</param>
+    /// <param name="currentVersion">当前版本号</param>
     /// <returns>返回最新版本的更新日志内容</returns>
-    public static async Task<string> GetLatestUpdateLog(string changelogURL, string currentVersion)
+    private static async Task<string> GetLatestUpdateLog(string changelogURL, string currentVersion)
     {
-        string changelog = "无法获取更新日志";
+        var changelog = "无法获取更新日志";
         try
         {
             using var client = new HttpClient();
-            string html = await client.GetStringAsync(changelogURL);
+            var html = await client.GetStringAsync(changelogURL);
 
             // 用正则提取当前版本的日志（假设版本号格式和html结构固定）
-            string pattern = $@"<h2>\s*v{Regex.Escape(currentVersion)}.*?</h2>\s*<ul>(.*?)</ul>";
+            var pattern = $@"<h2>\s*v{Regex.Escape(currentVersion)}.*?</h2>\s*<ul>(.*?)</ul>";
             var match = Regex.Match(html, pattern, RegexOptions.Singleline | RegexOptions.IgnoreCase);
             if (match.Success)
             {
                 // 提取ul中的li内容
-                string ulContent = match.Groups[1].Value;
+                var ulContent = match.Groups[1].Value;
                 var liMatches = ChangeLogRegex().Matches(ulContent);
                 if (liMatches.Count > 0)
                 {
@@ -105,7 +206,7 @@ public static partial class Methods
     /// </summary>
     /// <param name="downloadURL">更新文件的下载链接</param>
     /// <returns>如果下载完成则返回true，否则返回false</returns>
-    public static async Task<bool> DownloadUpdate(string downloadURL)
+    private static async Task<bool> DownloadUpdate(string downloadURL)
     {
         // 更新尝试次数
         var retryCount = 0;
@@ -144,7 +245,7 @@ public static partial class Methods
         }
 
         // 判断下载是否过慢相关变量
-        DateTime lastProgressTime = DateTime.Now;
+        var lastProgressTime = DateTime.Now;
         var isNoProgress = false;
 
         // 下载进度相关变量
@@ -299,7 +400,7 @@ public static partial class Methods
                 if (isNoProgress)
                 {
                     // 重试次数+1
-                    retryCount++;
+                    ++retryCount;
 
                     // 超过最大重试次数
                     if (retryCount >= Constants.NoProgressMaxRetries)
@@ -308,9 +409,17 @@ public static partial class Methods
                         return false;
                     }
 
-                    // 弹窗提示用户下载超时，是重试还是取消
-                    var result = TimeoutMessageBox.Show("下载长时间无进度，是否重试？", "下载超时", Constants.NoProgressDialogWaitTime);
-                    if (result == DialogResult.No)
+                    // 是否重试下载
+                    var retry = true;
+
+                    // 如果没有开启隐藏更新提示信息, 弹窗提示用户下载超时，是重试还是取消
+                    if (!Settings.Config.HideUpdateDetails)
+                    {
+                        var result = TimeoutMessageBox.Show("下载长时间无进度，是否重试？", "下载超时", Constants.NoProgressDialogWaitTime);
+                        retry = result == DialogResult.Yes;
+                    }
+
+                    if (!retry)
                     {
                         // 用户选择取消
                         return false;
@@ -367,38 +476,5 @@ public static partial class Methods
         }
 
         return $" (速度: {speed:F2} {units[unitIndex]})";
-    }
-
-    /// <summary>
-    /// 创建并启动自动更新的powershell脚本
-    /// </summary>
-    public static void StartAutoUpdateScript()
-    {
-        try
-        {
-            // 创建批处理脚本内容, 使用7za.exe命令解压缩
-            File.WriteAllText(Constants.UpdatePowerShellScriptPath, $@"
-                chcp 65001 > $null
-                [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-                Get-Process -Name ""{Path.GetFileNameWithoutExtension(Constants.ExecutableFileName)}"" -ErrorAction SilentlyContinue | ForEach-Object {{ $_.Kill() }}
-                Remove-Item -Path ""{Constants.CurrentDirectory}"" -Recurse -Force
-                & ""{Constants.SevenZipExe}"" x -y ""{Constants.SevenZipPath}"" -o""{Constants.ParentDirectory}""
-                Remove-Item ""{Constants.SevenZipPath}""
-                Start-Process ""{Constants.ExecutableFilePath}""
-                Remove-Item -Path $MyInvocation.MyCommand.Path -Force
-                ", System.Text.Encoding.UTF8);
-
-            // 启动powershell脚本
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "powershell",
-                Arguments = $"-ExecutionPolicy Bypass -File \"{Constants.UpdatePowerShellScriptPath}\"",
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"自动更新失败: {ex.Message}\n请手动将 {Constants.SevenZipPath} 解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换)", @"自动更新失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
     }
 }

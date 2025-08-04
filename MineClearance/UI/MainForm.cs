@@ -89,9 +89,6 @@ public partial class MainForm : Form
 
         // 程序启动时检查更新
         Methods.IsHandlingUpdateEvent = true;
-        AutoUpdater.Mandatory = true;
-        AutoUpdater.RunUpdateAsAdmin = false;
-        AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
         AutoUpdater.Start(Constants.AutoUpdateUrl);
     }
 
@@ -140,9 +137,22 @@ public partial class MainForm : Form
     /// <param name="e"></param>
     private async void MainFormClosing(object? sender, FormClosingEventArgs e)
     {
-        // 如果强制关闭标志为真, 则直接关闭
+        // 如果强制关闭标志为真, 则关闭
         if (Methods.IsForceClose)
         {
+            // 保存主窗体位置
+            Settings.ModifyConfig(config =>
+            {
+                return config with
+                {
+                    MainForm = new()
+                    {
+                        Left = Left,
+                        Top = Top
+                    }
+                };
+            });
+
             // 直接返回
             return;
         }
@@ -197,10 +207,16 @@ public partial class MainForm : Form
             }
         }
 
-        // 删除残留的powershell脚本
+        // 删除残留的更新脚本
         if (File.Exists(Constants.UpdatePowerShellScriptPath))
         {
             try { File.Delete(Constants.UpdatePowerShellScriptPath); } catch { }
+        }
+
+        // 删除残留的卸载脚本
+        if (File.Exists(Constants.UninstallPowerShellScriptPath))
+        {
+            try { File.Delete(Constants.UninstallPowerShellScriptPath); } catch { }
         }
 
         // 设置强制关闭标志
@@ -211,91 +227,21 @@ public partial class MainForm : Form
     }
 
     /// <summary>
-    /// 处理自动更新检查事件
+    /// 重写OnLoad方法, 恢复窗口位置和大小
     /// </summary>
-    /// <param name="args"></param>
-    private async void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+    protected override void OnLoad(EventArgs e)
     {
-        if (args.Error == null)
+        base.OnLoad(e);
+
+        // 加载配置数据
+        Settings.LoadConfig();
+
+        // 恢复窗口位置和大小
+        if (Settings.Config.MainForm != null)
         {
-            if (args.IsUpdateAvailable)
-            {
-                // 获取更新日志内容
-                string changelog = await Methods.GetLatestUpdateLog(args.ChangelogURL, args.CurrentVersion);
-
-                DialogResult dialogResult;
-                if (args.Mandatory.Value)
-                {
-                    // 如果是强制更新, 则设置强制更新标志
-                    Methods.IsForceUpdate = true;
-                    dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。这是强制更新。按确定开始更新应用程序。", @"更新可用", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    dialogResult = MessageBox.Show($"新版本 {args.CurrentVersion} 可用, 更新日志: {changelog}\n您当前正在使用版本 {args.InstalledVersion}。你想现在更新应用程序吗？", @"更新可用", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-                }
-
-                if (dialogResult.Equals(DialogResult.Yes) || dialogResult.Equals(DialogResult.OK))
-                {
-                    // 检测下载的更新文件是否存在
-                    if (File.Exists(Constants.SevenZipPath))
-                    {
-                        // 如果文件已存在, 提示用户是否覆盖
-                        var overwriteResult = MessageBox.Show($"文件 {Constants.SevenZipPath} 已存在, 可能是之前程序尝试自动更新失败导致的残留, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要覆盖下载更新吗？", @"更新文件已存在", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-
-                        if (overwriteResult == DialogResult.Yes)
-                        {
-                            // 用户选择覆盖, 删除旧文件
-                            try { File.Delete(Constants.SevenZipPath); } catch { }
-                        }
-                        else
-                        {
-                            // 用户选择不覆盖, 取消更新
-                            Methods.IsHandlingUpdateEvent = false;
-                            Methods.IsFirstCheck = false;
-                            return;
-                        }
-                    }
-
-                    // 自动下载更新文件
-                    bool downloadSuccess = await Methods.DownloadUpdate(args.DownloadURL);
-
-                    // 如果下载成功, 自动启动更新脚本并退出应用程序
-                    if (downloadSuccess)
-                    {
-                        // 弹窗提示下载完成
-                        MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        // 取消关闭事件的绑定
-                        FormClosing -= MainFormClosing;
-
-                        // 创建并启动自动更新的 PowerShell 脚本
-                        Methods.StartAutoUpdateScript();
-
-                        // 退出应用程序
-                        Application.Exit();
-                    }
-                }
-            }
-            else if (!Methods.IsFirstCheck)
-            {
-                MessageBox.Show($@"您当前的版本 {args.InstalledVersion} 已经是最新版本, 无需更新。", @"没有可用的更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            Left = Settings.Config.MainForm.Left;
+            Top = Settings.Config.MainForm.Top;
         }
-        else if (!Methods.IsFirstCheck)
-        {
-            if (args.Error is System.Net.WebException)
-            {
-                MessageBox.Show(@"无法连接到更新服务器。请检查您的互联网连接, 然后稍后再试。", @"更新检查失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else
-            {
-                MessageBox.Show(args.Error.Message, args.Error.GetType().ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        Methods.IsHandlingUpdateEvent = false;
-        Methods.IsFirstCheck = false;
     }
 
     /// <summary>

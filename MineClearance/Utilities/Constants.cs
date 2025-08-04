@@ -33,6 +33,21 @@ public static partial class Constants
     public static readonly string ErrorFilePath = Path.Combine(DataPath, "error.log");
 
     /// <summary>
+    /// 配置文件路径
+    /// </summary>
+    public static readonly string ConfigFilePath = Path.Combine(DataPath, "config.json");
+
+    /// <summary>
+    /// 桌面路径
+    /// </summary>
+    public static readonly string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+    /// <summary>
+    /// 卸载脚本路径
+    /// </summary>
+    public static readonly string UninstallPowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UninstallScript.ps1");
+
+    /// <summary>
     /// 自动更新的URL
     /// </summary>
     public const string AutoUpdateUrl = "https://gitee.com/xiting910/mine-clearance/raw/main/AutoUpdater.xml";
@@ -53,14 +68,14 @@ public static partial class Constants
     public static readonly string CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
     /// <summary>
-    /// 当前程序的可执行文件名
-    /// </summary>
-    public static readonly string ExecutableFileName = Path.GetFileName(Application.ExecutablePath);
-
-    /// <summary>
     /// 当前程序的完整路径
     /// </summary>
-    public static readonly string ExecutableFilePath = Path.Combine(CurrentDirectory, ExecutableFileName);
+    public static readonly string ExecutableFilePath = Application.ExecutablePath;
+
+    /// <summary>
+    /// 当前程序的可执行文件名
+    /// </summary>
+    public static readonly string ExecutableFileName = Path.GetFileName(ExecutableFilePath);
 
     /// <summary>
     /// 当前程序的目录的上级目录
@@ -149,6 +164,16 @@ public static partial class Constants
     /// 网格大小
     /// </summary>
     public static int GridSize => (int)(25 * DpiScale);
+
+    /// <summary>
+    /// 设置窗体的最小宽度
+    /// </summary>
+    public static int SettingFormMinWidth => (int)(250 * DpiScale);
+
+    /// <summary>
+    /// 设置窗体的最小高度
+    /// </summary>
+    public static int SettingFormMinHeight => (int)(250 * DpiScale);
 
     /// <summary>
     /// DPI缩放比例

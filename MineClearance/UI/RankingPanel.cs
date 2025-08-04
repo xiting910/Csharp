@@ -13,7 +13,7 @@ public partial class RankingPanel : Panel
     /// <summary>
     /// 排行榜列表框
     /// </summary>
-    private ListBox rankingListBox;
+    private readonly DoubleBufferedListView rankingListView;
 
     /// <summary>
     /// 要显示的排行榜信息列表
@@ -33,59 +33,39 @@ public partial class RankingPanel : Panel
         // 初始化排行榜信息列表
         showRankingList = [];
 
+        // 排行榜顶部面板高度
+        var rankingTopPanelHeight = (int)(43f * Constants.DpiScale);
+
         // 创建排行榜顶部面板
         rankingTopPanel = new()
         {
             Name = "RankingTopPanel",
-            Size = new(Constants.MainFormWidth, (int)(52 * Constants.DpiScale)),
+            Size = new(Constants.MainFormWidth, rankingTopPanelHeight),
             BackColor = Color.LightSalmon,
             Location = new(0, 0)
         };
 
-        Label titleLabel = new()
-        {
-            Text = "历史记录",
-            Font = new("Arial", 24, FontStyle.Bold),
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
-            AutoSize = true
-        };
-        rankingTopPanel.Controls.Add(titleLabel);
+        // 按钮X位置和Y位置
+        var buttonXPosition = (int)(10 * Constants.DpiScale);
+        var buttonYPosition = (int)(12 * Constants.DpiScale);
 
-        // 按钮Y位置调整
-        var buttonYPosition = (int)(15 * Constants.DpiScale);
+        // 按钮宽度和高度
+        var buttonWidth = (int)(115 * Constants.DpiScale);
+        var buttonHeight = (int)(20 * Constants.DpiScale);
 
-        Button btnBackMenu = new()
-        {
-            Text = "返回菜单",
-            Location = new(Constants.MainFormWidth - (int)(100 * Constants.DpiScale), buttonYPosition),
-            BackColor = Color.LightCoral,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
-        };
-        btnBackMenu.Click += (sender, e) => MainForm.ShowPanel(PanelType.Menu);
-        rankingTopPanel.Controls.Add(btnBackMenu);
-
-        // 添加按钮以清除历史记录
-        Button btnClearHistory = new()
-        {
-            Text = "清除历史",
-            Location = new(Constants.MainFormWidth - (int)(200 * Constants.DpiScale), buttonYPosition),
-            BackColor = Color.Red,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
-        };
-        btnClearHistory.Click += BtnClearHistory_Click;
-        rankingTopPanel.Controls.Add(btnClearHistory);
+        // 按钮水平间距
+        var buttonSpacing = (int)(10 * Constants.DpiScale);
 
         // 添加按钮显示统计信息
         Button btnShowStatistics = new()
         {
             Text = "显示统计信息",
-            Location = new((int)(200 * Constants.DpiScale), buttonYPosition),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonXPosition, buttonYPosition),
             BackColor = Color.LightGreen,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
+            FlatStyle = FlatStyle.Flat
         };
+        buttonXPosition += buttonWidth + buttonSpacing;
         btnShowStatistics.Click += (sender, e) => RestartRankingPanel();
         rankingTopPanel.Controls.Add(btnShowStatistics);
 
@@ -93,11 +73,12 @@ public partial class RankingPanel : Panel
         Button btnSortByStartTime = new()
         {
             Text = "按开始时间排序",
-            Location = new((int)(325 * Constants.DpiScale), buttonYPosition),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonXPosition, buttonYPosition),
             BackColor = Color.LightGreen,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
+            FlatStyle = FlatStyle.Flat
         };
+        buttonXPosition += buttonWidth + buttonSpacing;
         btnSortByStartTime.Click += (sender, e) => RestartRankingPanel(RankingDisplayMode.ByStartTime);
         rankingTopPanel.Controls.Add(btnSortByStartTime);
 
@@ -105,41 +86,72 @@ public partial class RankingPanel : Panel
         Button btnSortByDuration = new()
         {
             Text = "按难度和用时排序",
-            Location = new((int)(450 * Constants.DpiScale), buttonYPosition),
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonXPosition, buttonYPosition),
             BackColor = Color.LightGreen,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
+            FlatStyle = FlatStyle.Flat
         };
         btnSortByDuration.Click += (sender, e) => RestartRankingPanel(RankingDisplayMode.ByDuration);
         rankingTopPanel.Controls.Add(btnSortByDuration);
 
+        // 更新按钮宽度
+        buttonWidth = (int)(70 * Constants.DpiScale);
+
+        // 更新按钮X位置
+        buttonXPosition = Constants.MainFormWidth - buttonWidth - 2 * buttonSpacing;
+
+        // 添加按钮以返回菜单
+        Button btnBackMenu = new()
+        {
+            Text = "返回菜单",
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonXPosition, buttonYPosition),
+            BackColor = Color.LightCoral,
+            FlatStyle = FlatStyle.Flat
+        };
+        buttonXPosition -= btnBackMenu.Width + buttonSpacing;
+        btnBackMenu.Click += (sender, e) => MainForm.ShowPanel(PanelType.Menu);
+        rankingTopPanel.Controls.Add(btnBackMenu);
+
+        // 添加按钮以清除历史记录
+        Button btnClearHistory = new()
+        {
+            Text = "清除历史",
+            Size = new(buttonWidth, buttonHeight),
+            Location = new(buttonXPosition, buttonYPosition),
+            BackColor = Color.Red,
+            FlatStyle = FlatStyle.Flat
+        };
+        btnClearHistory.Click += BtnClearHistory_Click;
+        rankingTopPanel.Controls.Add(btnClearHistory);
+
         // 创建排行榜列表框
-        rankingListBox = CreateRankingListBox();
+        rankingListView = new()
+        {
+            Name = "RankingListView",
+            BackColor = Color.White,
+            ForeColor = Color.Black,
+            View = View.Details,
+            VirtualMode = true,
+            FullRowSelect = true,
+            VirtualListSize = showRankingList.Count,
+            Location = new(0, rankingTopPanel.Height),
+            Size = new(Constants.MainFormWidth - (int)(12 * Constants.DpiScale), Constants.MainFormHeight - rankingTopPanelHeight - Constants.BottomStatusBarHeight)
+        };
+
+        // 添加一列，宽度设置为控件宽度
+        var width = rankingListView.Width - (int)(20 * Constants.DpiScale);
+        rankingListView.Columns.Add("历史记录", width);
+
+        // 设置列表框的RetrieveVirtualItem事件处理
+        rankingListView.RetrieveVirtualItem += (s, e) =>
+        {
+            e.Item = new ListViewItem(showRankingList[e.ItemIndex]);
+        };
 
         // 添加排行榜顶部面板和列表框到排行榜面板
         Controls.Add(rankingTopPanel);
-        Controls.Add(rankingListBox);
-    }
-
-    /// <summary>
-    /// 创建排行榜列表框
-    /// </summary>
-    private ListBox CreateRankingListBox()
-    {
-        var box = new ListBox
-        {
-            Name = "RankingListBox",
-            BackColor = Color.White,
-            Size = new(Width - (int)(12.5f * Constants.DpiScale), Height - rankingTopPanel.Height),
-            Location = new(0, rankingTopPanel.Height)
-        };
-
-        foreach (var showMessage in showRankingList)
-        {
-            box.Items.Add(showMessage);
-        }
-
-        return box;
+        Controls.Add(rankingListView);
     }
 
     /// <summary>
@@ -181,13 +193,9 @@ public partial class RankingPanel : Panel
             }
         }
 
-        // 清理旧数据
-        Controls.Remove(rankingListBox);
-        rankingListBox.Dispose();
-
-        // 创建新的排行榜列表框
-        rankingListBox = CreateRankingListBox();
-        Controls.Add(rankingListBox);
+        // 更新列表框的虚拟列表大小和内容
+        rankingListView.VirtualListSize = showRankingList.Count;
+        rankingListView.Invalidate();
     }
 
     /// <summary>
@@ -281,13 +289,9 @@ public partial class RankingPanel : Panel
         Task.Run(Datas.ClearGameResultsAsync);
         showRankingList = ["暂无游戏记录"];
 
-        // 清理旧数据
-        Controls.Remove(rankingListBox);
-        rankingListBox.Dispose();
-
-        // 创建新的排行榜列表框
-        rankingListBox = CreateRankingListBox();
-        Controls.Add(rankingListBox);
+        // 更新列表框
+        rankingListView.VirtualListSize = showRankingList.Count;
+        rankingListView.Invalidate();
 
         // 弹窗提示清除成功
         MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
