@@ -17,14 +17,14 @@ public class DoubleBufferedPanel : Panel
 }
 
 /// <summary>
-/// 自定义双缓冲列表视图
+/// 自定义双缓冲DataGridView
 /// </summary>
-public class DoubleBufferedListView : ListView
+public class DoubleBufferedDataGridView : DataGridView
 {
     /// <summary>
-    /// 构造函数, 初始化双缓冲列表视图
+    /// 构造函数, 初始化双缓冲DataGridView
     /// </summary>
-    public DoubleBufferedListView()
+    public DoubleBufferedDataGridView()
     {
         DoubleBuffered = true;
         SetStyle(ControlStyles.OptimizedDoubleBuffer, true);

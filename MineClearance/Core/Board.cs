@@ -23,7 +23,7 @@ public class Board
     /// <summary>
     /// 当打开地雷时触发(游戏失败)
     /// </summary>
-    public event Action<Position>? HitMine;
+    public event Action? HitMine;
 
     /// <summary>
     /// 首次点击时触发
@@ -79,7 +79,7 @@ public class Board
             }
         }
 
-        Mines = new Mines(width, height, mineCount);
+        Mines = new(width, height, mineCount);
         UnopenedSafeCount = height * width - mineCount;
         _isFirstClick = true;
     }
@@ -304,7 +304,7 @@ public class Board
         if (Mines.MineGrid[position.Row, position.Col] == -1)
         {
             Grids[position.Row, position.Col].Type = GridType.Mine;
-            HitMine?.Invoke(position);
+            HitMine?.Invoke();
             return;
         }
 

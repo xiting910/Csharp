@@ -68,7 +68,7 @@ public partial class MainForm : Form
         {
             { PanelType.Game, new GamePanel() },
             { PanelType.Menu, new MenuPanel() },
-            { PanelType.Ranking, new RankingPanel() },
+            { PanelType.History, new HistoryPanel() },
             { PanelType.GamePrepare, new GamePreparePanel() }
         };
 
@@ -119,10 +119,10 @@ public partial class MainForm : Form
         // 显示指定类型的面板
         if (_panels.TryGetValue(panelType, out var selectedPanel))
         {
-            // 如果是排行榜面板, 则先重启
-            if (selectedPanel is RankingPanel rankingPanel)
+            // 如果是历史记录面板, 则重启
+            if (selectedPanel is HistoryPanel historyPanel)
             {
-                rankingPanel.RestartRankingPanel();
+                historyPanel.RestartHistoryPanel();
             }
 
             // 设置面板可见

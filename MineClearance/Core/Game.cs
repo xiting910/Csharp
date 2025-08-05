@@ -42,14 +42,17 @@ public class Game
     /// <exception cref="ArgumentException">如果难度为自定义, 则抛出异常</exception>
     public Game(DifficultyLevel difficulty)
     {
+        // 检查难度是否为自定义, 如果是则抛出异常
         if (difficulty == DifficultyLevel.Custom)
         {
             throw new ArgumentException("自定义难度需要特定的棋盘设置");
         }
+
+        // 设置游戏难度和棋盘
         Difficulty = difficulty;
-        var (width, height, mineCount) = Constants.BoardSettings.GetSettings(difficulty);
+        var (width, height, mineCount) = Constants.GetSettings(difficulty);
         TotalMines = mineCount;
-        Board = new Board(width, height, mineCount);
+        Board = new(width, height, mineCount);
     }
 
     /// <summary>
@@ -73,9 +76,11 @@ public class Game
         {
             throw new ArgumentException("地雷数量必须少于总格子数");
         }
+
+        // 设置游戏难度为自定义, 并初始化棋盘
         TotalMines = mineCount;
         Difficulty = DifficultyLevel.Custom;
-        Board = new Board(width, height, mineCount);
+        Board = new(width, height, mineCount);
     }
 
     /// <summary>
@@ -90,7 +95,7 @@ public class Game
         };
 
         // 监听棋盘的打开地雷事件, 触发时计算游戏结果, 并触发 GameLost 事件
-        Board.HitMine += pos =>
+        Board.HitMine += () =>
         {
             // 记录结束时间
             var endTime = DateTime.Now;

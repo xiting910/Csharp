@@ -1,0 +1,150 @@
+namespace MineClearance;
+
+/// <summary>
+/// 排序条件项
+/// </summary>
+public class SortConditionItem
+{
+    /// <summary>
+    /// 比较器, 用于定义排序逻辑
+    /// </summary>
+    public required IComparer<GameResult> Comparer { get; init; }
+
+    /// <summary>
+    /// 优先级, 数字越小优先级越高
+    /// </summary>
+    public int Priority { get; init; }
+}
+
+/// <summary>
+/// 结果管理类, 用于实现游戏结果的筛选和排序
+/// </summary>
+public static class ResultManager
+{
+    /// <summary>
+    /// 筛选条件集合
+    /// </summary>
+    private static readonly List<Func<GameResult, bool>> _filterConditions;
+
+    /// <summary>
+    /// 排序条件集合
+    /// </summary>
+    private static readonly List<SortConditionItem> _sortConditions;
+
+    /// <summary>
+    /// 获取操作后的游戏结果(只读列表)
+    /// </summary>
+    public static IReadOnlyList<GameResult> Results { get; private set; }
+
+    /// <summary>
+    /// 当条件发生变化时触发
+    /// </summary>
+    public static event Action? ConditionsChanged;
+
+    /// <summary>
+    /// 静态构造函数, 初始化结果列表
+    /// </summary>
+    static ResultManager()
+    {
+        _filterConditions = [];
+        _sortConditions = [];
+        Results = [];
+
+        // 订阅条件变化事件
+        ConditionsChanged += ProcessResults;
+    }
+
+    /// <summary>
+    /// 添加筛选条件
+    /// </summary>
+    /// <param name="condition">筛选条件</param>
+    public static void AddFilterCondition(Func<GameResult, bool> condition)
+    {
+        _filterConditions.Add(condition);
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 添加排序条件, 并指定优先级, 需要确保优先级唯一
+    /// </summary>
+    /// <param name="comparer">比较器</param>
+    /// <param name="priority">优先级, 数字越小优先级越高</param>
+    /// <exception cref="ArgumentException">如果优先级已存在</exception>
+    public static void AddSortCondition(IComparer<GameResult> comparer, int priority)
+    {
+        // 确保优先级唯一
+        if (_sortConditions.Any(sc => sc.Priority == priority))
+        {
+            throw new ArgumentException($"优先级 {priority} 已存在");
+        }
+        _sortConditions.Add(new() { Comparer = comparer, Priority = priority });
+        _sortConditions.Sort((x, y) => x.Priority.CompareTo(y.Priority));
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 删除指定筛选条件
+    /// </summary>
+    /// <param name="condition">筛选条件</param>
+    public static void RemoveFilterCondition(Func<GameResult, bool> condition)
+    {
+        _filterConditions.Remove(condition);
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 根据指定的优先级删除排序条件
+    /// </summary>
+    /// <param name="priority">优先级</param>
+    public static void RemoveSortCondition(int priority)
+    {
+        _sortConditions.RemoveAll(sc => sc.Priority == priority);
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 清除所有筛选和排序条件
+    /// </summary>
+    public static void ClearConditions()
+    {
+        _filterConditions.Clear();
+        _sortConditions.Clear();
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 对游戏结果进行筛选和排序
+    /// </summary>
+    private static void ProcessResults()
+    {
+        // 操作后的结果
+        var processedResults = Datas.GameResults.AsEnumerable();
+
+        // 应用筛选条件
+        if (_filterConditions.Count > 0)
+        {
+            processedResults = processedResults.Where(result => _filterConditions.Any(filter => filter(result)));
+        }
+
+        // 应用排序条件
+        var orderedSortConditions = _sortConditions.OrderBy(sc => sc.Priority).ToList();
+        if (orderedSortConditions.Count > 0)
+        {
+            // 第一个排序条件
+            var first = orderedSortConditions[0];
+            var orderedResults = processedResults.OrderBy(x => x, first.Comparer);
+
+            // 后续排序条件
+            for (int i = 1; i < orderedSortConditions.Count; ++i)
+            {
+                orderedResults = orderedResults.ThenBy(x => x, orderedSortConditions[i].Comparer);
+            }
+
+            // 更新处理后的结果
+            processedResults = orderedResults;
+        }
+
+        // 更新结果列表
+        Results = processedResults.ToList().AsReadOnly();
+    }
+}

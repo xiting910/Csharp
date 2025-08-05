@@ -23,7 +23,12 @@ public static class Datas
     /// <summary>
     /// 所有游戏结果列表
     /// </summary>
-    private static readonly List<GameResult> _gameResults = [];
+    public static readonly List<GameResult> _gameResults = [];
+
+    /// <summary> 
+    /// 所有游戏结果的只读列表
+    /// </summary>
+    public static IReadOnlyList<GameResult> GameResults => _gameResults.AsReadOnly();
 
     /// <summary>
     /// 初始化游戏数据
@@ -80,7 +85,10 @@ public static class Datas
                     var oldGameResults = JsonSerializer.Deserialize<List<GameResult>>(updatedJson, _jsonOptions);
 
                     // 更新游戏结果列表
-                    _gameResults.AddRange(oldGameResults ?? []);
+                    if (oldGameResults != null)
+                    {
+                        _gameResults.AddRange(oldGameResults);
+                    }
 
                     // 保存更新后的数据
                     await SaveGameResultsAsync();
@@ -91,34 +99,6 @@ public static class Datas
         {
             // 显示错误信息
             MessageBox.Show($"初始化游戏数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-
-    /// <summary>
-    /// 保存游戏结果到数据文件
-    /// </summary>
-    private static async Task SaveGameResultsAsync()
-    {
-        try
-        {
-            // 检查数据存储路径是否存在
-            if (!Directory.Exists(Constants.DataPath))
-            {
-                // 如果不存在, 创建数据存储路径
-                Directory.CreateDirectory(Constants.DataPath);
-            }
-
-            // 要保存的数据
-            var data = new GameData(DateTime.Now, _gameResults, Constants.CurrentDataVersion);
-
-            // 异步序列化 data 到游戏历史记录文件
-            await using var stream = File.Create(Constants.DataFilePath);
-            await JsonSerializer.SerializeAsync(stream, data, _jsonOptions);
-        }
-        catch (Exception ex)
-        {
-            // 显示错误信息
-            MessageBox.Show($"保存游戏结果失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -142,27 +122,30 @@ public static class Datas
     }
 
     /// <summary>
-    /// 将游戏结果按指定显示模式排序
+    /// 保存游戏结果到数据文件
     /// </summary>
-    /// <param name="displayMode">显示模式</param>
-    /// <returns>排序后的游戏结果列表</returns>
-    public static List<GameResult> GetSortedGameResults(RankingDisplayMode displayMode)
+    private static async Task SaveGameResultsAsync()
     {
-        if (displayMode == RankingDisplayMode.ByStartTime)
+        try
         {
-            return [.. _gameResults.OrderByDescending(result => result.StartTime)];
+            // 检查数据存储路径是否存在
+            if (!Directory.Exists(Constants.DataPath))
+            {
+                // 如果不存在, 创建数据存储路径
+                Directory.CreateDirectory(Constants.DataPath);
+            }
+
+            // 要保存的数据
+            var data = new GameData(DateTime.Now, [.. GameResults], Constants.CurrentDataVersion);
+
+            // 异步序列化 data 到游戏历史记录文件
+            await using var stream = File.Create(Constants.DataFilePath);
+            await JsonSerializer.SerializeAsync(stream, data, _jsonOptions);
         }
-        else if (displayMode == RankingDisplayMode.ByDuration)
+        catch (Exception ex)
         {
-            return [.. _gameResults
-                    .Where(result => result.Difficulty != DifficultyLevel.Custom && result.IsWin)
-                    .OrderByDescending(result => result.Difficulty)
-                    .ThenBy(result => result.Duration)];
-        }
-        else
-        {
-            // 默认模式获取所有游戏结果
-            return _gameResults;
+            // 显示错误信息
+            MessageBox.Show($"保存游戏结果失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

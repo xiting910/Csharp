@@ -88,9 +88,9 @@ public enum PanelType
     Game,
 
     /// <summary>
-    /// 排行榜面板
+    /// 历史记录面板
     /// </summary>
-    Ranking
+    History
 }
 
 /// <summary>
@@ -104,9 +104,9 @@ public enum StatusBarState
     Ready,
 
     /// <summary>
-    /// 排行榜
+    /// 历史记录
     /// </summary>
-    Ranking,
+    History,
 
     /// <summary>
     /// 准备游戏
@@ -127,25 +127,4 @@ public enum StatusBarState
     /// 游戏失败
     /// </summary>
     GameLost
-}
-
-/// <summary>
-/// 排行榜显示模式枚举
-/// </summary>
-public enum RankingDisplayMode
-{
-    /// <summary>
-    /// 默认, 统计所有游戏结果, 计算各难度胜率等
-    /// </summary>
-    Default,
-
-    /// <summary>
-    /// 按照开始时间排序
-    /// </summary>
-    ByStartTime,
-
-    /// <summary>
-    /// 按照用时排序
-    /// </summary>
-    ByDuration
 }

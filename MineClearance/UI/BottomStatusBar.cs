@@ -117,7 +117,7 @@ public class BottomStatusBar : StatusStrip
         _statusLabel.Text = status switch
         {
             StatusBarState.Ready => "状态: 就绪",
-            StatusBarState.Ranking => "状态: 排行榜",
+            StatusBarState.History => "状态: 历史记录",
             StatusBarState.Preparing => "状态: 准备游戏",
             StatusBarState.InGame => "状态: 游戏进行中",
             StatusBarState.GameWon => "状态: 游戏胜利",

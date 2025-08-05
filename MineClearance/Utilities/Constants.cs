@@ -113,27 +113,27 @@ public static partial class Constants
     public const int NoProgressMaxRetries = 3;
 
     /// <summary>
-    /// 简单、中等、困难和地狱的棋盘大小和地雷数量
+    /// 获取指定难度的棋盘设置
     /// </summary>
-    public static class BoardSettings
+    /// <param name="level">难度级别</param>
+    /// <returns>棋盘宽度、高度和地雷数量的元组</returns>
+    /// <exception cref="ArgumentOutOfRangeException">如果难度级别不在预定义范围内</exception>
+    public static (int width, int height, int mineCount) GetSettings(DifficultyLevel level)
     {
-        public static (int width, int height, int mineCount) GetSettings(DifficultyLevel level)
+        return level switch
         {
-            return level switch
-            {
-                DifficultyLevel.Easy => (9, 9, 10),
-                DifficultyLevel.Medium => (16, 16, 40),
-                DifficultyLevel.Hard => (30, 16, 99),
-                DifficultyLevel.Hell => (50, 30, 309),
-                _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
-            };
-        }
+            DifficultyLevel.Easy => (9, 9, 10),
+            DifficultyLevel.Medium => (16, 16, 40),
+            DifficultyLevel.Hard => (30, 16, 99),
+            DifficultyLevel.Hell => (50, 30, 309),
+            _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+        };
     }
 
     /// <summary>
     /// 当前数据版本号
     /// </summary>
-    public const int CurrentDataVersion = 2;
+    public const int CurrentDataVersion = 3;
 
     /// <summary>
     /// 扫雷棋盘的最大宽度
@@ -186,7 +186,7 @@ public static partial class Constants
     public static float DpiScale { get; private set; } = 1.0f;
 
     /// <summary>
-    /// 初始化DPI缩放比例（Windows 10 及以上，获取系统DPI）
+    /// 初始化DPI缩放比例
     /// </summary>
     public static void InitDpiScale()
     {

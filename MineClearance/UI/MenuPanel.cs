@@ -62,8 +62,8 @@ public partial class MenuPanel : Panel
         btnNewGame.Click += BtnNewGame_Click;
         buttonTop += buttonHeight + buttonMargin;
 
-        // 添加显示排行榜按钮
-        Button btnShowRanking = new()
+        // 添加显示历史记录按钮
+        Button btnShowHistory = new()
         {
             Text = "游戏历史记录",
             Size = new(buttonWidth, buttonHeight),
@@ -72,7 +72,7 @@ public partial class MenuPanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnShowRanking.Click += BtnShowRanking_Click;
+        btnShowHistory.Click += BtnShowHistory_Click;
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加检查更新按钮
@@ -116,7 +116,7 @@ public partial class MenuPanel : Panel
         // 添加控件到菜单面板
         Controls.Add(titleLabel);
         Controls.Add(btnNewGame);
-        Controls.Add(btnShowRanking);
+        Controls.Add(btnShowHistory);
         Controls.Add(btnCheckUpdate);
         Controls.Add(btnSettings);
         Controls.Add(btnExit);
@@ -141,7 +141,7 @@ public partial class MenuPanel : Panel
     /// <summary>
     /// 游戏历史记录按钮点击事件处理
     /// </summary>
-    private void BtnShowRanking_Click(object? sender, EventArgs e)
+    private void BtnShowHistory_Click(object? sender, EventArgs e)
     {
         // 如果需要强制更新, 则提示用户
         if (Methods.IsForceUpdate)
@@ -150,8 +150,8 @@ public partial class MenuPanel : Panel
             return;
         }
 
-        // 显示排行榜面板
-        MainForm.ShowPanel(PanelType.Ranking);
+        // 显示历史记录面板
+        MainForm.ShowPanel(PanelType.History);
     }
 
     /// <summary>
