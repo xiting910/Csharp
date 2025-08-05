@@ -49,7 +49,7 @@ internal static class Program
         Constants.InitDpiScale();
 
         // 初始化数据
-        Datas.Initialize();
+        Datas.Initialize().Wait();
 
         // 创建并显示主窗口
         Application.Run(new MainForm());

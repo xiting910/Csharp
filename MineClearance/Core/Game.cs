@@ -108,16 +108,7 @@ public class Game
             var completion = (double)openedSafeCount / totalSafeCount;
 
             // 触发 GameLost 事件
-            GameLost?.Invoke(new GameResult(
-                Difficulty,
-                StartTime,
-                duration,
-                false,
-                completion * 100.0,
-                Board.Width,
-                Board.Height,
-                TotalMines)
-            );
+            GameLost?.Invoke(new(Difficulty, StartTime, duration, false, completion * 100.0, Board.Width, Board.Height, TotalMines));
         };
 
         // 监听棋盘的胜利事件, 触发时计算游戏结果, 并触发 GameWon 事件
@@ -130,16 +121,7 @@ public class Game
             var duration = endTime - StartTime;
 
             // 触发 GameWon 事件
-            GameWon?.Invoke(new GameResult(
-                Difficulty,
-                StartTime,
-                duration,
-                true,
-                100.0,
-                Board.Width,
-                Board.Height,
-                TotalMines)
-            );
+            GameWon?.Invoke(new(Difficulty, StartTime, duration, true, 100.0, Board.Width, Board.Height, TotalMines));
         };
     }
 }

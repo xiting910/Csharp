@@ -48,6 +48,11 @@ public static partial class Constants
     public static readonly string UninstallPowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UninstallScript.ps1");
 
     /// <summary>
+    /// 用于更新程序的powershell脚本路径
+    /// </summary>
+    public static readonly string UpdatePowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UpdateScript.ps1");
+
+    /// <summary>
     /// 自动更新的URL
     /// </summary>
     public const string AutoUpdateUrl = "https://gitee.com/xiting910/mine-clearance/raw/main/AutoUpdater.xml";
@@ -56,11 +61,6 @@ public static partial class Constants
     /// 更新文件路径
     /// </summary>
     public static readonly string SevenZipPath = Path.Combine(Path.GetTempPath(), "MineClearance.7z");
-
-    /// <summary>
-    /// 用于更新程序的powershell脚本路径
-    /// </summary>
-    public static readonly string UpdatePowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UpdateScript.ps1");
 
     /// <summary>
     /// 当前程序的目录
@@ -129,6 +129,11 @@ public static partial class Constants
             };
         }
     }
+
+    /// <summary>
+    /// 当前数据版本号
+    /// </summary>
+    public const int CurrentDataVersion = 2;
 
     /// <summary>
     /// 扫雷棋盘的最大宽度

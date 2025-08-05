@@ -11,7 +11,7 @@ namespace MineClearance;
 /// <param name="BoardWidth">棋盘宽度</param>
 /// <param name="BoardHeight">棋盘高度</param>
 /// <param name="MineCount">地雷总数</param>
-public record GameResult(DifficultyLevel Difficulty, DateTime StartTime, TimeSpan Duration, bool IsWin, double Completion, int BoardWidth, int BoardHeight, int MineCount)
+public record GameResult(DifficultyLevel Difficulty, DateTime StartTime, TimeSpan Duration, bool IsWin, double Completion, int? BoardWidth = null, int? BoardHeight = null, int? MineCount = null)
 {
     /// <summary>
     /// 游戏的开始时间(首次点击时间)
@@ -36,17 +36,17 @@ public record GameResult(DifficultyLevel Difficulty, DateTime StartTime, TimeSpa
     /// <summary>
     /// 棋盘宽度
     /// </summary>
-    public int BoardWidth { get; private init; } = BoardWidth;
+    public int? BoardWidth { get; private init; } = Difficulty == DifficultyLevel.Custom ? BoardWidth : null;
 
     /// <summary>
     /// 棋盘高度
     /// </summary>
-    public int BoardHeight { get; private init; } = BoardHeight;
+    public int? BoardHeight { get; private init; } = Difficulty == DifficultyLevel.Custom ? BoardHeight : null;
 
     /// <summary>
     /// 地雷数量
     /// </summary>
-    public int MineCount { get; private init; } = MineCount;
+    public int? MineCount { get; private init; } = Difficulty == DifficultyLevel.Custom ? MineCount : null;
 
     /// <summary>
     /// 获取游戏结果的格式化字符串表示

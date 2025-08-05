@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MineClearance;
 
@@ -12,7 +13,11 @@ public static class Datas
     /// </summary>
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        AllowTrailingCommas = true,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     /// <summary>
@@ -23,7 +28,7 @@ public static class Datas
     /// <summary>
     /// 初始化游戏数据
     /// </summary>
-    public static void Initialize()
+    public static async Task Initialize()
     {
         try
         {
@@ -34,19 +39,19 @@ public static class Datas
                 Directory.CreateDirectory(Constants.DataPath);
 
                 // 创建数据文件
-                using (File.Create(Constants.DataFilePath)) { }
+                await using (File.Create(Constants.DataFilePath)) { }
                 return;
             }
 
             // 如果数据文件不存在, 则创建一个空的文件
             if (!File.Exists(Constants.DataFilePath))
             {
-                using (File.Create(Constants.DataFilePath)) { }
+                await using (File.Create(Constants.DataFilePath)) { }
                 return;
             }
 
             // 读取数据文件内容
-            var json = File.ReadAllText(Constants.DataFilePath);
+            var json = await File.ReadAllTextAsync(Constants.DataFilePath);
             if (!string.IsNullOrWhiteSpace(json))
             {
                 try
@@ -57,36 +62,28 @@ public static class Datas
                     {
                         // 更新游戏结果列表
                         _gameResults.AddRange(gameData.GameResults);
+
+                        // 如果数据版本低于当前版本, 则进行数据升级
+                        if (gameData.Version < Constants.CurrentDataVersion)
+                        {
+                            await SaveGameResultsAsync();
+                        }
                     }
                 }
                 catch (JsonException)
                 {
-                    // 如果反序列化为 GameData 对象失败, 可能是旧版本数据格式, 直接处理为 GameResult 列表
-                    var gameResults = JsonSerializer.Deserialize<List<GameResult>>(json, _jsonOptions);
+                    // 如果反序列化为 GameData 对象失败, 可能是旧版本数据格式
+                    // 将文件出现的所有"Difficulty": 3替换为"Difficulty": 4
+                    var updatedJson = json.Replace("\"Difficulty\": 3", "\"Difficulty\": 4");
 
-                    // 将所有"地狱"难度的游戏结果转换为"自定义"难度
-                    gameResults = gameResults?.Select(result =>
-                    {
-                        if (result.Difficulty == DifficultyLevel.Hell)
-                        {
-                            return new GameResult(
-                                DifficultyLevel.Custom,
-                                result.StartTime,
-                                result.Duration,
-                                result.IsWin,
-                                result.Completion,
-                                result.BoardWidth,
-                                result.BoardHeight,
-                                result.MineCount);
-                        }
-                        return result;
-                    }).ToList() ?? [];
+                    // 尝试反序列化为 List<GameResult> 对象
+                    var oldGameResults = JsonSerializer.Deserialize<List<GameResult>>(updatedJson, _jsonOptions);
 
                     // 更新游戏结果列表
-                    _gameResults.AddRange(gameResults);
+                    _gameResults.AddRange(oldGameResults ?? []);
 
-                    // 保存转换后的数据
-                    SaveGameResultsAsync().Wait();
+                    // 保存更新后的数据
+                    await SaveGameResultsAsync();
                 }
             }
         }
@@ -112,7 +109,7 @@ public static class Datas
             }
 
             // 要保存的数据
-            var data = new GameData(DateTime.Now, _gameResults, 1);
+            var data = new GameData(DateTime.Now, _gameResults, Constants.CurrentDataVersion);
 
             // 异步序列化 data 到游戏历史记录文件
             await using var stream = File.Create(Constants.DataFilePath);
