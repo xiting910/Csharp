@@ -26,6 +26,11 @@ public partial class HistoryPanel : Panel
     private readonly DoubleBufferedDataGridView historyDataGridView;
 
     /// <summary>
+    /// 提示信息标签
+    /// </summary>
+    private readonly Label tipsLabel;
+
+    /// <summary>
     /// 初始化历史记录面板
     /// </summary>
     public HistoryPanel()
@@ -37,6 +42,17 @@ public partial class HistoryPanel : Panel
 
         // 创建历史记录顶部信息面板
         historyTopPanel = CreateHistoryTopInfoPanel();
+
+        // 添加提示标签
+        tipsLabel = new()
+        {
+            Text = "点击列头可进行排序和筛选, 点击显示详细历史记录按钮会清除所有筛选和排序条件",
+            Font = new("Arial", 6 * Constants.DpiScale, FontStyle.Regular),
+            Location = new((int)(450 * Constants.DpiScale), (int)(12 * Constants.DpiScale)),
+            ForeColor = Color.DarkBlue,
+            AutoSize = true
+        };
+        historyTopPanel.Controls.Add(tipsLabel);
 
         // 创建统计信息列表框
         statisticsListBox = CreateStatisticsListBox();
@@ -63,7 +79,10 @@ public partial class HistoryPanel : Panel
             statisticsListBox.Visible = false;
             historyDataGridView.Visible = true;
 
-            // 重置右键菜单实例
+            // 提示信息标签可见
+            tipsLabel.Visible = true;
+
+            // 重置右键菜单实例(会自动更新数据网格视图)
             HistoryContextMenu.ResetInstances();
         }
         else
@@ -71,6 +90,9 @@ public partial class HistoryPanel : Panel
             // 切换到统计信息列表框
             historyDataGridView.Visible = false;
             statisticsListBox.Visible = true;
+
+            // 提示信息标签不可见
+            tipsLabel.Visible = false;
 
             // 更新统计信息列表框
             UpdateStatisticsListBox();
@@ -138,17 +160,6 @@ public partial class HistoryPanel : Panel
         btnShowHistory.Click += (sender, e) => RestartHistoryPanel(true);
         buttonXPosition += buttonWidth + 2 * buttonSpacing;
         panel.Controls.Add(btnShowHistory);
-
-        // 添加提示标签
-        Label tipsLabel = new()
-        {
-            Text = "点击列头可进行排序和筛选, 点击显示详细历史记录按钮会清除所有筛选和排序条件",
-            Font = new("Arial", 6 * Constants.DpiScale, FontStyle.Regular),
-            Location = new(buttonXPosition, (int)(12 * Constants.DpiScale)),
-            AutoSize = true,
-            ForeColor = Color.DarkBlue
-        };
-        panel.Controls.Add(tipsLabel);
 
         // 更新按钮宽度
         buttonWidth = (int)(70 * Constants.DpiScale);
@@ -248,6 +259,7 @@ public partial class HistoryPanel : Panel
         // 保存每一列的名字和最小宽度的字典
         var columnDefinitions = new Dictionary<string, int>
         {
+            { "序号", (int)(80 * Constants.DpiScale) },
             { "开始时间", 0 },
             { "难度", (int)(160 * Constants.DpiScale) },
             { "结果", (int)(160 * Constants.DpiScale) },
@@ -390,6 +402,12 @@ public partial class HistoryPanel : Panel
     {
         historyDataGridView.RowCount = ResultManager.Results.Count;
         historyDataGridView.Invalidate();
+
+        // 滚动到最顶部
+        if (historyDataGridView.RowCount > 0)
+        {
+            historyDataGridView.FirstDisplayedScrollingRowIndex = 0;
+        }
     }
 
     /// <summary>
@@ -415,6 +433,7 @@ public partial class HistoryPanel : Panel
         // 根据列索引设置单元格值
         e.Value = historyDataGridView.Columns[e.ColumnIndex].Name switch
         {
+            "序号" => e.RowIndex + 1,
             "开始时间" => result.StartTime.ToString("yyyy-MM-dd HH:mm:ss"),
             "难度" => Methods.GetDifficultyText(result.Difficulty),
             "结果" => result.IsWin ? "胜利" : "失败",

@@ -1,6 +1,22 @@
 namespace MineClearance;
 
 /// <summary>
+/// 筛选条件项
+/// </summary>
+public class FilterConditionItem
+{
+    /// <summary>
+    /// 筛选器, 用于定义筛选逻辑
+    /// </summary>
+    public required Func<GameResult, bool> Filter { get; init; }
+
+    /// <summary>
+    /// 筛选的属性
+    /// </summary>
+    public required string Property { get; init; }
+}
+
+/// <summary>
 /// 排序条件项
 /// </summary>
 public class SortConditionItem
@@ -24,7 +40,7 @@ public static class ResultManager
     /// <summary>
     /// 筛选条件集合
     /// </summary>
-    private static readonly List<Func<GameResult, bool>> _filterConditions;
+    private static readonly List<FilterConditionItem> _filterConditions;
 
     /// <summary>
     /// 排序条件集合
@@ -58,9 +74,10 @@ public static class ResultManager
     /// 添加筛选条件
     /// </summary>
     /// <param name="condition">筛选条件</param>
-    public static void AddFilterCondition(Func<GameResult, bool> condition)
+    /// <param name="property">筛选的属性</param>
+    public static void AddFilterCondition(Func<GameResult, bool> condition, string property)
     {
-        _filterConditions.Add(condition);
+        _filterConditions.Add(new() { Filter = condition, Property = property });
         ConditionsChanged?.Invoke();
     }
 
@@ -88,7 +105,7 @@ public static class ResultManager
     /// <param name="condition">筛选条件</param>
     public static void RemoveFilterCondition(Func<GameResult, bool> condition)
     {
-        _filterConditions.Remove(condition);
+        _filterConditions.RemoveAll(c => c.Filter == condition);
         ConditionsChanged?.Invoke();
     }
 
@@ -120,13 +137,18 @@ public static class ResultManager
         // 操作后的结果
         var processedResults = Datas.GameResults.AsEnumerable();
 
-        // 应用筛选条件
-        if (_filterConditions.Count > 0)
+        // 应用筛选条件, 如果是相同属性的筛选只需满足一个, 不同属性的筛选需要全部满足
+        var groupedFilterConditions = _filterConditions.GroupBy(c => c.Property);
+        if (groupedFilterConditions.Any())
         {
-            processedResults = processedResults.Where(result => _filterConditions.Any(filter => filter(result)));
+            processedResults = processedResults.Where(result =>
+                groupedFilterConditions.All(group =>
+                    group.Any(condition => condition.Filter(result))
+                )
+            );
         }
 
-        // 应用排序条件
+        // 应用排序条件, 按优先级顺序排序
         var orderedSortConditions = _sortConditions.OrderBy(sc => sc.Priority).ToList();
         if (orderedSortConditions.Count > 0)
         {

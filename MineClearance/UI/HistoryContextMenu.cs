@@ -169,7 +169,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
                     if (filterItem.Checked)
                     {
                         // 添加筛选条件
-                        ResultManager.AddFilterCondition(filter);
+                        ResultManager.AddFilterCondition(filter, name);
                     }
                     else
                     {
@@ -199,7 +199,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
                 if (winItem.Checked)
                 {
                     // 添加胜利筛选条件
-                    ResultManager.AddFilterCondition(filter);
+                    ResultManager.AddFilterCondition(filter, name);
                 }
                 else
                 {
@@ -216,7 +216,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
                 if (loseItem.Checked)
                 {
                     // 添加失败筛选条件
-                    ResultManager.AddFilterCondition(filter);
+                    ResultManager.AddFilterCondition(filter, name);
                 }
                 else
                 {
@@ -228,6 +228,53 @@ public partial class HistoryContextMenu : ContextMenuStrip
             // 将筛选菜单项添加到筛选菜单项中
             filterMenuItem.DropDownItems.Add(winItem);
             filterMenuItem.DropDownItems.Add(loseItem);
+            return filterMenuItem;
+        }
+        // 如果是开始时间, 则添加日期选择菜单项
+        else if (name == "开始时间")
+        {
+            // 创建日期选择菜单项
+            var dateFilterItem = new ToolStripMenuItem("选择日期") { CheckOnClick = true };
+
+            // 筛选条件委托
+            Func<GameResult, bool>? filter = null;
+            dateFilterItem.CheckedChanged += (sender, e) =>
+            {
+                // 如果选中筛选
+                if (dateFilterItem.Checked)
+                {
+                    using var datePicker = new DatePickerDialog();
+                    if (datePicker.ShowDialog() == DialogResult.OK)
+                    {
+                        // 获取选择的日期
+                        var selectedDates = datePicker.SelectedDates;
+                        if (selectedDates.Count > 0)
+                        {
+                            // 筛选条件
+                            filter = result => selectedDates.Contains(result.StartTime.Date);
+
+                            // 添加筛选条件
+                            ResultManager.AddFilterCondition(filter, name);
+                            return;
+                        }
+                    }
+
+                    // 如果没有选择日期, 则取消选中状态
+                    dateFilterItem.Checked = false;
+                }
+                else
+                {
+                    // 移除筛选条件
+                    if (filter != null)
+                    {
+                        ResultManager.RemoveFilterCondition(filter);
+                        filter = null;
+                    }
+                }
+            };
+
+            // 将日期选择菜单项添加到筛选菜单项中并返回
+            filterMenuItem.DropDownItems.Add(dateFilterItem);
             return filterMenuItem;
         }
 
