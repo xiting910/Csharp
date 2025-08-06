@@ -1,6 +1,7 @@
 using System.Diagnostics;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.Services;
 
 /// <summary>
 /// 脚本类, 用于创建和启动 powershell 脚本

@@ -1,4 +1,4 @@
-namespace MineClearance;
+namespace MineClearance.Models;
 
 /// <summary>
 /// 表示扫雷游戏的结果

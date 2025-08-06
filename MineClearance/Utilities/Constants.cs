@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
+using MineClearance.Models;
 
-namespace MineClearance;
+namespace MineClearance.Utilities;
 
 /// <summary>
 /// 常量类, 提供一些常量

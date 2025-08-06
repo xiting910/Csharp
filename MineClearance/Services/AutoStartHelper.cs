@@ -1,6 +1,7 @@
 using Microsoft.Win32;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.Services;
 
 /// <summary>
 /// 自动启动帮助类

@@ -1,6 +1,8 @@
 using AutoUpdaterDotNET;
+using MineClearance.Models;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.UI;
 
 /// <summary>
 /// 菜单面板类

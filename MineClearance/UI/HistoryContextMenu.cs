@@ -1,4 +1,7 @@
-namespace MineClearance;
+using MineClearance.Models;
+using MineClearance.Utilities;
+
+namespace MineClearance.UI;
 
 /// <summary>
 /// 历史记录面板的右键菜单

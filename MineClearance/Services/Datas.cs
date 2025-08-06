@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MineClearance.Models;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.Services;
 
 /// <summary>
 /// 数据类, 记录和控制所有历史游戏数据

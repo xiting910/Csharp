@@ -1,4 +1,7 @@
-namespace MineClearance;
+using MineClearance.Models;
+using MineClearance.Services;
+
+namespace MineClearance.Utilities;
 
 /// <summary>
 /// 筛选条件项
@@ -95,7 +98,6 @@ public static class ResultManager
             throw new ArgumentException($"优先级 {priority} 已存在");
         }
         _sortConditions.Add(new() { Comparer = comparer, Priority = priority });
-        _sortConditions.Sort((x, y) => x.Priority.CompareTo(y.Priority));
         ConditionsChanged?.Invoke();
     }
 

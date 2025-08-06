@@ -1,7 +1,10 @@
 using AutoUpdaterDotNET;
 using System.Runtime.InteropServices;
+using MineClearance.Models;
+using MineClearance.Services;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.UI;
 
 /// <summary>
 /// 表示游戏主界面的窗体

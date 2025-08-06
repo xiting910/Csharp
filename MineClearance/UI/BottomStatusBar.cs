@@ -1,6 +1,8 @@
 using System.Diagnostics;
+using MineClearance.Models;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.UI;
 
 /// <summary>
 /// 底部状态栏

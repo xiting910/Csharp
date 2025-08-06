@@ -1,4 +1,9 @@
-namespace MineClearance;
+using MineClearance.Core;
+using MineClearance.Models;
+using MineClearance.Services;
+using MineClearance.Utilities;
+
+namespace MineClearance.UI;
 
 /// <summary>
 /// 游戏面板类

@@ -1,4 +1,4 @@
-namespace MineClearance;
+namespace MineClearance.Models;
 
 /// <summary>
 /// 带有版本号和最后更新时间的数据类.

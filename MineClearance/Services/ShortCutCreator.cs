@@ -1,7 +1,8 @@
 using System.Text;
 using System.Runtime.InteropServices;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.Services;
 
 /// <summary>
 /// 快捷方式创建器类

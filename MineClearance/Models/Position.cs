@@ -1,4 +1,4 @@
-namespace MineClearance;
+namespace MineClearance.Models;
 
 /// <summary>
 /// 位置类, 用于表示扫雷游戏中的位置

@@ -1,4 +1,6 @@
-namespace MineClearance;
+using MineClearance.Utilities;
+
+namespace MineClearance.UI;
 
 /// <summary>
 /// 自定义双缓冲面板

@@ -1,4 +1,4 @@
-namespace MineClearance;
+namespace MineClearance.Models;
 
 /// <summary>
 /// 格子类型枚举

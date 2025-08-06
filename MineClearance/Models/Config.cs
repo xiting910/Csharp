@@ -1,4 +1,4 @@
-namespace MineClearance;
+namespace MineClearance.Models;
 
 /// <summary>
 /// 配置数据类

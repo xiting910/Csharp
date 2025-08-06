@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MineClearance.Models;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.Services;
 
 /// <summary>
 /// 设置类, 用于存储和管理游戏设置

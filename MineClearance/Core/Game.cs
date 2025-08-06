@@ -1,4 +1,7 @@
-namespace MineClearance;
+using MineClearance.Models;
+using MineClearance.Utilities;
+
+namespace MineClearance.Core;
 
 /// <summary>
 /// 表示扫雷游戏的主类, 控制游戏的流程和逻辑

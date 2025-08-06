@@ -1,7 +1,9 @@
 using AutoUpdaterDotNET;
 using System.Text.RegularExpressions;
+using MineClearance.Models;
+using MineClearance.Services;
 
-namespace MineClearance;
+namespace MineClearance.Utilities;
 
 /// <summary>
 /// 方法类, 提供一些常用方法

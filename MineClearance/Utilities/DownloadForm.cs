@@ -1,4 +1,4 @@
-namespace MineClearance;
+namespace MineClearance.Utilities;
 
 /// <summary>
 /// 提供下载进度的窗体

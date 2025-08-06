@@ -1,4 +1,7 @@
 ﻿using AutoUpdaterDotNET;
+using MineClearance.UI;
+using MineClearance.Services;
+using MineClearance.Utilities;
 
 namespace MineClearance;
 

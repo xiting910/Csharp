@@ -1,6 +1,8 @@
-using Microsoft.VisualBasic;
+using MineClearance.Models;
+using MineClearance.Services;
+using MineClearance.Utilities;
 
-namespace MineClearance;
+namespace MineClearance.UI;
 
 /// <summary>
 /// 设置窗口类
@@ -229,7 +231,7 @@ public partial class SettingForm : Form
     private void CreateShortcutButton_Click(object? sender, EventArgs e)
     {
         // 弹窗提示用户输入快捷方式名称
-        var shortcutName = Interaction.InputBox("请输入快捷方式名称:", "创建桌面快捷方式", Constants.ExecutableFileName, -1, -1);
+        var shortcutName = Microsoft.VisualBasic.Interaction.InputBox("请输入快捷方式名称:", "创建桌面快捷方式", Constants.ExecutableFileName, -1, -1);
 
         if (!string.IsNullOrWhiteSpace(shortcutName))
         {

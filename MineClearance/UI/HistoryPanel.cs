@@ -1,4 +1,8 @@
-namespace MineClearance;
+using MineClearance.Models;
+using MineClearance.Services;
+using MineClearance.Utilities;
+
+namespace MineClearance.UI;
 
 /// <summary>
 /// 历史记录面板类

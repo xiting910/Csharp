@@ -1,4 +1,6 @@
-namespace MineClearance;
+using MineClearance.Models;
+
+namespace MineClearance.Core;
 
 /// <summary>
 /// 表示扫雷游戏中的地雷, 记录地雷的位置
