@@ -1,6 +1,5 @@
 using System.Text;
 using System.Runtime.InteropServices;
-using MineClearance.Utilities;
 
 namespace MineClearance.Services;
 
@@ -52,6 +51,11 @@ public partial class ShortcutCreator
     }
 
     /// <summary>
+    /// 桌面路径
+    /// </summary>
+    private static readonly string DesktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+    /// <summary>
     /// 创建桌面快捷方式
     /// </summary>
     /// <param name="targetPath">目标程序路径</param>
@@ -70,7 +74,7 @@ public partial class ShortcutCreator
         }
 
         // 获取桌面快捷方式路径
-        var shortcutPath = Path.Combine(Constants.DesktopPath, shortcutName + ".lnk");
+        var shortcutPath = Path.Combine(DesktopPath, shortcutName + ".lnk");
 
         // 如果快捷方式已存在，则删除
         if (File.Exists(shortcutPath))

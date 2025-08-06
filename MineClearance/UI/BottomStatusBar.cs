@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using MineClearance.Models;
-using MineClearance.Utilities;
 
 namespace MineClearance.UI;
 
@@ -9,6 +8,16 @@ namespace MineClearance.UI;
 /// </summary>
 public class BottomStatusBar : StatusStrip
 {
+    /// <summary>
+    /// 作者名字
+    /// </summary>
+    private const string AuthorName = "xiting910";
+
+    /// <summary>
+    /// GitHub 仓库链接
+    /// </summary>
+    private const string GitHubRepoUrl = "https://github.com/xiting910/Csharp/tree/main/MineClearance";
+
     /// <summary>
     /// 左侧状态标签
     /// </summary>
@@ -37,9 +46,7 @@ public class BottomStatusBar : StatusStrip
     /// <summary>
     /// 构造函数，初始化状态栏
     /// </summary>
-    /// <param name="author">作者信息</param>
-    /// <param name="githubRepoUrl">GitHub 仓库链接</param>
-    public BottomStatusBar(string author, string githubRepoUrl)
+    public BottomStatusBar()
     {
         // 设置状态栏属性
         Size = new(Constants.MainFormWidth, Constants.BottomStatusBarHeight);
@@ -58,7 +65,7 @@ public class BottomStatusBar : StatusStrip
         // 右侧信息标签1
         _infoLabel1 = new ToolStripStatusLabel
         {
-            Text = $"本项目由{author}一人开发。如您有建议或发现问题，请访问",
+            Text = $"本项目由{AuthorName}一人开发。如您有建议或发现问题，请访问",
             IsLink = false,
             ForeColor = Color.Black,
             TextAlign = ContentAlignment.MiddleRight
@@ -70,14 +77,14 @@ public class BottomStatusBar : StatusStrip
             Text = "项目github仓库",
             IsLink = true,
             ForeColor = Color.Blue,
-            ToolTipText = githubRepoUrl,
+            ToolTipText = GitHubRepoUrl,
             TextAlign = ContentAlignment.MiddleRight
         };
         _repoLinkLabel.Click += (s, e) =>
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = githubRepoUrl,
+                FileName = GitHubRepoUrl,
                 UseShellExecute = true
             });
         };

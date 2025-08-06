@@ -1,5 +1,6 @@
 using AutoUpdaterDotNET;
 using System.Text.RegularExpressions;
+using MineClearance.UI;
 using MineClearance.Models;
 using MineClearance.Services;
 
@@ -254,7 +255,7 @@ public static partial class Methods
         // 定时器用于定时刷新进度表单
         var timer = new System.Windows.Forms.Timer
         {
-            Interval = Constants.UpdateSpeedRefreshInterval
+            Interval = DownloadConstants.UpdateSpeedRefreshInterval
         };
 
         // 下载进度弹窗
@@ -313,7 +314,7 @@ public static partial class Methods
 
             // 无进度检测
             var now = DateTime.Now;
-            if ((now - lastProgressTime).TotalSeconds > Constants.NoProgressRetryInterval)
+            if ((now - lastProgressTime).TotalSeconds > DownloadConstants.NoProgressRetryInterval)
             {
                 isNoProgress = true;
                 CTS.Cancel();
@@ -354,7 +355,7 @@ public static partial class Methods
         };
 
         // 下载更新文件
-        while (retryCount < Constants.NoProgressMaxRetries)
+        while (retryCount < DownloadConstants.NoProgressMaxRetries)
         {
             // 重置CancellationTokenSource
             CTS = new CancellationTokenSource();
@@ -386,7 +387,7 @@ public static partial class Methods
                 // 使用 HttpClient 下载更新文件
                 using var httpClient = new HttpClient
                 {
-                    Timeout = TimeSpan.FromSeconds(Constants.HttpRequestTimeout)
+                    Timeout = TimeSpan.FromSeconds(DownloadConstants.HttpRequestTimeout)
                 };
                 using var response = await httpClient.GetAsync(downloadURL, HttpCompletionOption.ResponseHeadersRead, CTS.Token);
                 response.EnsureSuccessStatusCode();
@@ -443,7 +444,7 @@ public static partial class Methods
                     ++retryCount;
 
                     // 超过最大重试次数
-                    if (retryCount >= Constants.NoProgressMaxRetries)
+                    if (retryCount >= DownloadConstants.NoProgressMaxRetries)
                     {
                         MessageBox.Show("下载超时, 请检查网络后重试。", "下载超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
@@ -455,7 +456,7 @@ public static partial class Methods
                     // 如果没有开启隐藏更新提示信息, 弹窗提示用户下载超时，是重试还是取消
                     if (!Settings.Config.HideUpdateDetails)
                     {
-                        var result = TimeoutMessageBox.Show("下载长时间无进度，是否重试？", "下载超时", Constants.NoProgressDialogWaitTime);
+                        var result = TimeoutMessageBox.Show("下载长时间无进度，是否重试？", "下载超时", DownloadConstants.NoProgressDialogWaitTime);
                         retry = result == DialogResult.Yes;
                     }
 

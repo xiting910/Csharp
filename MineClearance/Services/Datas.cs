@@ -11,6 +11,11 @@ namespace MineClearance.Services;
 public static class Datas
 {
     /// <summary>
+    /// 当前数据版本号
+    /// </summary>
+    private const int CurrentDataVersion = 4;
+
+    /// <summary>
     /// JSON序列化选项 - 缓存以避免重复创建
     /// </summary>
     private static readonly JsonSerializerOptions _jsonOptions = new()
@@ -71,7 +76,7 @@ public static class Datas
                         _gameResults.AddRange(gameData.GameResults);
 
                         // 如果数据版本低于当前版本, 则进行数据升级
-                        if (gameData.Version < Constants.CurrentDataVersion)
+                        if (gameData.Version < CurrentDataVersion)
                         {
                             // 将游戏结果按时间倒序排列
                             _gameResults.Sort((x, y) => y.StartTime.CompareTo(x.StartTime));
@@ -144,7 +149,7 @@ public static class Datas
             }
 
             // 要保存的数据
-            var data = new GameData(DateTime.Now, [.. GameResults], Constants.CurrentDataVersion);
+            var data = new GameData(DateTime.Now, [.. GameResults], CurrentDataVersion);
 
             // 异步序列化 data 到游戏历史记录文件
             await using var stream = File.Create(Constants.DataFilePath);

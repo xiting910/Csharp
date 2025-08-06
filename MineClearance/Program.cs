@@ -49,7 +49,7 @@ internal static class Program
         AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
 
         // 初始化 DPI 缩放
-        Constants.InitDpiScale();
+        UI.Constants.InitDpiScale();
 
         // 初始化数据
         Datas.Initialize().Wait();
@@ -73,7 +73,7 @@ internal static class Program
 
         // 记录异常到日志文件并弹窗提示错误信息
         LogException(e.Exception);
-        MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         // 退出应用程序
         Application.Exit();
@@ -96,12 +96,12 @@ internal static class Program
         if (e.ExceptionObject is Exception ex)
         {
             LogException(ex);
-            MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
             LogException(new("发生未知的未处理异常。"));
-            MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         // 退出应用程序
@@ -117,11 +117,11 @@ internal static class Program
         var log = $"[{DateTime.Now}] {ex}\n";
         try
         {
-            if (!Directory.Exists(Constants.DataPath))
+            if (!Directory.Exists(Utilities.Constants.DataPath))
             {
-                Directory.CreateDirectory(Constants.DataPath);
+                Directory.CreateDirectory(Utilities.Constants.DataPath);
             }
-            File.AppendAllText(Constants.ErrorFilePath, log);
+            File.AppendAllText(Utilities.Constants.ErrorFilePath, log);
         }
         catch { /* 忽略日志写入异常 */ }
     }

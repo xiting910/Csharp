@@ -1,5 +1,3 @@
-using MineClearance.Utilities;
-
 namespace MineClearance.UI;
 
 /// <summary>
@@ -86,7 +84,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = Constants.MaxBoardWidth,
+            Maximum = Utilities.Constants.MaxBoardWidth,
             Value = 16
         };
         inputY += verticalSpacing;
@@ -103,7 +101,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = Constants.MaxBoardHeight,
+            Maximum = Utilities.Constants.MaxBoardHeight,
             Value = 16
         };
         inputY += verticalSpacing;
@@ -120,7 +118,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = Constants.MaxBoardWidth * Constants.MaxBoardHeight - 1,
+            Maximum = Utilities.Constants.MaxBoardWidth * Utilities.Constants.MaxBoardHeight - 1,
             Value = 40
         };
 

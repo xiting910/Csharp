@@ -1,4 +1,4 @@
-namespace MineClearance.Utilities;
+namespace MineClearance.UI;
 
 /// <summary>
 /// 提供下载进度的窗体
@@ -99,20 +99,24 @@ public class TimeoutMessageBox : Form
     /// 重试按钮
     /// </summary>
     private readonly Button btnRetry;
+
     /// <summary>
     /// 取消按钮
     /// </summary>
     private readonly Button btnCancel;
+
     /// <summary>
     /// 消息标签
     /// </summary>
     private readonly Label lblMsg;
+
     /// <summary>
     /// 定时器, 用于自动选择重试
     /// </summary>
     private readonly System.Windows.Forms.Timer timer;
+
     /// <summary>
-    /// 剩余时间（秒）
+    /// 剩余时间(秒)
     /// </summary>
     private int secondsLeft;
 
@@ -121,7 +125,7 @@ public class TimeoutMessageBox : Form
     /// </summary>
     /// <param name="text">提示文本</param>
     /// <param name="caption">标题</param>
-    /// <param name="timeoutSeconds">超时时间（秒）</param>
+    /// <param name="timeoutSeconds">超时时间(秒)</param>
     /// <returns>用户选择的结果</returns>
     public static DialogResult Show(string text, string caption, int timeoutSeconds)
     {
@@ -132,6 +136,9 @@ public class TimeoutMessageBox : Form
     /// <summary>
     /// 构造函数, 初始化提示框
     /// </summary>
+    /// <param name="text">提示文本</param>
+    /// <param name="caption">标题</param>
+    /// <param name="timeoutSeconds">超时时间(秒)</param>
     private TimeoutMessageBox(string text, string caption, int timeoutSeconds)
     {
         Text = caption;

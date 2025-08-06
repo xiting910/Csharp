@@ -1,7 +1,6 @@
 using MineClearance.Core;
 using MineClearance.Models;
 using MineClearance.Services;
-using MineClearance.Utilities;
 
 namespace MineClearance.UI;
 
@@ -277,7 +276,7 @@ public partial class GamePanel : Panel
         _isGameLost = false;
 
         // 设置游戏左上角格子位置, 使游戏能在面板居中显示
-        var colOffset = (Constants.MaxBoardWidth - _gameInstance.Board.Width) / 2;
+        var colOffset = (Utilities.Constants.MaxBoardWidth - _gameInstance.Board.Width) / 2;
         _gameStartPosition = new(0, colOffset);
 
         // 运行游戏实例

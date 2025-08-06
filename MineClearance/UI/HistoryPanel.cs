@@ -443,9 +443,9 @@ public partial class HistoryPanel : Panel
             "结果" => result.IsWin ? "胜利" : "失败",
             "完成度" => $"{result.Completion ?? 100.0:0.##}%",
             "用时" => $"{(int)result.Duration.TotalMinutes:D2}:{result.Duration.Seconds:D2}.{result.Duration.Milliseconds / 10:D2}",
-            "宽度" => result.BoardWidth ?? Constants.GetSettings(result.Difficulty).width,
-            "高度" => result.BoardHeight ?? Constants.GetSettings(result.Difficulty).height,
-            "地雷数" => result.MineCount ?? Constants.GetSettings(result.Difficulty).mineCount,
+            "宽度" => result.BoardWidth ?? Utilities.Constants.GetSettings(result.Difficulty).width,
+            "高度" => result.BoardHeight ?? Utilities.Constants.GetSettings(result.Difficulty).height,
+            "地雷数" => result.MineCount ?? Utilities.Constants.GetSettings(result.Difficulty).mineCount,
             _ => "",
         };
     }

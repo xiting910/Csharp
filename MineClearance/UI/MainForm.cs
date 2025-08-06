@@ -76,7 +76,7 @@ public partial class MainForm : Form
         };
 
         // 初始化底部状态栏
-        _bottomStatusBar = new(Constants.AuthorName, Constants.GitHubRepoUrl);
+        _bottomStatusBar = new();
 
         // 添加所有面板到窗体
         Controls.AddRange([.. _panels.Values]);
@@ -193,15 +193,15 @@ public partial class MainForm : Form
         }
 
         // 检测有没有更新文件残留
-        if (File.Exists(Constants.SevenZipPath))
+        if (File.Exists(Utilities.Constants.SevenZipPath))
         {
-            var deleteResult = MessageBox.Show($"检测到更新文件 {Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            var deleteResult = MessageBox.Show($"检测到更新文件 {Utilities.Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Utilities.Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
             try
             {
                 if (deleteResult == DialogResult.Yes)
                 {
-                    File.Delete(Constants.SevenZipPath);
+                    File.Delete(Utilities.Constants.SevenZipPath);
                 }
             }
             catch (Exception ex)
@@ -210,17 +210,8 @@ public partial class MainForm : Form
             }
         }
 
-        // 删除残留的更新脚本
-        if (File.Exists(Constants.UpdatePowerShellScriptPath))
-        {
-            try { File.Delete(Constants.UpdatePowerShellScriptPath); } catch { }
-        }
-
-        // 删除残留的卸载脚本
-        if (File.Exists(Constants.UninstallPowerShellScriptPath))
-        {
-            try { File.Delete(Constants.UninstallPowerShellScriptPath); } catch { }
-        }
+        // 删除所有残留的脚本文件
+        Script.RemoveAllResidualScripts();
 
         // 设置强制关闭标志
         Methods.IsForceClose = true;
@@ -242,8 +233,19 @@ public partial class MainForm : Form
         // 恢复窗口位置和大小
         if (Settings.Config.MainForm != null)
         {
-            Left = Settings.Config.MainForm.Left;
-            Top = Settings.Config.MainForm.Top;
+            // 保存的位置
+            var left = Settings.Config.MainForm.Left;
+            var top = Settings.Config.MainForm.Top;
+
+            // 当前屏幕的工作区域
+            var workingArea = Screen.GetWorkingArea(this);
+
+            // 确保位置在工作区域内
+            if (left >= 0 && top >= 0 && left < workingArea.Width && top < workingArea.Height)
+            {
+                Left = left;
+                Top = top;
+            }
         }
     }
 
@@ -271,10 +273,10 @@ public partial class MainForm : Form
         if (m.Msg == WM_MOVING)
         {
             // 获取当前屏幕的工作区域
-            Rectangle workingArea = Screen.GetWorkingArea(this);
+            var workingArea = Screen.GetWorkingArea(this);
 
             // 获取窗口的当前位置
-            object? rectObj = Marshal.PtrToStructure(m.LParam, typeof(RECT));
+            var rectObj = Marshal.PtrToStructure(m.LParam, typeof(RECT));
 
             if (rectObj is RECT rect)
             {

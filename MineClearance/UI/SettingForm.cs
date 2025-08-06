@@ -231,14 +231,14 @@ public partial class SettingForm : Form
     private void CreateShortcutButton_Click(object? sender, EventArgs e)
     {
         // 弹窗提示用户输入快捷方式名称
-        var shortcutName = Microsoft.VisualBasic.Interaction.InputBox("请输入快捷方式名称:", "创建桌面快捷方式", Constants.ExecutableFileName, -1, -1);
+        var shortcutName = Microsoft.VisualBasic.Interaction.InputBox("请输入快捷方式名称:", "创建桌面快捷方式", Utilities.Constants.ExecutableFileName, -1, -1);
 
         if (!string.IsNullOrWhiteSpace(shortcutName))
         {
             // 创建快捷方式
             try
             {
-                ShortcutCreator.CreateDesktopShortcut(Constants.ExecutableFilePath, shortcutName);
+                ShortcutCreator.CreateDesktopShortcut(Utilities.Constants.ExecutableFilePath, shortcutName);
                 MessageBox.Show("快捷方式创建成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -285,7 +285,7 @@ public partial class SettingForm : Form
         }
 
         // 再次弹出确认对话框
-        var confirmResult = MessageBox.Show($"请再次确认您要卸载吗？\n这将会彻底删除 {Constants.ParentDirectory} 文件夹及其所有内容", "再次确认卸载", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+        var confirmResult = MessageBox.Show($"请再次确认您要卸载吗？\n这将会彻底删除 {Utilities.Constants.ParentDirectory} 文件夹及其所有内容", "再次确认卸载", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
         // 如果用户没有点击确定按钮
         if (confirmResult != DialogResult.OK)
@@ -380,8 +380,19 @@ public partial class SettingForm : Form
         // 恢复窗口位置和大小
         if (Settings.Config.SettingForm != null)
         {
-            Left = Settings.Config.SettingForm.Left;
-            Top = Settings.Config.SettingForm.Top;
+            // 保存的位置
+            var left = Settings.Config.SettingForm.Left;
+            var top = Settings.Config.SettingForm.Top;
+
+            // 当前屏幕的工作区域
+            var workingArea = Screen.GetWorkingArea(this);
+
+            // 确保位置在工作区域内
+            if (left >= 0 && top >= 0 && left < workingArea.Width && top < workingArea.Height)
+            {
+                Left = left;
+                Top = top;
+            }
 
             // 如果配置的宽度和高度小于最小值，则使用最小值
             Width = Math.Max(Settings.Config.SettingForm.Width, Constants.SettingFormMinWidth);
@@ -415,9 +426,17 @@ public partial class SettingForm : Form
             };
         });
 
-        // 将设置窗口实例设为null
-        instance = null;
-
         base.OnFormClosing(e);
+    }
+
+    /// <summary>
+    /// 重写FormClosed方法, 用于释放实例
+    /// </summary>
+    protected override void OnFormClosed(FormClosedEventArgs e)
+    {
+        base.OnFormClosed(e);
+
+        // 释放唯一实例
+        instance = null;
     }
 }

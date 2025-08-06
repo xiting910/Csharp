@@ -9,6 +9,16 @@ namespace MineClearance.Services;
 public static class Script
 {
     /// <summary>
+    /// 用于更新程序的powershell脚本路径
+    /// </summary>
+    private static readonly string updatePowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UpdateScript.ps1");
+
+    /// <summary>
+    /// 卸载脚本路径
+    /// </summary>
+    private static readonly string uninstallPowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UninstallScript.ps1");
+
+    /// <summary>
     /// 创建并启动自动更新的powershell脚本
     /// </summary>
     public static void StartAutoUpdateScript()
@@ -16,7 +26,7 @@ public static class Script
         try
         {
             // 创建批处理脚本内容, 使用7za.exe命令解压缩
-            File.WriteAllText(Constants.UpdatePowerShellScriptPath, $@"
+            File.WriteAllText(updatePowerShellScriptPath, $@"
                 chcp 65001 > $null
                 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
                 Get-Process -Name ""{Path.GetFileNameWithoutExtension(Constants.ExecutableFileName)}"" -ErrorAction SilentlyContinue | ForEach-Object {{ $_.Kill() }}
@@ -31,7 +41,7 @@ public static class Script
             Process.Start(new ProcessStartInfo
             {
                 FileName = "powershell",
-                Arguments = $"-ExecutionPolicy Bypass -File \"{Constants.UpdatePowerShellScriptPath}\"",
+                Arguments = $"-ExecutionPolicy Bypass -File \"{updatePowerShellScriptPath}\"",
                 UseShellExecute = true
             });
         }
@@ -75,10 +85,10 @@ public static class Script
             }
 
             // 如果更新脚本存在，则删除更新脚本
-            if (File.Exists(Constants.UpdatePowerShellScriptPath))
+            if (File.Exists(updatePowerShellScriptPath))
             {
                 scriptContent += $@"
-                    Remove-Item -Path ""{Constants.UpdatePowerShellScriptPath}"" -Force";
+                    Remove-Item -Path ""{updatePowerShellScriptPath}"" -Force";
             }
 
             // 删除卸载脚本
@@ -86,13 +96,13 @@ public static class Script
                 Remove-Item -Path $MyInvocation.MyCommand.Path -Force";
 
             // 创建脚本并写入内容
-            File.WriteAllText(Constants.UninstallPowerShellScriptPath, scriptContent, System.Text.Encoding.UTF8);
+            File.WriteAllText(uninstallPowerShellScriptPath, scriptContent, System.Text.Encoding.UTF8);
 
             // 启动powershell脚本
             Process.Start(new ProcessStartInfo
             {
                 FileName = "powershell",
-                Arguments = $"-ExecutionPolicy Bypass -File \"{Constants.UninstallPowerShellScriptPath}\"",
+                Arguments = $"-ExecutionPolicy Bypass -File \"{uninstallPowerShellScriptPath}\"",
                 UseShellExecute = true,
                 Verb = "runas"
             });
@@ -101,5 +111,29 @@ public static class Script
         {
             MessageBox.Show($"自动卸载失败: {ex.Message}", @"自动卸载失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    /// <summary>
+    /// 删除残留的所有脚本文件
+    /// </summary>
+    public static void RemoveAllResidualScripts()
+    {
+        try
+        {
+            // 删除所有脚本文件
+            var scriptFiles = new[]
+            {
+                updatePowerShellScriptPath,
+                uninstallPowerShellScriptPath
+            };
+            foreach (var scriptFile in scriptFiles)
+            {
+                if (File.Exists(scriptFile))
+                {
+                    File.Delete(scriptFile);
+                }
+            }
+        }
+        catch {/* 忽略异常 */ }
     }
 }
