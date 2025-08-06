@@ -3,55 +3,55 @@ namespace MineClearance.Models;
 /// <summary>
 /// 表示扫雷游戏的结果
 /// </summary>
-/// <param name="Difficulty">游戏难度级别</param>
-/// <param name="StartTime">游戏开始时间</param>
-/// <param name="Duration">游戏持续时间</param>
-/// <param name="IsWin">游戏是否获胜</param>
-/// <param name="Completion">游戏完成度, 取值范围 0 到 99, null 表示胜利</param>
-/// <param name="BoardWidth">棋盘宽度</param>
-/// <param name="BoardHeight">棋盘高度</param>
-/// <param name="MineCount">地雷总数</param>
-public record GameResult(DifficultyLevel Difficulty, DateTime StartTime, TimeSpan Duration, bool IsWin, double? Completion = null, int? BoardWidth = null, int? BoardHeight = null, int? MineCount = null)
+/// <param name="difficulty">游戏难度级别</param>
+/// <param name="startTime">游戏开始时间</param>
+/// <param name="duration">游戏持续时间</param>
+/// <param name="isWin">游戏是否获胜</param>
+/// <param name="completion">游戏完成度, 取值范围 0 到 99, null 表示胜利</param>
+/// <param name="boardWidth">棋盘宽度</param>
+/// <param name="boardHeight">棋盘高度</param>
+/// <param name="mineCount">地雷总数</param>
+public class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan duration, bool isWin, double? completion = null, int? boardWidth = null, int? boardHeight = null, int? mineCount = null)
 {
     /// <summary>
     /// 游戏的难度级别
     /// </summary>
-    public DifficultyLevel Difficulty { get; private init; } = Difficulty;
+    public DifficultyLevel Difficulty { get; private init; } = difficulty;
 
     /// <summary>
     /// 游戏的开始时间
     /// </summary>
-    public DateTime StartTime { get; private init; } = StartTime;
+    public DateTime StartTime { get; private init; } = startTime;
 
     /// <summary>
     /// 游戏时间
     /// </summary>
-    public TimeSpan Duration { get; private init; } = Duration;
+    public TimeSpan Duration { get; private init; } = duration;
 
     /// <summary>
     /// 游戏的结果(是否获胜)
     /// </summary>
-    public bool IsWin { get; private init; } = IsWin;
+    public bool IsWin { get; private init; } = isWin;
 
     /// <summary>
     /// 游戏完成度, 取值范围 0 到 99, null 表示胜利
     /// </summary>
-    public double? Completion { get; private init; } = IsWin ? null : Completion;
+    public double? Completion { get; private init; } = isWin ? null : completion;
 
     /// <summary>
     /// 棋盘宽度
     /// </summary>
-    public int? BoardWidth { get; private init; } = Difficulty == DifficultyLevel.Custom ? BoardWidth : null;
+    public int? BoardWidth { get; private init; } = difficulty == DifficultyLevel.Custom ? boardWidth : null;
 
     /// <summary>
     /// 棋盘高度
     /// </summary>
-    public int? BoardHeight { get; private init; } = Difficulty == DifficultyLevel.Custom ? BoardHeight : null;
+    public int? BoardHeight { get; private init; } = difficulty == DifficultyLevel.Custom ? boardHeight : null;
 
     /// <summary>
     /// 地雷数量
     /// </summary>
-    public int? MineCount { get; private init; } = Difficulty == DifficultyLevel.Custom ? MineCount : null;
+    public int? MineCount { get; private init; } = difficulty == DifficultyLevel.Custom ? mineCount : null;
 }
 
 /// <summary>

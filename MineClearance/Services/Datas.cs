@@ -149,7 +149,12 @@ public static class Datas
             }
 
             // 要保存的数据
-            var data = new GameData(DateTime.Now, [.. GameResults], CurrentDataVersion);
+            var data = new GameData
+            {
+                Version = CurrentDataVersion,
+                LastUpdate = DateTime.Now,
+                GameResults = _gameResults
+            };
 
             // 异步序列化 data 到游戏历史记录文件
             await using var stream = File.Create(Constants.DataFilePath);

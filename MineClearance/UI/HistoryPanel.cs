@@ -15,24 +15,34 @@ public partial class HistoryPanel : Panel
     private static readonly int historyTopPanelHeight = (int)(43 * Constants.DpiScale);
 
     /// <summary>
+    /// 数据网格视图的宽度
+    /// </summary>
+    private static readonly int dataGridViewWidth = Constants.MainFormWidth - (int)(12 * Constants.DpiScale);
+
+    /// <summary>
+    /// 数据网格视图的高度
+    /// </summary>
+    private static readonly int dataGridViewHeight = Constants.MainFormHeight - historyTopPanelHeight - Constants.BottomStatusBarHeight;
+
+    /// <summary>
     /// 历史记录顶部面板
     /// </summary>
     private readonly Panel historyTopPanel;
 
     /// <summary>
-    /// 统计信息列表
+    /// 提示信息标签
     /// </summary>
-    private readonly ListBox statisticsListBox;
+    private readonly Label tipsLabel;
+
+    /// <summary>
+    /// 统计信息列表框
+    /// </summary>
+    private readonly DoubleBufferedDataGridView statisticsDataGridView;
 
     /// <summary>
     /// 历史记录列表框
     /// </summary>
     private readonly DoubleBufferedDataGridView historyDataGridView;
-
-    /// <summary>
-    /// 提示信息标签
-    /// </summary>
-    private readonly Label tipsLabel;
 
     /// <summary>
     /// 初始化历史记录面板
@@ -58,15 +68,15 @@ public partial class HistoryPanel : Panel
         };
         historyTopPanel.Controls.Add(tipsLabel);
 
-        // 创建统计信息列表框
-        statisticsListBox = CreateStatisticsListBox();
+        // 创建统计信息数据网格视图
+        statisticsDataGridView = CreateStatisticsDataGridView();
 
         // 创建历史记录数据网格视图
         historyDataGridView = CreateHistoryDataGridView();
 
-        // 添加历史记录顶部面板和列表框到排行榜面板
+        // 添加历史记录顶部面板和数据网格视图到排行榜面板
         Controls.Add(historyTopPanel);
-        Controls.Add(statisticsListBox);
+        Controls.Add(statisticsDataGridView);
         Controls.Add(historyDataGridView);
     }
 
@@ -79,27 +89,27 @@ public partial class HistoryPanel : Panel
         // 如果是显示详细历史记录，则显示历史记录数据网格视图
         if (showHistory)
         {
-            // 切换到历史记录数据网格视图
-            statisticsListBox.Visible = false;
-            historyDataGridView.Visible = true;
-
             // 提示信息标签可见
             tipsLabel.Visible = true;
 
-            // 重置右键菜单实例(会自动更新数据网格视图)
+            // 切换到历史记录数据网格视图
+            statisticsDataGridView.Visible = false;
+            historyDataGridView.Visible = true;
+
+            // 重置右键菜单实例(会自动更新历史记录数据网格视图)
             HistoryContextMenu.ResetInstances();
         }
         else
         {
-            // 切换到统计信息列表框
-            historyDataGridView.Visible = false;
-            statisticsListBox.Visible = true;
-
             // 提示信息标签不可见
             tipsLabel.Visible = false;
 
-            // 更新统计信息列表框
-            UpdateStatisticsListBox();
+            // 切换到统计信息数据网格视图
+            historyDataGridView.Visible = false;
+            statisticsDataGridView.Visible = true;
+
+            // 更新统计信息数据网格视图
+            UpdateStatisticsDataGridView();
         }
     }
 
@@ -203,25 +213,85 @@ public partial class HistoryPanel : Panel
     }
 
     /// <summary>
-    /// 创建统计信息列表框
+    /// 创建统计信息数据网格视图
     /// </summary>
-    /// <returns>返回创建的列表框</returns>
-    private static ListBox CreateStatisticsListBox()
+    /// <returns>返回创建的数据网格视图</returns>
+    private static DoubleBufferedDataGridView CreateStatisticsDataGridView()
     {
-        // 统计信息列表框的宽度和高度
-        var listBoxWidth = Constants.MainFormWidth - (int)(12 * Constants.DpiScale);
-        var listBoxHeight = Constants.MainFormHeight - historyTopPanelHeight - Constants.BottomStatusBarHeight + (int)(10 * Constants.DpiScale);
+        // 设置数据网格视图的列头高度
+        var columnHeaderHeight = (int)(94 * Constants.DpiScale);
 
-        // 创建统计信息列表框
-        var listBox = new ListBox
+        // 设置数据网格视图的行高
+        var rowHeight = (int)(110 * Constants.DpiScale);
+
+        // 创建统计信息数据网格视图
+        var dataGridView = new DoubleBufferedDataGridView
         {
-            Name = "StatisticsListBox",
+            Name = "StatisticsListView",
             BackColor = Color.White,
             ForeColor = Color.Black,
-            Size = new(listBoxWidth, listBoxHeight),
-            Location = new(0, historyTopPanelHeight)
+            RowHeadersVisible = false,
+            AutoGenerateColumns = false,
+            AllowUserToAddRows = false,
+            AllowUserToResizeRows = false,
+            AllowUserToResizeColumns = false,
+            Location = new(0, historyTopPanelHeight),
+            Size = new(Constants.MainFormWidth, dataGridViewHeight),
+            ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
+            ColumnHeadersHeight = columnHeaderHeight,
+            EnableHeadersVisualStyles = false,
+            RowTemplate = { Height = rowHeight }
         };
-        return listBox;
+
+        // 保存每一列的名字和最小宽度的字典
+        var columnDefinitions = new Dictionary<string, int>
+        {
+            { "难度", 0 },
+            { "游戏次数", (int)(150 * Constants.DpiScale) },
+            { "胜利次数", (int)(150 * Constants.DpiScale) },
+            { "胜利率", (int)(150 * Constants.DpiScale) },
+            { "平均胜利用时", (int)(200 * Constants.DpiScale) },
+            { "最短胜利用时", (int)(200 * Constants.DpiScale) },
+            { "平均完成度", (int)(200 * Constants.DpiScale) }
+        };
+
+        // 剩余宽度
+        var remainWidth = Constants.MainFormWidth - columnDefinitions.Values.Sum();
+        remainWidth -= (int)(10 * Constants.DpiScale);
+
+        // 难度列增加剩余宽度
+        columnDefinitions["难度"] += remainWidth;
+
+        // 添加所有列
+        foreach (var (name, width) in columnDefinitions)
+        {
+            // 对齐方式
+            var alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            // 创建列
+            var column = new DataGridViewTextBoxColumn
+            {
+                Name = name,
+                Width = width,
+                ReadOnly = true,
+                HeaderText = name,
+                DefaultCellStyle = { Alignment = alignment },
+                SortMode = DataGridViewColumnSortMode.NotSortable
+            };
+
+            // 设置列头对齐方式
+            column.HeaderCell.Style.Alignment = alignment;
+            column.HeaderCell.Style.Font = new("微软雅黑", 11F, FontStyle.Bold);
+            column.HeaderCell.Style.BackColor = Color.LightSteelBlue;
+            column.HeaderCell.Style.ForeColor = Color.DarkBlue;
+
+            // 添加列到数据网格视图
+            dataGridView.Columns.Add(column);
+        }
+
+        // 选择时清除选择
+        dataGridView.SelectionChanged += (s, e) => dataGridView.ClearSelection();
+        return dataGridView;
     }
 
     /// <summary>
@@ -230,10 +300,6 @@ public partial class HistoryPanel : Panel
     /// <returns>返回创建的历史记录数据网格视图</returns>
     private DoubleBufferedDataGridView CreateHistoryDataGridView()
     {
-        // 计算历史记录数据网格视图的宽度和高度
-        var dataGridViewWidth = Constants.MainFormWidth - (int)(12 * Constants.DpiScale);
-        var dataGridViewHeight = Constants.MainFormHeight - historyTopPanelHeight - Constants.BottomStatusBarHeight;
-
         // 设置数据网格视图的列头高度
         var columnHeaderHeight = (int)(29 * Constants.DpiScale);
 
@@ -293,8 +359,9 @@ public partial class HistoryPanel : Panel
                 Name = name,
                 Width = width,
                 ReadOnly = true,
-                HeaderText = "    " + name,
-                DefaultCellStyle = { Alignment = alignment }
+                HeaderText = name,
+                DefaultCellStyle = { Alignment = alignment },
+                SortMode = DataGridViewColumnSortMode.NotSortable
             };
 
             // 设置列头对齐方式
@@ -332,71 +399,100 @@ public partial class HistoryPanel : Panel
     }
 
     /// <summary>
-    /// 更新统计信息列表框
+    /// 更新统计信息数据网格视图
     /// </summary>
-    private void UpdateStatisticsListBox()
+    private void UpdateStatisticsDataGridView()
     {
         // 获取所有游戏结果
         var gameResults = Datas.GameResults;
 
-        // 清空统计信息列表框
-        statisticsListBox.Items.Clear();
+        // 清空统计信息数据网格视图
+        statisticsDataGridView.Rows.Clear();
 
-        // 显示总游戏次数
-        statisticsListBox.Items.Add($"总游戏次数: {gameResults.Count}, 其中:");
+        // 全部难度的游戏结果统计
+        var allDifficultyStats = new Stats() { ShortestDuration = TimeSpan.MaxValue };
 
         // 使用字典来统计每个难度的游戏结果
-        var difficultyStats = new Dictionary<DifficultyLevel, (int total, int wins, TimeSpan totalDuration, double totalCompletion, TimeSpan shortestDuration)>
+        var difficultyStats = new Dictionary<DifficultyLevel, Stats>
         {
-            { DifficultyLevel.Easy, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
-            { DifficultyLevel.Medium, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
-            { DifficultyLevel.Hard, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
-            { DifficultyLevel.Hell, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) },
-            { DifficultyLevel.Custom, (0, 0, TimeSpan.Zero, 0, TimeSpan.MaxValue) }
+            { DifficultyLevel.Easy, new Stats() { ShortestDuration = TimeSpan.MaxValue } },
+            { DifficultyLevel.Medium, new Stats() { ShortestDuration = TimeSpan.MaxValue } },
+            { DifficultyLevel.Hard, new Stats() { ShortestDuration = TimeSpan.MaxValue } },
+            { DifficultyLevel.Hell, new Stats() { ShortestDuration = TimeSpan.MaxValue } },
+            { DifficultyLevel.Custom, new Stats() { ShortestDuration = TimeSpan.MaxValue } }
         };
 
-        // 统计每个难度的游戏结果
+        // 统计游戏结果
         foreach (var result in gameResults)
         {
-            var stats = difficultyStats[result.Difficulty];
-            ++stats.total;
-            stats.wins += result.IsWin ? 1 : 0;
-            stats.totalDuration += result.IsWin ? result.Duration : TimeSpan.Zero;
-            stats.totalCompletion += result.Completion ?? 100.0;
-            stats.shortestDuration = (result.IsWin && result.Duration < stats.shortestDuration) ? result.Duration : stats.shortestDuration;
-            difficultyStats[result.Difficulty] = stats;
+            // 更新全部难度的游戏结果
+            allDifficultyStats = AddResultToStats(result, allDifficultyStats);
+
+            // 更新对应难度的游戏结果
+            difficultyStats[result.Difficulty] = AddResultToStats(result, difficultyStats[result.Difficulty]);
         }
 
-        // 计算平均胜利率、平均胜利用时和平均完成度
-        foreach (var (level, stats) in difficultyStats)
+        // 添加全部难度的统计信息
+        AddStatsToStatisticsDataGridView("全部", allDifficultyStats);
+
+        // 添加每个难度的统计信息
+        foreach (var difficulty in difficultyStats.Keys)
         {
-            // 格式化难度名称
-            var formattedDifficulty = Methods.GetDifficultyText(level);
-
-            // 如果没有游戏记录，则跳过
-            if (stats.total == 0)
-            {
-                statisticsListBox.Items.Add($"难度: {formattedDifficulty}, 游戏次数: 0");
-                continue;
-            }
-
-            // 计算胜率、平均胜利用时和平均完成度
-            var winRate = (double)stats.wins / stats.total;
-            var avgDuration = stats.wins > 0 ? TimeSpan.FromMilliseconds(stats.totalDuration.TotalMilliseconds / stats.wins) : TimeSpan.Zero;
-            var avgCompletion = stats.totalCompletion / stats.total;
-
-            // 格式化用时为 xx:xx.xx 格式
-            var formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}.{avgDuration.Milliseconds / 10:D2}";
-
-            // 完成度格式化为百分比, 保留两位小数
-            var formattedCompletion = $"{avgCompletion,6:0.00}%";
-
-            // 格式化最短胜利用时
-            var formattedShortestDuration = stats.shortestDuration == TimeSpan.MaxValue ? "无" : $"{(int)stats.shortestDuration.TotalMinutes:D2}:{stats.shortestDuration.Seconds:D2}.{stats.shortestDuration.Milliseconds / 10:D2}";
-
-            // 添加到历史记录列表
-            statisticsListBox.Items.Add($"难度: {formattedDifficulty}, 游戏次数: {stats.total}, 胜利次数: {stats.wins}, 胜利率: {winRate:P2}, 平均胜利用时: {formattedDuration}, 平均完成度: {formattedCompletion}, 最短胜利用时: {formattedShortestDuration}");
+            var difficultyText = Methods.GetDifficultyText(difficulty);
+            AddStatsToStatisticsDataGridView(difficultyText, difficultyStats[difficulty]);
         }
+
+        // 重绘统计信息数据网格视图
+        statisticsDataGridView.Invalidate();
+    }
+
+    /// <summary>
+    /// 将游戏结果添加到stats结构体
+    /// </summary>
+    /// <param name="result">要添加的游戏结果</param>
+    /// <param name="stats">要更新的统计信息</param>
+    /// <returns>返回更新后的统计信息</returns>
+    private static Stats AddResultToStats(GameResult result, Stats stats)
+    {
+        // 更新统计信息
+        return new()
+        {
+            Total = stats.Total + 1,
+            Wins = stats.Wins + (result.IsWin ? 1 : 0),
+            TotalDuration = stats.TotalDuration + (result.IsWin ? result.Duration : TimeSpan.Zero),
+            TotalCompletion = stats.TotalCompletion + (result.Completion ?? 100.0),
+            ShortestDuration = (result.IsWin && result.Duration < stats.ShortestDuration) ? result.Duration : stats.ShortestDuration
+        };
+    }
+
+    /// <summary>
+    /// 将stats结构体添加到统计信息数据网格视图
+    /// </summary>
+    /// <param name="difficultyText">要添加的难度文本</param>
+    /// <param name="stats">要添加的统计信息</param>
+    private void AddStatsToStatisticsDataGridView(string difficultyText, Stats stats)
+    {
+        // 计算胜率、平均胜利用时和平均完成度
+        var winRate = stats.Total > 0 ? (double)stats.Wins / stats.Total * 100 : 0;
+        var avgDuration = stats.Wins > 0 ? TimeSpan.FromMilliseconds(stats.TotalDuration.TotalMilliseconds / stats.Wins) : TimeSpan.Zero;
+        var avgCompletion = stats.Total > 0 ? stats.TotalCompletion / stats.Total : 0;
+
+        // 格式化用时为 xx:xx.xx 格式
+        var formattedDuration = $"{(int)avgDuration.TotalMinutes:D2}:{avgDuration.Seconds:D2}.{avgDuration.Milliseconds / 10:D2}";
+
+        // 格式化最短胜利用时为 xx:xx.xx 格式
+        var formattedShortestDuration = stats.ShortestDuration == TimeSpan.MaxValue ? "无" : $"{(int)stats.ShortestDuration.TotalMinutes:D2}:{stats.ShortestDuration.Seconds:D2}.{stats.ShortestDuration.Milliseconds / 10:D2}";
+
+        // 添加当前难度的统计信息到数据网格视图
+        statisticsDataGridView.Rows.Add(
+            difficultyText,
+            stats.Total,
+            stats.Wins,
+            $"{winRate:0.##}%",
+            formattedDuration,
+            formattedShortestDuration,
+            $"{avgCompletion:0.##}%"
+        );
     }
 
     /// <summary>
@@ -475,4 +571,35 @@ public partial class HistoryPanel : Panel
         // 弹窗提示清除成功
         MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
+}
+
+/// <summary>
+/// 统计信息结构体
+/// </summary>
+public readonly struct Stats
+{
+    /// <summary>
+    /// 总游戏次数
+    /// </summary>
+    public int Total { get; init; }
+
+    /// <summary>
+    /// 胜利次数
+    /// </summary>
+    public int Wins { get; init; }
+
+    /// <summary>
+    /// 总胜利用时
+    /// </summary>
+    public TimeSpan TotalDuration { get; init; }
+
+    /// <summary>
+    /// 最短胜利用时
+    /// </summary>
+    public TimeSpan ShortestDuration { get; init; }
+
+    /// <summary>
+    /// 总完成度
+    /// </summary>
+    public double TotalCompletion { get; init; }
 }

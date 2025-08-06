@@ -8,23 +8,20 @@ namespace MineClearance.Models;
 /// 版本3开始, 胜利时不再保存完成度(为null).
 /// 版本4开始, 游戏结果保存按时间倒序排列.
 /// </summary>
-/// <param name="LastUpdate">最后更新时间</param>
-/// <param name="GameResults">游戏结果列表</param>
-/// <param name="Version">数据版本</param>
-public record GameData(DateTime LastUpdate, List<GameResult> GameResults, int Version = 0)
+public record GameData
 {
     /// <summary>
     /// 数据版本号
     /// </summary>
-    public int Version { get; private init; } = Version;
+    public int Version { get; init; }
 
     /// <summary>
     /// 最后更新时间
     /// </summary>
-    public DateTime LastUpdate { get; private init; } = LastUpdate;
+    public DateTime LastUpdate { get; init; }
 
     /// <summary>
     /// 游戏结果列表
     /// </summary>
-    public List<GameResult> GameResults { get; private init; } = GameResults;
+    public required List<GameResult> GameResults { get; init; }
 }

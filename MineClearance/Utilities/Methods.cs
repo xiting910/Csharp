@@ -37,7 +37,7 @@ public static partial class Methods
     /// <summary>
     /// 取消下载的令牌源
     /// </summary>
-    public static CancellationTokenSource CTS { get; set; } = new CancellationTokenSource();
+    public static CancellationTokenSource CTS { get; private set; } = new CancellationTokenSource();
 
     /// <summary>
     /// 检测是否为Windows操作系统
