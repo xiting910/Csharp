@@ -152,7 +152,7 @@ public static class ResultManager
 
         // 应用排序条件, 按优先级顺序排序
         var orderedSortConditions = _sortConditions.OrderBy(sc => sc.Priority).ToList();
-        if (orderedSortConditions.Count > 0)
+        if (orderedSortConditions.Count != 0)
         {
             // 第一个排序条件
             var first = orderedSortConditions[0];

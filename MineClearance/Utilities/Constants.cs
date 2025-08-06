@@ -134,7 +134,7 @@ public static partial class Constants
     /// <summary>
     /// 当前数据版本号
     /// </summary>
-    public const int CurrentDataVersion = 3;
+    public const int CurrentDataVersion = 4;
 
     /// <summary>
     /// 扫雷棋盘的最大宽度

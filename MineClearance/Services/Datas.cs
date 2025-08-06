@@ -25,9 +25,9 @@ public static class Datas
     /// <summary>
     /// 所有游戏结果列表
     /// </summary>
-    public static readonly List<GameResult> _gameResults = [];
+    private static readonly List<GameResult> _gameResults = [];
 
-    /// <summary> 
+    /// <summary>
     /// 所有游戏结果的只读列表
     /// </summary>
     public static IReadOnlyList<GameResult> GameResults => _gameResults.AsReadOnly();
@@ -73,6 +73,10 @@ public static class Datas
                         // 如果数据版本低于当前版本, 则进行数据升级
                         if (gameData.Version < Constants.CurrentDataVersion)
                         {
+                            // 将游戏结果按时间倒序排列
+                            _gameResults.Sort((x, y) => y.StartTime.CompareTo(x.StartTime));
+
+                            // 保存更新后的数据
                             await SaveGameResultsAsync();
                         }
                     }
@@ -90,6 +94,7 @@ public static class Datas
                     if (oldGameResults != null)
                     {
                         _gameResults.AddRange(oldGameResults);
+                        _gameResults.Sort((x, y) => y.StartTime.CompareTo(x.StartTime));
                     }
 
                     // 保存更新后的数据
@@ -110,7 +115,8 @@ public static class Datas
     /// <param name="result">游戏结果</param>
     public static async Task AddGameResultAsync(GameResult result)
     {
-        _gameResults.Add(result);
+        // 插入到列表开头
+        _gameResults.Insert(0, result);
         await SaveGameResultsAsync();
     }
 
