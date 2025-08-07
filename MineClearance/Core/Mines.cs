@@ -45,9 +45,17 @@ public class Mines(int width, int height, int mineCount)
         {
             for (var c = firstClickPos.Col - 1; c <= firstClickPos.Col + 1; ++c)
             {
-                if (r < 0 || r >= _height || c < 0 || c >= _width) continue;
-                if (r == firstClickPos.Row && c == firstClickPos.Col) continue;
-                safePositionList.Add(r * _width + c);
+                if (r < 0 || r >= _height || c < 0 || c >= _width)
+                {
+                    continue;
+                }
+
+                if (r == firstClickPos.Row && c == firstClickPos.Col)
+                {
+                    continue;
+                }
+
+                safePositionList.Add((r * _width) + c);
             }
         }
 
@@ -57,8 +65,12 @@ public class Mines(int width, int height, int mineCount)
         {
             for (var c = 0; c < _width; ++c)
             {
-                if (r == firstClickPos.Row && c == firstClickPos.Col) continue;
-                var pos = r * _width + c;
+                if (r == firstClickPos.Row && c == firstClickPos.Col)
+                {
+                    continue;
+                }
+
+                var pos = (r * _width) + c;
                 if (!safePositionList.Contains(pos))
                 {
                     allPositionList.Add(pos);
@@ -105,7 +117,11 @@ public class Mines(int width, int height, int mineCount)
         {
             for (var column = 0; column < _width; ++column)
             {
-                if (MineGrid[row, column] == -1) continue;
+                if (MineGrid[row, column] == -1)
+                {
+                    continue;
+                }
+
                 MineGrid[row, column] = CountAdjacentMines(row, column);
             }
         }
@@ -125,8 +141,15 @@ public class Mines(int width, int height, int mineCount)
         {
             for (var c = column - 1; c <= column + 1; ++c)
             {
-                if (r < 0 || r >= _height || c < 0 || c >= _width) continue;
-                if (MineGrid[r, c] == -1) mineCount++;
+                if (r < 0 || r >= _height || c < 0 || c >= _width)
+                {
+                    continue;
+                }
+
+                if (MineGrid[r, c] == -1)
+                {
+                    mineCount++;
+                }
             }
         }
 

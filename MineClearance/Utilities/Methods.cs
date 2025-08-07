@@ -17,17 +17,17 @@ public static partial class Methods
     /// <summary>
     /// 是否要强制关闭程序
     /// </summary>
-    public static bool IsForceClose { get; set; } = false;
+    public static bool IsForceClose { get; set; }
 
     /// <summary>
     /// 是否需要强制更新
     /// </summary>
-    public static bool IsForceUpdate { get; set; } = false;
+    public static bool IsForceUpdate { get; set; }
 
     /// <summary>
     /// 是否正在处理更新事件
     /// </summary>
-    public static bool IsHandlingUpdateEvent { get; set; } = false;
+    public static bool IsHandlingUpdateEvent { get; set; }
 
     /// <summary>
     /// 当前是否为第一次检查更新
@@ -108,7 +108,7 @@ public static partial class Methods
     /// 处理自动更新检查事件
     /// </summary>
     /// <param name="args">更新信息事件参数</param>
-    public async static void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+    public static async void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
     {
         if (args.Error == null)
         {
@@ -167,7 +167,7 @@ public static partial class Methods
                         // 如果没有开启隐藏更新提示信息, 弹窗提示下载完成
                         if (!Settings.Config.HideUpdateDetails)
                         {
-                            MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            _ = MessageBox.Show($"更新文件已成功下载到{Constants.SevenZipPath}\n程序将尝试删除 {Constants.CurrentDirectory} 文件夹后使用 {Constants.SevenZipExe} 解压下载的 7z 压缩包并自动更新\n如果自动更新失败, 请手动将下载的 7z 压缩文件包解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) ", @"下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
 
                         // 设置强制关闭标志
@@ -183,19 +183,14 @@ public static partial class Methods
             }
             else if (!IsFirstCheck)
             {
-                MessageBox.Show($@"您当前的版本 {args.InstalledVersion} 已经是最新版本, 无需更新。", @"没有可用的更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _ = MessageBox.Show($@"您当前的版本 {args.InstalledVersion} 已经是最新版本, 无需更新。", @"没有可用的更新", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         else if (!IsFirstCheck)
         {
-            if (args.Error is System.Net.WebException)
-            {
-                MessageBox.Show(@"无法连接到更新服务器。请检查您的互联网连接, 然后稍后再试。", @"更新检查失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            else
-            {
-                MessageBox.Show(args.Error.Message, args.Error.GetType().ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            _ = args.Error is System.Net.WebException
+                ? MessageBox.Show(@"无法连接到更新服务器。请检查您的互联网连接, 然后稍后再试。", @"更新检查失败", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                : MessageBox.Show(args.Error.Message, args.Error.GetType().ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         IsHandlingUpdateEvent = false;
@@ -224,14 +219,7 @@ public static partial class Methods
                 // 提取ul中的li内容
                 var ulContent = match.Groups[1].Value;
                 var liMatches = ChangeLogRegex().Matches(ulContent);
-                if (liMatches.Count > 0)
-                {
-                    changelog = string.Join("\n", liMatches.Select(m => m.Groups[1].Value.Trim()));
-                }
-                else
-                {
-                    changelog = "未找到详细更新内容";
-                }
+                changelog = liMatches.Count > 0 ? string.Join("\n", liMatches.Select(m => m.Groups[1].Value.Trim())) : "未找到详细更新内容";
             }
             else
             {
@@ -346,7 +334,7 @@ public static partial class Methods
             else
             {
                 // 可以报告进度
-                int percent = (int)(totalRead * 100 / totalBytes);
+                var percent = (int)(totalRead * 100 / totalBytes);
                 progressForm.ProgressBar.Value = percent;
                 progressForm.ProgressBar.Style = ProgressBarStyle.Continuous;
                 progressForm.StatusLabel.Text = $"已下载 {percent}% ({totalRead / 1024} KB / {totalBytes / 1024} KB){speedStr}";
@@ -390,7 +378,7 @@ public static partial class Methods
                     Timeout = TimeSpan.FromSeconds(DownloadConstants.HttpRequestTimeout)
                 };
                 using var response = await httpClient.GetAsync(downloadURL, HttpCompletionOption.ResponseHeadersRead, CTS.Token);
-                response.EnsureSuccessStatusCode();
+                _ = response.EnsureSuccessStatusCode();
 
                 // 判断是否可以报告进度
                 totalBytes = response.Content.Headers.ContentLength ?? -1L;
@@ -432,7 +420,7 @@ public static partial class Methods
             catch (TimeoutException tex)
             {
                 // http请求超时
-                MessageBox.Show($"http请求超时: {tex.Message}", "http请求超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show($"http请求超时: {tex.Message}", "http请求超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             catch (OperationCanceledException)
@@ -446,7 +434,7 @@ public static partial class Methods
                     // 超过最大重试次数
                     if (retryCount >= DownloadConstants.NoProgressMaxRetries)
                     {
-                        MessageBox.Show("下载超时, 请检查网络后重试。", "下载超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        _ = MessageBox.Show("下载超时, 请检查网络后重试。", "下载超时", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
 
@@ -476,7 +464,7 @@ public static partial class Methods
             catch (Exception ex)
             {
                 // 下载过程中发生错误
-                MessageBox.Show($"下载更新失败：{ex.Message}", "下载错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show($"下载更新失败：{ex.Message}", "下载错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
             finally

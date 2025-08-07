@@ -23,14 +23,9 @@ public static class Settings
     };
 
     /// <summary>
-    /// 配置信息
-    /// </summary>
-    private static Config _config = new();
-
-    /// <summary>
     /// 获取配置信息
     /// </summary>
-    public static Config Config => _config;
+    public static Config Config { get; private set; } = new();
 
     /// <summary>
     /// 加载配置数据
@@ -43,10 +38,10 @@ public static class Settings
             if (!Directory.Exists(Constants.DataPath))
             {
                 // 如果不存在, 创建数据存储路径
-                Directory.CreateDirectory(Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
 
                 // 创建一个新的配置对象
-                _config = new();
+                Config = new();
 
                 // 保存配置数据
                 SaveConfig();
@@ -57,7 +52,7 @@ public static class Settings
             if (!File.Exists(Constants.ConfigFilePath))
             {
                 // 创建一个新的配置对象
-                _config = new();
+                Config = new();
 
                 // 保存配置数据
                 SaveConfig();
@@ -71,20 +66,20 @@ public static class Settings
                 try
                 {
                     // 尝试反序列化为 Config 对象
-                    _config = JsonSerializer.Deserialize<Config>(json, _jsonOptions) ?? new();
+                    Config = JsonSerializer.Deserialize<Config>(json, _jsonOptions) ?? new();
                 }
                 catch (JsonException ex)
                 {
                     // 如果反序列化失败, 显示错误信息并创建一个新的配置对象
-                    MessageBox.Show($"加载配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    _config = new();
+                    _ = MessageBox.Show($"加载配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Config = new();
                 }
             }
         }
         catch (Exception ex)
         {
             // 显示错误信息
-            MessageBox.Show($"加载配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"加载配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -93,7 +88,7 @@ public static class Settings
     /// </summary>
     public static void ModifyConfig(Func<Config, Config> modifyFunc)
     {
-        _config = modifyFunc.Invoke(_config);
+        Config = modifyFunc.Invoke(Config);
         SaveConfig();
     }
 
@@ -108,11 +103,11 @@ public static class Settings
             if (!Directory.Exists(Constants.DataPath))
             {
                 // 如果不存在, 创建数据存储路径
-                Directory.CreateDirectory(Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
             }
 
             // 将配置对象序列化为 JSON 字符串
-            var json = JsonSerializer.Serialize(_config, _jsonOptions);
+            var json = JsonSerializer.Serialize(Config, _jsonOptions);
 
             // 将 JSON 字符串写入配置文件
             File.WriteAllText(Constants.ConfigFilePath, json);
@@ -120,7 +115,7 @@ public static class Settings
         catch (Exception ex)
         {
             // 显示错误信息
-            MessageBox.Show($"保存配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"保存配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

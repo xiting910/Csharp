@@ -48,7 +48,7 @@ public static class Datas
             if (!Directory.Exists(Constants.DataPath))
             {
                 // 如果不存在, 创建数据存储路径
-                Directory.CreateDirectory(Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
 
                 // 创建数据文件
                 await using (File.Create(Constants.DataFilePath)) { }
@@ -110,7 +110,7 @@ public static class Datas
         catch (Exception ex)
         {
             // 显示错误信息
-            MessageBox.Show($"初始化游戏数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"初始化游戏数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -145,7 +145,7 @@ public static class Datas
             if (!Directory.Exists(Constants.DataPath))
             {
                 // 如果不存在, 创建数据存储路径
-                Directory.CreateDirectory(Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
             }
 
             // 要保存的数据
@@ -163,7 +163,7 @@ public static class Datas
         catch (Exception ex)
         {
             // 显示错误信息
-            MessageBox.Show($"保存游戏结果失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"保存游戏结果失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }

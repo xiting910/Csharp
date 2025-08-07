@@ -150,7 +150,7 @@ public partial class SettingForm : Form
                 cb.CheckedChanged -= AutoStartCheckBox_CheckedChanged;
                 cb.Checked = !cb.Checked;
                 cb.CheckedChanged += AutoStartCheckBox_CheckedChanged;
-                MessageBox.Show($"设置开机自启动失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show($"设置开机自启动失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -198,7 +198,7 @@ public partial class SettingForm : Form
                 cb.CheckedChanged -= HideUpdateDetailsCheckBox_CheckedChanged;
                 cb.Checked = !cb.Checked;
                 cb.CheckedChanged += HideUpdateDetailsCheckBox_CheckedChanged;
-                MessageBox.Show($"设置隐藏更新详细提示失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show($"设置隐藏更新详细提示失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -239,11 +239,11 @@ public partial class SettingForm : Form
             try
             {
                 ShortcutCreator.CreateDesktopShortcut(Utilities.Constants.ExecutableFilePath, shortcutName);
-                MessageBox.Show("快捷方式创建成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _ = MessageBox.Show("快捷方式创建成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"创建快捷方式失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show($"创建快捷方式失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
@@ -266,7 +266,7 @@ public partial class SettingForm : Form
         UpdateHideUpdateDetailsCheckBox();
 
         // 显示重置成功提示
-        MessageBox.Show("设置已重置为默认值！", "重置设置成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        _ = MessageBox.Show("设置已重置为默认值！", "重置设置成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 
     /// <summary>
@@ -340,7 +340,7 @@ public partial class SettingForm : Form
         var checkBoxHeight = (int)(30 * Constants.DpiScale);
 
         // 按钮总高度
-        var buttonHeight = height - checkBoxHeight * 2 - controlSpacing * controlSpacingCount;
+        var buttonHeight = height - (checkBoxHeight * 2) - (controlSpacing * controlSpacingCount);
 
         // 每个按钮的高度
         var buttonHeightPerControl = buttonHeight / buttons.Count;

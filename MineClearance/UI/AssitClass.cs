@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace MineClearance.UI;
 
 /// <summary>
@@ -118,7 +120,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = Utilities.Constants.MaxBoardWidth * Utilities.Constants.MaxBoardHeight - 1,
+            Maximum = (Utilities.Constants.MaxBoardWidth * Utilities.Constants.MaxBoardHeight) - 1,
             Value = 40
         };
 
@@ -154,7 +156,7 @@ public partial class CustomDifficultyDialog : Form
         // 验证地雷数不能超过总格子数
         if (mineCount >= width * height)
         {
-            MessageBox.Show("地雷数必须小于总格子数！", "输入错误", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            _ = MessageBox.Show("地雷数必须小于总格子数！", "输入错误", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             DialogResult = DialogResult.None;
             return;
         }
@@ -246,7 +248,7 @@ public class UninstallConfirmDialog : Form
         FormBorderStyle = FormBorderStyle.FixedDialog;
 
         // 信息标签的大小
-        var labelWidth = dialogWidth - (int)(15 * Constants.DpiScale) * 2;
+        var labelWidth = dialogWidth - ((int)(15 * Constants.DpiScale) * 2);
         var labelHeight = (int)(20 * Constants.DpiScale);
 
         // 信息标签位置
@@ -288,7 +290,7 @@ public class UninstallConfirmDialog : Form
         var buttonSpacing = (int)(10 * Constants.DpiScale);
 
         // 按钮位置
-        var buttonX = dialogWidth - buttonWidth * 2 - buttonSpacing * 3;
+        var buttonX = dialogWidth - (buttonWidth * 2) - (buttonSpacing * 3);
         var buttonY = dialogHeight - buttonHeight - (int)(40 * Constants.DpiScale);
 
         // 初始化确认按钮
@@ -391,7 +393,7 @@ public class DatePickerDialog : Form
         };
 
         // 添加提示信息
-        selectedDatesListBox.Items.Add("当前已选择的日期:(选中后可点击删除按钮删除)");
+        _ = selectedDatesListBox.Items.Add("当前已选择的日期:(选中后可点击删除按钮删除)");
 
         // 初始化添加按钮
         var addButton = new Button { Text = "添加" };
@@ -422,7 +424,7 @@ public class DatePickerDialog : Form
         var buttonSpacing = (int)(10 * Constants.DpiScale);
 
         // 按钮的宽度和高度
-        var buttonWidth = (dialogWidth - (buttons.Count + 2) * buttonSpacing) / buttons.Count;
+        var buttonWidth = (dialogWidth - ((buttons.Count + 2) * buttonSpacing)) / buttons.Count;
         var buttonHeight = (int)(25 * Constants.DpiScale);
 
         // 按钮位置
@@ -490,7 +492,7 @@ public class DatePickerDialog : Form
         if (selectedDates.Add(dateTimePicker.Value.Date))
         {
             // 如果添加成功, 则更新列表框
-            selectedDatesListBox.Items.Add(dateTimePicker.Value.ToString("yyyy-MM-dd"));
+            _ = selectedDatesListBox.Items.Add(dateTimePicker.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
         }
     }
 
@@ -517,7 +519,7 @@ public class DatePickerDialog : Form
             // 从 HashSet 中移除对应的日期
             if (DateTime.TryParse(selectedDatesListBox.Items[idx].ToString(), out var date))
             {
-                selectedDates.Remove(date);
+                _ = selectedDates.Remove(date);
             }
 
             // 从 ListBox 移除

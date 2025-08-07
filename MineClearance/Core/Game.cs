@@ -107,7 +107,7 @@ public class Game
             var duration = endTime - StartTime;
 
             // 总的非地雷格子数量
-            var totalSafeCount = Board.Width * Board.Height - TotalMines;
+            var totalSafeCount = (Board.Width * Board.Height) - TotalMines;
 
             // 已经打开的非地雷格子数量
             var openedSafeCount = totalSafeCount - Board.UnopenedSafeCount;

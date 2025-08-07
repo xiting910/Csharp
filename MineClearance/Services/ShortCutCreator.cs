@@ -82,11 +82,11 @@ public partial class ShortcutCreator
             File.Delete(shortcutPath);
         }
 
+        // 创建ShellLink对象
+        var shellLink = (IShellLink)new ShellLink();
+
         try
         {
-            // 创建ShellLink对象
-            var shellLink = (IShellLink)new ShellLink();
-
             // 设置快捷方式属性
             shellLink.SetPath(targetPath);
 
@@ -112,7 +112,12 @@ public partial class ShortcutCreator
         }
         catch (Exception ex)
         {
-            throw new Exception("创建快捷方式失败: " + ex.Message);
+            throw new InvalidOperationException("创建快捷方式失败: " + ex.Message);
+        }
+        finally
+        {
+            // 确保所有COM对象被释放
+            _ = Marshal.ReleaseComObject(shellLink);
         }
     }
 }

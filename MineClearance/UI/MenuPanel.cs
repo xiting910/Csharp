@@ -132,7 +132,7 @@ public partial class MenuPanel : Panel
         // 如果需要强制更新, 则提示用户
         if (Methods.IsForceUpdate)
         {
-            MessageBox.Show("当前需要强制更新, 请先更新应用程序后再开始新游戏。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _ = MessageBox.Show("当前需要强制更新, 请先更新应用程序后再开始新游戏。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -148,7 +148,7 @@ public partial class MenuPanel : Panel
         // 如果需要强制更新, 则提示用户
         if (Methods.IsForceUpdate)
         {
-            MessageBox.Show("当前需要强制更新, 请先更新应用程序后再查看游戏历史记录。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _ = MessageBox.Show("当前需要强制更新, 请先更新应用程序后再查看游戏历史记录。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -163,7 +163,7 @@ public partial class MenuPanel : Panel
     {
         if (Methods.IsHandlingUpdateEvent)
         {
-            MessageBox.Show("当前已经有更新事件正在处理, 请稍后再试。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _ = MessageBox.Show("当前已经有更新事件正在处理, 请稍后再试。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
         Methods.IsHandlingUpdateEvent = true;
@@ -178,7 +178,7 @@ public partial class MenuPanel : Panel
         // 如果需要强制更新, 则提示用户
         if (Methods.IsForceUpdate)
         {
-            MessageBox.Show("当前需要强制更新, 请先更新应用程序后再打开设置。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _ = MessageBox.Show("当前需要强制更新, 请先更新应用程序后再打开设置。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 

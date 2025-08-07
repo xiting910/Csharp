@@ -80,7 +80,11 @@ public class GameResultComparer(string propertyName, SortOrder sortOrder) : ICom
     /// <exception cref="ArgumentException">如果属性名不支持</exception>
     public int Compare(GameResult? x, GameResult? y)
     {
-        if (x == null || y == null) return 0;
+        if (x == null || y == null)
+        {
+            return 0;
+        }
+
         var result = _propertyName switch
         {
             "难度" or "Difficulty" => x.Difficulty == DifficultyLevel.Custom && y.Difficulty != DifficultyLevel.Custom ? -1 : x.Difficulty != DifficultyLevel.Custom && y.Difficulty == DifficultyLevel.Custom ? 1 : x.Difficulty.CompareTo(y.Difficulty),

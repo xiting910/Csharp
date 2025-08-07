@@ -107,7 +107,7 @@ public static class ResultManager
     /// <param name="condition">筛选条件</param>
     public static void RemoveFilterCondition(Func<GameResult, bool> condition)
     {
-        _filterConditions.RemoveAll(c => c.Filter == condition);
+        _ = _filterConditions.RemoveAll(c => c.Filter == condition);
         ConditionsChanged?.Invoke();
     }
 
@@ -117,7 +117,7 @@ public static class ResultManager
     /// <param name="priority">优先级</param>
     public static void RemoveSortCondition(int priority)
     {
-        _sortConditions.RemoveAll(sc => sc.Priority == priority);
+        _ = _sortConditions.RemoveAll(sc => sc.Priority == priority);
         ConditionsChanged?.Invoke();
     }
 
@@ -159,7 +159,7 @@ public static class ResultManager
             var orderedResults = processedResults.OrderBy(x => x, first.Comparer);
 
             // 后续排序条件
-            for (int i = 1; i < orderedSortConditions.Count; ++i)
+            for (var i = 1; i < orderedSortConditions.Count; ++i)
             {
                 orderedResults = orderedResults.ThenBy(x => x, orderedSortConditions[i].Comparer);
             }

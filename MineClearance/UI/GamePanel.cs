@@ -1,3 +1,4 @@
+using System.Globalization;
 using MineClearance.Core;
 using MineClearance.Models;
 using MineClearance.Services;
@@ -374,7 +375,7 @@ public partial class GamePanel : Panel
         _minesLeftLabel.Text = "剩余地雷数: 0";
 
         // 保存游戏结果
-        Task.Run(() => Datas.AddGameResultAsync(gameResult));
+        _ = Task.Run(() => Datas.AddGameResultAsync(gameResult));
 
         // 停止计时器
         _gameTimer.Stop();
@@ -405,7 +406,7 @@ public partial class GamePanel : Panel
         _gameAreaPanel.Invalidate();
 
         // 保存游戏结果
-        Task.Run(() => Datas.AddGameResultAsync(gameResult));
+        _ = Task.Run(() => Datas.AddGameResultAsync(gameResult));
 
         // 停止计时器
         _gameTimer.Stop();
@@ -482,7 +483,7 @@ public partial class GamePanel : Panel
         }
         catch (ArgumentNullException ex)
         {
-            MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -611,8 +612,8 @@ public partial class GamePanel : Panel
     private Position GetGridPositionAtMousePosition(Point mousePosition)
     {
         // 计算鼠标位置对应的游戏格子行列
-        var col = mousePosition.X / Constants.GridSize - _gameStartPosition.Col;
-        var row = mousePosition.Y / Constants.GridSize - _gameStartPosition.Row;
+        var col = (mousePosition.X / Constants.GridSize) - _gameStartPosition.Col;
+        var row = (mousePosition.Y / Constants.GridSize) - _gameStartPosition.Row;
 
         if (row >= 0 && row < _gameInstance?.Board.Height && col >= 0 && col < _gameInstance?.Board.Width)
         {
@@ -666,39 +667,23 @@ public partial class GamePanel : Panel
                 fillColor = Color.White;
                 break;
             case GridType.Unopened:
-                if (_isGameLost && isRealMine)
-                {
-                    fillColor = Color.Red;
-                }
-                else if (_isGameWon && isRealMine)
-                {
-                    fillColor = Color.Green;
-                }
-                else
-                {
-                    fillColor = isMouseOver ? Color.Gray : Color.LightGray;
-                }
+                fillColor = _isGameLost && isRealMine ? Color.Red : _isGameWon && isRealMine ? Color.Green : isMouseOver ? Color.Gray : Color.LightGray;
                 break;
             case GridType.Flagged:
-                if (_isGameLost || _isGameWon)
-                {
-                    fillColor = isRealMine ? Color.Green : Color.Yellow;
-                }
-                else
-                {
-                    fillColor = isMouseOver ? Color.DarkGreen : Color.Green;
-                }
+                fillColor = _isGameLost || _isGameWon ? isRealMine ? Color.Green : Color.Yellow : isMouseOver ? Color.DarkGreen : Color.Green;
                 break;
             case GridType.Number:
                 fillColor = Color.White;
-                text = _gameInstance.Board.Grids[gameRow, gameCol].SurroundingMines.ToString();
+                text = _gameInstance.Board.Grids[gameRow, gameCol].SurroundingMines.ToString(CultureInfo.InvariantCulture);
                 break;
             case GridType.WarningNumber:
                 fillColor = Color.Yellow;
-                text = _gameInstance.Board.Grids[gameRow, gameCol].SurroundingMines.ToString();
+                text = _gameInstance.Board.Grids[gameRow, gameCol].SurroundingMines.ToString(CultureInfo.InvariantCulture);
                 break;
             case GridType.Mine:
                 fillColor = Color.DarkRed;
+                break;
+            default:
                 break;
         }
 
@@ -728,8 +713,8 @@ public partial class GamePanel : Panel
             };
 
             var textSize = g.MeasureString(text, DefaultFont);
-            var textX = rect.X + (rect.Width - textSize.Width) / 2;
-            var textY = rect.Y + (rect.Height - textSize.Height) / 2;
+            var textX = rect.X + ((rect.Width - textSize.Width) / 2);
+            var textY = rect.Y + ((rect.Height - textSize.Height) / 2);
             using var textBrush = new SolidBrush(textColor);
             g.DrawString(text, DefaultFont, textBrush, textX, textY);
         }

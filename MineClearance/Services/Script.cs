@@ -38,7 +38,7 @@ public static class Script
                 ", System.Text.Encoding.UTF8);
 
             // 启动powershell脚本
-            Process.Start(new ProcessStartInfo
+            _ = Process.Start(new ProcessStartInfo
             {
                 FileName = "powershell",
                 Arguments = $"-ExecutionPolicy Bypass -File \"{updatePowerShellScriptPath}\"",
@@ -47,7 +47,7 @@ public static class Script
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"自动更新失败: {ex.Message}\n请手动将 {Constants.SevenZipPath} 解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换)", @"自动更新失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"自动更新失败: {ex.Message}\n请手动将 {Constants.SevenZipPath} 解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换)", @"自动更新失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -99,7 +99,7 @@ public static class Script
             File.WriteAllText(uninstallPowerShellScriptPath, scriptContent, System.Text.Encoding.UTF8);
 
             // 启动powershell脚本
-            Process.Start(new ProcessStartInfo
+            _ = Process.Start(new ProcessStartInfo
             {
                 FileName = "powershell",
                 Arguments = $"-ExecutionPolicy Bypass -File \"{uninstallPowerShellScriptPath}\"",
@@ -109,7 +109,7 @@ public static class Script
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"自动卸载失败: {ex.Message}", @"自动卸载失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"自动卸载失败: {ex.Message}", @"自动卸载失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

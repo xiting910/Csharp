@@ -35,22 +35,22 @@ public class Board
     /// <summary>
     /// 游戏的宽度
     /// </summary>
-    public readonly int Width;
+    public int Width { get; }
 
     /// <summary>
     /// 游戏的高度
     /// </summary>
-    public readonly int Height;
+    public int Height { get; }
 
     /// <summary>
     /// 游戏上的格子数组
     /// </summary>
-    public readonly Grid[,] Grids;
+    public Grid[,] Grids { get; }
 
     /// <summary>
     /// 管理地雷的集合
     /// </summary>
-    public readonly Mines Mines;
+    public Mines Mines { get; }
 
     /// <summary>
     /// 未打开的非地雷格子数量
@@ -82,7 +82,7 @@ public class Board
         }
 
         Mines = new(width, height, mineCount);
-        UnopenedSafeCount = height * width - mineCount;
+        UnopenedSafeCount = (height * width) - mineCount;
         _isFirstClick = true;
     }
 
@@ -219,7 +219,7 @@ public class Board
             {
                 if (r >= 0 && r < Height && c >= 0 && c < Width)
                 {
-                    if (Grids[r, c].Type == GridType.Number || Grids[r, c].Type == GridType.WarningNumber)
+                    if (Grids[r, c].Type is GridType.Number or GridType.WarningNumber)
                     {
                         CheckNumberGrid(new(r, c));
                     }
@@ -268,7 +268,7 @@ public class Board
         }
 
         // 检查格子是否为数字格子
-        if (Grids[position.Row, position.Col].Type != GridType.Number && Grids[position.Row, position.Col].Type != GridType.WarningNumber)
+        if (Grids[position.Row, position.Col].Type is not GridType.Number and not GridType.WarningNumber)
         {
             throw new InvalidOperationException("格子不是数字格子");
         }

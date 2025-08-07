@@ -124,12 +124,12 @@ public partial class GamePreparePanel : Panel
                 }
                 catch (ArgumentOutOfRangeException ex)
                 {
-                    MessageBox.Show($"参数错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    _ = MessageBox.Show($"参数错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 catch (ArgumentException ex)
                 {
-                    MessageBox.Show($"参数错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    _ = MessageBox.Show($"参数错误: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }

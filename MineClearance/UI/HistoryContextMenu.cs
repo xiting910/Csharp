@@ -57,7 +57,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
         if (sortMenuItem != null)
         {
             // 添加排序菜单项
-            Items.Add(sortMenuItem);
+            _ = Items.Add(sortMenuItem);
         }
 
         // 筛选菜单项
@@ -65,7 +65,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
         if (filterMenuItem != null)
         {
             // 添加筛选菜单项
-            Items.Add(filterMenuItem);
+            _ = Items.Add(filterMenuItem);
         }
     }
 
@@ -127,8 +127,8 @@ public partial class HistoryContextMenu : ContextMenuStrip
             };
 
             // 将升序和降序菜单项添加到排序菜单项中并返回
-            sortMenuItem.DropDownItems.Add(ascItem);
-            sortMenuItem.DropDownItems.Add(descItem);
+            _ = sortMenuItem.DropDownItems.Add(ascItem);
+            _ = sortMenuItem.DropDownItems.Add(descItem);
             return sortMenuItem;
         }
         catch (ArgumentException)
@@ -166,7 +166,10 @@ public partial class HistoryContextMenu : ContextMenuStrip
                 filterItem.CheckedChanged += (sender, e) =>
                 {
                     // 筛选条件
-                    bool filter(GameResult result) => result.Difficulty == difficulty;
+                    bool filter(GameResult result)
+                    {
+                        return result.Difficulty == difficulty;
+                    }
 
                     // 选中筛选
                     if (filterItem.Checked)
@@ -182,7 +185,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
                 };
 
                 // 将筛选菜单项添加到筛选菜单项中
-                filterMenuItem.DropDownItems.Add(filterItem);
+                _ = filterMenuItem.DropDownItems.Add(filterItem);
             }
             return filterMenuItem;
         }
@@ -196,7 +199,10 @@ public partial class HistoryContextMenu : ContextMenuStrip
             winItem.CheckedChanged += (sender, e) =>
             {
                 // 胜利筛选条件
-                bool filter(GameResult result) => result.IsWin;
+                bool filter(GameResult result)
+                {
+                    return result.IsWin;
+                }
 
                 // 选中胜利筛选
                 if (winItem.Checked)
@@ -213,7 +219,10 @@ public partial class HistoryContextMenu : ContextMenuStrip
             loseItem.CheckedChanged += (sender, e) =>
             {
                 // 失败筛选条件
-                bool filter(GameResult result) => !result.IsWin;
+                bool filter(GameResult result)
+                {
+                    return !result.IsWin;
+                }
 
                 // 选中失败筛选
                 if (loseItem.Checked)
@@ -229,8 +238,8 @@ public partial class HistoryContextMenu : ContextMenuStrip
             };
 
             // 将筛选菜单项添加到筛选菜单项中
-            filterMenuItem.DropDownItems.Add(winItem);
-            filterMenuItem.DropDownItems.Add(loseItem);
+            _ = filterMenuItem.DropDownItems.Add(winItem);
+            _ = filterMenuItem.DropDownItems.Add(loseItem);
             return filterMenuItem;
         }
         // 如果是开始时间, 则添加日期选择菜单项
@@ -277,7 +286,7 @@ public partial class HistoryContextMenu : ContextMenuStrip
             };
 
             // 将日期选择菜单项添加到筛选菜单项中并返回
-            filterMenuItem.DropDownItems.Add(dateFilterItem);
+            _ = filterMenuItem.DropDownItems.Add(dateFilterItem);
             return filterMenuItem;
         }
 

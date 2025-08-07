@@ -1,3 +1,4 @@
+using System.Globalization;
 using MineClearance.Models;
 using MineClearance.Services;
 using MineClearance.Utilities;
@@ -172,14 +173,14 @@ public partial class HistoryPanel : Panel
             FlatStyle = FlatStyle.Flat
         };
         btnShowHistory.Click += (sender, e) => RestartHistoryPanel(true);
-        buttonXPosition += buttonWidth + 2 * buttonSpacing;
+        buttonXPosition += buttonWidth + (2 * buttonSpacing);
         panel.Controls.Add(btnShowHistory);
 
         // 更新按钮宽度
         buttonWidth = (int)(70 * Constants.DpiScale);
 
         // 更新按钮X位置
-        buttonXPosition = Constants.MainFormWidth - buttonWidth - 4 * buttonSpacing;
+        buttonXPosition = Constants.MainFormWidth - buttonWidth - (4 * buttonSpacing);
 
         // 更新按钮间距
         buttonSpacing *= 3;
@@ -286,7 +287,7 @@ public partial class HistoryPanel : Panel
             column.HeaderCell.Style.ForeColor = Color.DarkBlue;
 
             // 添加列到数据网格视图
-            dataGridView.Columns.Add(column);
+            _ = dataGridView.Columns.Add(column);
         }
 
         // 选择时清除选择
@@ -371,7 +372,7 @@ public partial class HistoryPanel : Panel
             column.HeaderCell.Style.ForeColor = Color.DarkBlue;
 
             // 添加列到数据网格视图
-            dataGridView.Columns.Add(column);
+            _ = dataGridView.Columns.Add(column);
         }
 
         // 订阅列头点击事件
@@ -484,7 +485,7 @@ public partial class HistoryPanel : Panel
         var formattedShortestDuration = stats.ShortestDuration == TimeSpan.MaxValue ? "无" : $"{(int)stats.ShortestDuration.TotalMinutes:D2}:{stats.ShortestDuration.Seconds:D2}.{stats.ShortestDuration.Milliseconds / 10:D2}";
 
         // 添加当前难度的统计信息到数据网格视图
-        statisticsDataGridView.Rows.Add(
+        _ = statisticsDataGridView.Rows.Add(
             difficultyText,
             stats.Total,
             stats.Wins,
@@ -534,7 +535,7 @@ public partial class HistoryPanel : Panel
         e.Value = historyDataGridView.Columns[e.ColumnIndex].Name switch
         {
             "序号" => e.RowIndex + 1,
-            "开始时间" => result.StartTime.ToString("yyyy-MM-dd HH:mm:ss"),
+            "开始时间" => result.StartTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture),
             "难度" => Methods.GetDifficultyText(result.Difficulty),
             "结果" => result.IsWin ? "胜利" : "失败",
             "完成度" => $"{result.Completion ?? 100.0:0.##}%",
@@ -563,13 +564,13 @@ public partial class HistoryPanel : Panel
         }
 
         // 清空历史记录数据
-        Task.Run(Datas.ClearGameResultsAsync);
+        _ = Task.Run(Datas.ClearGameResultsAsync);
 
         // 重启历史记录面板
         RestartHistoryPanel();
 
         // 弹窗提示清除成功
-        MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        _ = MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
 }
 

@@ -81,6 +81,7 @@ public static class Constants
             DifficultyLevel.Medium => (16, 16, 40),
             DifficultyLevel.Hard => (30, 16, 99),
             DifficultyLevel.Hell => (50, 30, 309),
+            DifficultyLevel.Custom => throw new NotImplementedException(),
             _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
         };
     }

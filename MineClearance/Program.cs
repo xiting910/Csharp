@@ -1,4 +1,4 @@
-﻿using AutoUpdaterDotNET;
+using AutoUpdaterDotNET;
 using MineClearance.UI;
 using MineClearance.Services;
 using MineClearance.Utilities;
@@ -20,7 +20,7 @@ internal static class Program
         if (!Methods.IsWindows())
         {
             // 如果不是Windows操作系统，则显示错误信息并退出程序
-            MessageBox.Show("本程序仅支持在Windows操作系统上运行。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show("本程序仅支持在Windows操作系统上运行。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
@@ -73,7 +73,7 @@ internal static class Program
 
         // 记录异常到日志文件并弹窗提示错误信息
         LogException(e.Exception);
-        MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         // 退出应用程序
         Application.Exit();
@@ -96,12 +96,12 @@ internal static class Program
         if (e.ExceptionObject is Exception ex)
         {
             LogException(ex);
-            MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
-            LogException(new("发生未知的未处理异常。"));
-            MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            LogException(new UnknownException("发生未知的未处理异常。"));
+            _ = MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         // 退出应用程序
@@ -119,10 +119,16 @@ internal static class Program
         {
             if (!Directory.Exists(Utilities.Constants.DataPath))
             {
-                Directory.CreateDirectory(Utilities.Constants.DataPath);
+                _ = Directory.CreateDirectory(Utilities.Constants.DataPath);
             }
             File.AppendAllText(Utilities.Constants.ErrorFilePath, log);
         }
         catch { /* 忽略日志写入异常 */ }
     }
 }
+
+/// <summary>
+/// 未知异常类
+/// </summary>
+/// <param name="message">异常消息</param>
+file sealed class UnknownException(string message) : Exception(message);
