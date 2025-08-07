@@ -55,8 +55,11 @@ public partial class MainForm : Form
     /// </summary>
     public MainForm()
     {
+        // 获取当前版本号
+        var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+
         // 设置窗口属性
-        Text = "扫雷游戏";
+        Text = "扫雷游戏 - 版本 " + version;
         Size = new(Constants.MainFormWidth, Constants.MainFormHeight);
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedSingle;
