@@ -129,6 +129,7 @@ public class BottomStatusBar : StatusStrip
             StatusBarState.History => "状态: 历史记录",
             StatusBarState.Preparing => "状态: 准备游戏",
             StatusBarState.InGame => "状态: 游戏进行中",
+            StatusBarState.Paused => "状态: 游戏暂停",
             StatusBarState.GameWon => "状态: 游戏胜利",
             StatusBarState.GameLost => "状态: 游戏失败",
             _ => "状态: 未知"

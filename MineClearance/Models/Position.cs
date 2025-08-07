@@ -10,12 +10,12 @@ public class Position(int row, int col)
     /// <summary>
     /// 行
     /// </summary>
-    public int Row { get; private init; } = row;
+    public int Row { get; } = row;
 
     /// <summary>
     /// 列
     /// </summary>
-    public int Col { get; private init; } = col;
+    public int Col { get; } = col;
 
     /// <summary>
     /// 重写+运算符

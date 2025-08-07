@@ -63,13 +63,13 @@ public static class Datas
             }
 
             // 读取数据文件内容
-            var json = await File.ReadAllTextAsync(Constants.DataFilePath);
-            if (!string.IsNullOrWhiteSpace(json))
+            await using var stream = File.OpenRead(Constants.DataFilePath);
+            if (stream.Length > 0)
             {
                 try
                 {
-                    // 尝试反序列化为 GameData 对象
-                    var gameData = JsonSerializer.Deserialize<GameData>(json, _jsonOptions);
+                    // 尝试异步反序列化为 GameData 对象
+                    var gameData = await JsonSerializer.DeserializeAsync<GameData>(stream, _jsonOptions);
                     if (gameData != null)
                     {
                         // 更新游戏结果列表
@@ -89,6 +89,10 @@ public static class Datas
                 catch (JsonException)
                 {
                     // 如果反序列化为 GameData 对象失败, 可能是旧版本数据格式
+                    stream.Position = 0; // 重置流位置
+                    using var reader = new StreamReader(stream);
+                    var json = await reader.ReadToEndAsync();
+
                     // 将文件出现的所有"Difficulty": 3替换为"Difficulty": 4
                     var updatedJson = json.Replace("\"Difficulty\": 3", "\"Difficulty\": 4");
 

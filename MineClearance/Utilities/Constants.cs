@@ -72,6 +72,7 @@ public static class Constants
     /// </summary>
     /// <param name="level">难度级别</param>
     /// <returns>棋盘宽度、高度和地雷数量的元组</returns>
+    /// <exception cref="NotImplementedException">如果难度级别为自定义, 则抛出异常</exception>
     /// <exception cref="ArgumentOutOfRangeException">如果难度级别不在预定义范围内</exception>
     public static (int width, int height, int mineCount) GetSettings(DifficultyLevel level)
     {

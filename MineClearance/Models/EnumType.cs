@@ -119,6 +119,11 @@ public enum StatusBarState
     InGame,
 
     /// <summary>
+    /// 游戏暂停
+    /// </summary>
+    Paused,
+
+    /// <summary>
     /// 游戏胜利
     /// </summary>
     GameWon,

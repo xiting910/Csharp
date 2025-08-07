@@ -18,6 +18,11 @@ public class Board
     public event Action<int>? RemainingMinesChanged;
 
     /// <summary>
+    /// 当剩余未处理的格子数量改变时触发
+    /// </summary>
+    public event Action<int>? UnopenedCountChanged;
+
+    /// <summary>
     /// 当游戏胜利时触发
     /// </summary>
     public event Action? Won;
@@ -110,7 +115,6 @@ public class Board
         if (Grids[position.Row, position.Col].Type == GridType.Unopened)
         {
             OpenGrid(position);
-            CheckWin();
             return;
         }
 
@@ -132,9 +136,6 @@ public class Board
                     }
                 }
             }
-
-            // 检查是否胜利
-            CheckWin();
         }
     }
 
@@ -169,6 +170,7 @@ public class Board
             GridChanged?.Invoke(position);
             CheckSurroundingNumberGrids(position);
             RemainingMinesChanged?.Invoke(-1);
+            UnopenedCountChanged?.Invoke(-1);
         }
         else if (Grids[position.Row, position.Col].Type == GridType.Flagged)
         {
@@ -177,6 +179,7 @@ public class Board
             GridChanged?.Invoke(position);
             CheckSurroundingNumberGrids(position);
             RemainingMinesChanged?.Invoke(1);
+            UnopenedCountChanged?.Invoke(1);
         }
         else if (Grids[position.Row, position.Col].Type == GridType.Number)
         {
@@ -199,6 +202,7 @@ public class Board
                                 GridChanged?.Invoke(pos);
                                 CheckSurroundingNumberGrids(pos);
                                 RemainingMinesChanged?.Invoke(-1);
+                                UnopenedCountChanged?.Invoke(-1);
                             }
                         }
                     }
@@ -291,7 +295,7 @@ public class Board
     }
 
     /// <summary>
-    /// 打开格子, 如果为地雷则触发地雷事件, 如果为空白则打开周围格子
+    /// 打开格子, 如果为地雷则触发地雷事件, 如果为空白则打开周围格子(自动检测是否胜利)
     /// </summary>
     /// <param name="position">格子的行列索引</param>
     private void OpenGrid(Position position)
@@ -314,6 +318,7 @@ public class Board
         var queue = new Queue<Position>();
         queue.Enqueue(position);
 
+        // 队列不为空时循环处理
         while (queue.Count > 0)
         {
             // 取出队列中的位置
@@ -325,12 +330,13 @@ public class Board
                 continue;
             }
 
+            // 更新未打开的安全格子数量
+            --UnopenedSafeCount;
+            UnopenedCountChanged?.Invoke(-1);
+
             // 更新格子周围地雷数量
             var surroundingMines = Mines.MineGrid[pos.Row, pos.Col];
             Grids[pos.Row, pos.Col].SurroundingMines = surroundingMines;
-
-            // 更新未打开的安全格子数量
-            --UnopenedSafeCount;
 
             if (surroundingMines == 0)
             {
@@ -366,16 +372,11 @@ public class Board
                 }
             }
         }
-    }
 
-    /// <summary>
-    /// 检查游戏是否胜利, 如果胜利触发胜利事件
-    /// </summary>
-    private void CheckWin()
-    {
-        // 未打开的安全格子数量等于0
+        // 如果未打开的安全格子数量等于0
         if (UnopenedSafeCount == 0)
         {
+            // 触发游戏胜利事件
             Won?.Invoke();
         }
     }

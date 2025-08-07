@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using MineClearance.Core;
 using MineClearance.Models;
@@ -26,14 +27,34 @@ public partial class GamePanel : Panel
     private readonly Label _minesLeftLabel;
 
     /// <summary>
+    /// 剩余未处理格子数标签
+    /// </summary>
+    private readonly Label _unopenedCountLabel;
+
+    /// <summary>
     /// 游戏时间标签
     /// </summary>
     private readonly Label _gameTimeLabel;
 
     /// <summary>
+    /// 暂停/继续游戏复选框
+    /// </summary>
+    private readonly CheckBox _pauseResumeCheckBox;
+
+    /// <summary>
     /// 游戏计时器
     /// </summary>
     private readonly System.Windows.Forms.Timer _gameTimer;
+
+    /// <summary>
+    /// 用于记录暂停时间的stopwatch
+    /// </summary>
+    private readonly Stopwatch _pauseStopwatch;
+
+    /// <summary>
+    /// 当前游戏已经暂停的总时间
+    /// </summary>
+    private TimeSpan _pausedDuration;
 
     /// <summary>
     /// 游戏实例, 控制游戏逻辑
@@ -49,6 +70,11 @@ public partial class GamePanel : Panel
     /// 游戏剩余地雷数量
     /// </summary>
     private int _remainingMines;
+
+    /// <summary>
+    /// 游戏未处理格子数量
+    /// </summary>
+    private int _unopenedCount;
 
     /// <summary>
     /// 游戏是否胜利
@@ -97,6 +123,9 @@ public partial class GamePanel : Panel
         };
         _gameTimer.Tick += GameTimer_Tick;
 
+        // 初始化暂停计时器
+        _pauseStopwatch = new();
+
         // 初始化鼠标状态
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
@@ -122,18 +151,24 @@ public partial class GamePanel : Panel
         // 添加剩下的地雷数标签
         _minesLeftLabel = new()
         {
-            Text = $"剩余地雷数: {_gameInstance?.TotalMines}",
             ForeColor = Color.DarkGreen,
             Location = new((int)(5 * Constants.DpiScale), labelY),
+            AutoSize = true
+        };
+
+        // 添加剩余未处理格子数标签
+        _unopenedCountLabel = new()
+        {
+            ForeColor = Color.DarkOrange,
+            Location = new((int)(110 * Constants.DpiScale), labelY),
             AutoSize = true
         };
 
         // 添加游戏时间标签
         _gameTimeLabel = new()
         {
-            Text = "游戏时间: 00:00",
             ForeColor = Color.DarkBlue,
-            Location = new((int)(125 * Constants.DpiScale), labelY),
+            Location = new((int)(230 * Constants.DpiScale), labelY),
             AutoSize = true
         };
 
@@ -142,12 +177,24 @@ public partial class GamePanel : Panel
         {
             Text = "提示: 左键打开格子, 右键标记地雷(在打开一个格子之前无效), 支持按住鼠标滑动操作多个格子, 灰色格子为未打开, 绿色格子表示插旗\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子(注意: 如果错误插旗可能会导致打开到地雷)\n右键点击数字格子时, 如果周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子\n当数字格子周围插旗的数量大于数字时, 该格子会变为黄色表示警告状态",
             Font = new(DefaultFont.FontFamily, 3.1f * Constants.DpiScale, DefaultFont.Style),
-            Location = new((int)(360 * Constants.DpiScale), 0),
+            Location = new((int)(450 * Constants.DpiScale), 0),
             AutoSize = true
         };
 
         // 按钮Y轴位置
         var buttonY = (int)(12.5 * Constants.DpiScale);
+
+        // 添加暂停/继续游戏复选框
+        _pauseResumeCheckBox = new()
+        {
+            Text = "暂停游戏",
+            BackColor = Color.Coral,
+            Location = new((int)(350 * Constants.DpiScale), buttonY),
+            Appearance = Appearance.Button,
+            FlatStyle = FlatStyle.Flat,
+            AutoSize = true
+        };
+        _pauseResumeCheckBox.CheckedChanged += PauseResumeCheckBox_CheckedChanged;
 
         // 添加显示/隐藏提示按钮
         Button btnToggleHint = new()
@@ -186,14 +233,15 @@ public partial class GamePanel : Panel
         btnBackMenu.Click += (sender, e) =>
         {
             // 结束当前游戏并返回菜单
-            _gameTimer.Stop();
             EndGame();
             MainForm.ShowPanel(PanelType.Menu);
         };
 
         // 添加信息面板控件
         _infoPanel.Controls.Add(_minesLeftLabel);
+        _infoPanel.Controls.Add(_unopenedCountLabel);
         _infoPanel.Controls.Add(_gameTimeLabel);
+        _infoPanel.Controls.Add(_pauseResumeCheckBox);
         _infoPanel.Controls.Add(hintLabel);
         _infoPanel.Controls.Add(btnToggleHint);
         _infoPanel.Controls.Add(btnRestart);
@@ -261,8 +309,15 @@ public partial class GamePanel : Panel
     /// 启动游戏
     /// </summary>
     /// <param name="game">游戏实例</param>
+    /// <exception cref="ArgumentException">当前存在游戏实例时抛出</exception>
     private void StartGame(Game game)
     {
+        // 如果当前游戏实例不为空, 抛出异常
+        if (_gameInstance != null)
+        {
+            throw new ArgumentException("当前存在游戏实例, 请先结束当前游戏");
+        }
+
         // 切换状态栏状态
         BottomStatusBar.ChangeStatus(StatusBarState.InGame);
 
@@ -271,10 +326,17 @@ public partial class GamePanel : Panel
         _mouseButton = MouseButtons.None;
         _mouseGridPosition = Constants.InvalidPosition;
 
+        // 重置暂停计时相关
+        _pauseStopwatch.Reset();
+        _pausedDuration = TimeSpan.Zero;
+
         // 设置游戏实例
         _gameInstance = game;
+
+        // 重置游戏状态
         _isGameWon = false;
         _isGameLost = false;
+        _pauseResumeCheckBox.Checked = false;
 
         // 设置游戏左上角格子位置, 使游戏能在面板居中显示
         var colOffset = (Utilities.Constants.MaxBoardWidth - _gameInstance.Board.Width) / 2;
@@ -289,6 +351,7 @@ public partial class GamePanel : Panel
         _gameInstance.Board.FirstClick += _gameTimer.Start;
         _gameInstance.Board.GridChanged += OnGridChanged;
         _gameInstance.Board.RemainingMinesChanged += OnRemainingMinesChanged;
+        _gameInstance.Board.UnopenedCountChanged += OnUnopenedCountChanged;
 
         // 重绘游戏区域面板
         _gameAreaPanel.Invalidate();
@@ -299,15 +362,33 @@ public partial class GamePanel : Panel
         // 更新剩余地雷数标签
         _minesLeftLabel.Text = $"剩余地雷数: {_remainingMines}";
 
+        // 更新未处理格子数量
+        _unopenedCount = _gameInstance.Board.Width * _gameInstance.Board.Height;
+
+        // 更新未处理格子数标签
+        _unopenedCountLabel.Text = $"未处理格子数: {_unopenedCount}";
+
         // 更新游戏时间标签
         _gameTimeLabel.Text = "游戏时间: 00:00";
     }
 
     /// <summary>
-    /// 结束游戏
+    /// 结束游戏(停止计时器并清理游戏实例)
     /// </summary>
     private void EndGame()
     {
+        // 如果计时器没有停止, 则停止计时器
+        if (_gameTimer.Enabled)
+        {
+            _gameTimer.Stop();
+        }
+
+        // 如果暂停计时器没有停止, 则停止暂停计时器
+        if (_pauseStopwatch.IsRunning)
+        {
+            _pauseStopwatch.Stop();
+        }
+
         // 取消订阅游戏事件
         if (_gameInstance != null)
         {
@@ -317,6 +398,7 @@ public partial class GamePanel : Panel
             _gameInstance.Board.FirstClick -= _gameTimer.Start;
             _gameInstance.Board.GridChanged -= OnGridChanged;
             _gameInstance.Board.RemainingMinesChanged -= OnRemainingMinesChanged;
+            _gameInstance.Board.UnopenedCountChanged -= OnUnopenedCountChanged;
         }
 
         // 清理游戏实例
@@ -326,7 +408,9 @@ public partial class GamePanel : Panel
     /// <summary>
     /// 重新开始当前游戏
     /// </summary>
-    /// <exception cref="ArgumentNullException">如果当前游戏实例为空</exception>
+    /// <exception cref="ArgumentNullException">当前游戏实例为空抛出</exception>
+    /// <exception cref="ArgumentOutOfRangeException">自定义的宽度、高度或地雷数超出范围时抛出</exception>
+    /// <exception cref="ArgumentException">非自定义难度没有对应的宽度、高度或地雷数时抛出</exception>
     private void RestartGame()
     {
         // 如果当前游戏实例为空, 抛出异常
@@ -342,7 +426,6 @@ public partial class GamePanel : Panel
         var mineCount = _gameInstance.TotalMines;
 
         // 结束当前游戏
-        _gameTimer.Stop();
         EndGame();
 
         // 使用获取的参数重新开始游戏
@@ -362,6 +445,9 @@ public partial class GamePanel : Panel
     /// <param name="gameResult">游戏结果</param>
     private void OnGameWon(GameResult gameResult)
     {
+        // 保存游戏结果
+        _ = Task.Run(() => Datas.AddGameResultAsync(gameResult));
+
         // 切换状态栏状态
         BottomStatusBar.ChangeStatus(StatusBarState.GameWon);
 
@@ -371,11 +457,11 @@ public partial class GamePanel : Panel
         // 重绘游戏区域面板
         _gameAreaPanel.Invalidate();
 
-        // 显示剩余地雷数量为0
+        // 更新剩余地雷数标签
         _minesLeftLabel.Text = "剩余地雷数: 0";
 
-        // 保存游戏结果
-        _ = Task.Run(() => Datas.AddGameResultAsync(gameResult));
+        // 更新未处理格子数标签
+        _unopenedCountLabel.Text = $"未处理格子数: 0";
 
         // 停止计时器
         _gameTimer.Stop();
@@ -396,6 +482,9 @@ public partial class GamePanel : Panel
     /// <param name="gameResult">游戏结果</param>
     private void OnGameLost(GameResult gameResult)
     {
+        // 保存游戏结果
+        _ = Task.Run(() => Datas.AddGameResultAsync(gameResult));
+
         // 切换状态栏状态
         BottomStatusBar.ChangeStatus(StatusBarState.GameLost);
 
@@ -404,9 +493,6 @@ public partial class GamePanel : Panel
 
         // 重绘游戏区域面板
         _gameAreaPanel.Invalidate();
-
-        // 保存游戏结果
-        _ = Task.Run(() => Datas.AddGameResultAsync(gameResult));
 
         // 停止计时器
         _gameTimer.Stop();
@@ -450,6 +536,19 @@ public partial class GamePanel : Panel
     }
 
     /// <summary>
+    /// 未处理格子数量改变事件处理
+    /// </summary>
+    /// <param name="changeNum">变化的数量</param>
+    private void OnUnopenedCountChanged(int changeNum)
+    {
+        // 更新未处理格子数量
+        _unopenedCount += changeNum;
+
+        // 更新未处理格子数标签
+        _unopenedCountLabel.Text = $"未处理格子数: {_unopenedCount}";
+    }
+
+    /// <summary>
     /// 游戏计时器事件处理
     /// </summary>
     /// <param name="sender">事件发送者</param>
@@ -462,11 +561,72 @@ public partial class GamePanel : Panel
             return;
         }
 
-        // 更新游戏时间标签
+        // 计算上次开始时间到现在的时间间隔
         var elapsed = DateTime.Now - _gameInstance.StartTime;
-        var minutes = (int)elapsed.TotalMinutes;
-        var seconds = elapsed.Seconds;
+
+        // 设置游戏用时
+        _gameInstance.Duration = elapsed - _pausedDuration;
+
+        // 更新游戏时间标签
+        var minutes = (int)_gameInstance.Duration.TotalMinutes;
+        var seconds = _gameInstance.Duration.Seconds;
         _gameTimeLabel.Text = $"游戏时间: {minutes:D2}:{seconds:D2}";
+    }
+
+    /// <summary>
+    /// 暂停/继续游戏复选框点击事件处理
+    /// </summary>
+    private void PauseResumeCheckBox_CheckedChanged(object? sender, EventArgs e)
+    {
+        // 游戏是否已经开始
+        var gameStarted = _gameInstance != null && _gameInstance.StartTime != DateTime.MinValue;
+
+        // 游戏是否已经结束
+        var gameEnded = _isGameWon || _isGameLost;
+
+        // 根据复选框状态暂停或继续游戏
+        if (_pauseResumeCheckBox.Checked)
+        {
+            // 如果游戏未开始或者游戏已经结束, 则切换复选框状态为未选中
+            if (!gameStarted || gameEnded)
+            {
+                _pauseResumeCheckBox.Checked = false;
+                return;
+            }
+
+            // 更新_pausedResumedCheckBox的文本和颜色
+            _pauseResumeCheckBox.Text = "继续游戏";
+            _pauseResumeCheckBox.BackColor = Color.LightGreen;
+
+            // 更新状态栏
+            BottomStatusBar.ChangeStatus(StatusBarState.Paused);
+
+            // 开始暂停计时
+            _pauseStopwatch.Restart();
+
+            // 暂停游戏
+            _gameTimer.Stop();
+        }
+        else
+        {
+            // 更新_pausedResumedCheckBox的文本和颜色
+            _pauseResumeCheckBox.Text = "暂停游戏";
+            _pauseResumeCheckBox.BackColor = Color.Coral;
+
+            // 如果游戏已经开始并且没有结束, 则继续游戏
+            if (gameStarted && !gameEnded)
+            {
+                // 更新状态栏
+                BottomStatusBar.ChangeStatus(StatusBarState.InGame);
+
+                // 计算暂停的时间并累加到_pausedDuration
+                _pauseStopwatch.Stop();
+                _pausedDuration += _pauseStopwatch.Elapsed;
+
+                // 继续游戏
+                _gameTimer.Start();
+            }
+        }
     }
 
     /// <summary>
@@ -476,15 +636,8 @@ public partial class GamePanel : Panel
     /// <param name="e">事件参数</param>
     private void BtnRestart_Click(object? sender, EventArgs e)
     {
-        try
-        {
-            // 尝试重新开始游戏
-            RestartGame();
-        }
-        catch (ArgumentNullException ex)
-        {
-            _ = MessageBox.Show(ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+        // 重新开始游戏
+        RestartGame();
     }
 
     /// <summary>
@@ -492,8 +645,8 @@ public partial class GamePanel : Panel
     /// </summary>
     private void GameAreaMouseDown(object? sender, MouseEventArgs e)
     {
-        // 如果游戏已经结束, 不做任何处理
-        if (_isGameWon || _isGameLost)
+        // 如果游戏已经结束或者暂停, 不做任何处理
+        if (_isGameWon || _isGameLost || _pauseResumeCheckBox.Checked)
         {
             return;
         }
@@ -531,8 +684,8 @@ public partial class GamePanel : Panel
     /// </summary>
     private void GameAreaMouseMove(object? sender, MouseEventArgs e)
     {
-        // 如果游戏已经结束, 不做任何处理
-        if (_isGameWon || _isGameLost)
+        // 如果游戏已经结束或者暂停, 不做任何处理
+        if (_isGameWon || _isGameLost || _pauseResumeCheckBox.Checked)
         {
             return;
         }
@@ -554,7 +707,7 @@ public partial class GamePanel : Panel
             // 更新当前鼠标格子位置
             _mouseGridPosition = pos;
 
-            // 如果先前鼠标格子位置不为(-1,-1), 则重绘先前格子
+            // 如果先前鼠标格子位置不为无效位置, 则重绘先前格子
             if (prevPos != Constants.InvalidPosition)
             {
                 // 获取先前格子行列坐标
@@ -565,7 +718,7 @@ public partial class GamePanel : Panel
                 _gameAreaPanel.Invalidate(new Rectangle(prevCol * Constants.GridSize, prevRow * Constants.GridSize, Constants.GridSize, Constants.GridSize));
             }
 
-            // 如果pos为(-1,-1), 则返回
+            // 如果pos为无效位置, 则返回
             if (pos == Constants.InvalidPosition)
             {
                 return;
@@ -608,7 +761,7 @@ public partial class GamePanel : Panel
     /// 根据鼠标当前位置返回所在的游戏格子位置
     /// </summary>
     /// <param name="mousePosition">鼠标位置</param>
-    /// <returns>对应的格子位置, 如果不在任何格子上则返回(-1,-1)</returns>
+    /// <returns>对应的格子位置, 如果不在任何格子上则返回无效位置</returns>
     private Position GetGridPositionAtMousePosition(Point mousePosition)
     {
         // 计算鼠标位置对应的游戏格子行列
@@ -621,7 +774,7 @@ public partial class GamePanel : Panel
             return new(row, col);
         }
 
-        // 如果鼠标位置不在任何格子上, 返回(-1,-1)
+        // 如果鼠标位置不在任何格子上, 返回无效位置
         return Constants.InvalidPosition;
     }
 

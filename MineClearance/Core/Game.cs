@@ -29,6 +29,11 @@ public class Game
     public DateTime StartTime { get; private set; }
 
     /// <summary>
+    /// 游戏用时
+    /// </summary>
+    public TimeSpan Duration { get; set; }
+
+    /// <summary>
     /// 地雷总数
     /// </summary>
     public int TotalMines { get; private init; }
@@ -53,6 +58,8 @@ public class Game
 
         // 设置游戏难度和棋盘
         Difficulty = difficulty;
+        Duration = TimeSpan.Zero;
+        StartTime = DateTime.MinValue;
         var (width, height, mineCount) = Constants.GetSettings(difficulty);
         TotalMines = mineCount;
         Board = new(width, height, mineCount);
@@ -82,6 +89,8 @@ public class Game
 
         // 设置游戏难度为自定义, 并初始化棋盘
         TotalMines = mineCount;
+        Duration = TimeSpan.Zero;
+        StartTime = DateTime.MinValue;
         Difficulty = DifficultyLevel.Custom;
         Board = new(width, height, mineCount);
     }
@@ -100,12 +109,6 @@ public class Game
         // 监听棋盘的打开地雷事件, 触发时计算游戏结果, 并触发 GameLost 事件
         Board.HitMine += () =>
         {
-            // 记录结束时间
-            var endTime = DateTime.Now;
-
-            // 计算游戏时长
-            var duration = endTime - StartTime;
-
             // 总的非地雷格子数量
             var totalSafeCount = (Board.Width * Board.Height) - TotalMines;
 
@@ -116,20 +119,14 @@ public class Game
             var completion = (double)openedSafeCount / totalSafeCount;
 
             // 触发 GameLost 事件
-            GameLost?.Invoke(new(Difficulty, StartTime, duration, false, completion * 100.0, Board.Width, Board.Height, TotalMines));
+            GameLost?.Invoke(new(Difficulty, StartTime, Duration, false, completion * 100.0, Board.Width, Board.Height, TotalMines));
         };
 
         // 监听棋盘的胜利事件, 触发时计算游戏结果, 并触发 GameWon 事件
         Board.Won += () =>
         {
-            // 记录结束时间
-            var endTime = DateTime.Now;
-
-            // 计算游戏时长
-            var duration = endTime - StartTime;
-
             // 触发 GameWon 事件
-            GameWon?.Invoke(new(Difficulty, StartTime, duration, true, 100.0, Board.Width, Board.Height, TotalMines));
+            GameWon?.Invoke(new(Difficulty, StartTime, Duration, true, 100.0, Board.Width, Board.Height, TotalMines));
         };
     }
 }

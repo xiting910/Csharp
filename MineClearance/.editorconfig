@@ -20,13 +20,23 @@ csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
 
-# 3. 单行 if/for 语句块必须加大括号
+# 3. 建议使用简化的对象初始化
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+
+# 4. 建议使用集合表达式
+csharp_style_collection_expression = true:suggestion
+
+# 5. 建议使用目标类型的 new 表达式
+csharp_style_target_typed_new_expression = true:suggestion
+
+# 6. 单行 if/for 语句块必须加大括号
 csharp_prefer_braces = always:warning
 
-# 4. 命名空间必须与文件夹结构匹配
+# 7. 命名空间必须与文件夹结构匹配
 dotnet_style_namespace_match_folder = true:warning
 
-# 5. 使用文件范围的 namespace 声明
+# 8. 使用文件范围的 namespace 声明
 csharp_style_namespace_declarations = file_scoped:suggestion
 
 # 大括号风格：新行
