@@ -22,11 +22,17 @@ public partial class SettingForm : Form
         // 如果实例已存在且未释放, 则直接显示
         if (instance != null && !instance.IsDisposed)
         {
+            // 如果当前窗口状态为最小化, 则恢复到正常状态
             if (instance.WindowState == FormWindowState.Minimized)
             {
                 instance.WindowState = FormWindowState.Normal;
             }
-            instance.Activate();
+
+            // 如果当前窗口没有获得焦点, 则激活窗口
+            if (!instance.ContainsFocus)
+            {
+                instance.Activate();
+            }
             return;
         }
 

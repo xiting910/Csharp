@@ -177,38 +177,41 @@ public partial class GamePanel : Panel
         {
             Text = "提示: 左键打开格子, 右键标记地雷(在打开一个格子之前无效), 支持按住鼠标滑动操作多个格子, 灰色格子为未打开, 绿色格子表示插旗\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子(注意: 如果错误插旗可能会导致打开到地雷)\n右键点击数字格子时, 如果周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子\n当数字格子周围插旗的数量大于数字时, 该格子会变为黄色表示警告状态",
             Font = new(DefaultFont.FontFamily, 3.1f * Constants.DpiScale, DefaultFont.Style),
-            Location = new((int)(450 * Constants.DpiScale), 0),
+            Location = new((int)(380 * Constants.DpiScale), 0),
             AutoSize = true
         };
 
         // 按钮Y轴位置
         var buttonY = (int)(12.5 * Constants.DpiScale);
 
+        // 添加显示/隐藏提示复选框
+        CheckBox toggleHintCheckBox = new()
+        {
+            Text = "隐藏提示",
+            BackColor = Color.YellowGreen,
+            Location = new(Constants.MainFormWidth - (int)(315 * Constants.DpiScale), buttonY),
+            Appearance = Appearance.Button,
+            FlatStyle = FlatStyle.Flat,
+            AutoSize = true
+        };
+        toggleHintCheckBox.CheckedChanged += (sender, e) =>
+        {
+            hintLabel.Visible = !toggleHintCheckBox.Checked;
+            toggleHintCheckBox.Text = toggleHintCheckBox.Checked ? "显示提示" : "隐藏提示";
+            toggleHintCheckBox.BackColor = toggleHintCheckBox.Checked ? Color.LightGreen : Color.YellowGreen;
+        };
+
         // 添加暂停/继续游戏复选框
         _pauseResumeCheckBox = new()
         {
             Text = "暂停游戏",
             BackColor = Color.Coral,
-            Location = new((int)(350 * Constants.DpiScale), buttonY),
+            Location = new(Constants.MainFormWidth - (int)(240 * Constants.DpiScale), buttonY),
             Appearance = Appearance.Button,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
         _pauseResumeCheckBox.CheckedChanged += PauseResumeCheckBox_CheckedChanged;
-
-        // 添加显示/隐藏提示按钮
-        Button btnToggleHint = new()
-        {
-            Text = "显示/隐藏提示",
-            BackColor = Color.YellowGreen,
-            Location = new(Constants.MainFormWidth - (int)(270 * Constants.DpiScale), buttonY),
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
-        };
-        btnToggleHint.Click += (sender, e) =>
-        {
-            hintLabel.Visible = !hintLabel.Visible;
-        };
 
         // 添加重新开始按钮
         Button btnRestart = new()
@@ -241,9 +244,9 @@ public partial class GamePanel : Panel
         _infoPanel.Controls.Add(_minesLeftLabel);
         _infoPanel.Controls.Add(_unopenedCountLabel);
         _infoPanel.Controls.Add(_gameTimeLabel);
-        _infoPanel.Controls.Add(_pauseResumeCheckBox);
         _infoPanel.Controls.Add(hintLabel);
-        _infoPanel.Controls.Add(btnToggleHint);
+        _infoPanel.Controls.Add(toggleHintCheckBox);
+        _infoPanel.Controls.Add(_pauseResumeCheckBox);
         _infoPanel.Controls.Add(btnRestart);
         _infoPanel.Controls.Add(btnBackMenu);
 
@@ -417,6 +420,12 @@ public partial class GamePanel : Panel
         if (_gameInstance == null)
         {
             throw new ArgumentNullException(nameof(_gameInstance), "当前游戏实例为空");
+        }
+
+        // 如果游戏还没有开始, 不做任何处理
+        if (_gameInstance.StartTime == DateTime.MinValue)
+        {
+            return;
         }
 
         // 获取当前游戏难度、高度、宽度和地雷数

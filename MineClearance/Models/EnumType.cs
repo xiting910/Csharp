@@ -114,7 +114,7 @@ public enum StatusBarState
     Preparing,
 
     /// <summary>
-    /// 游戏进行中
+    /// 游戏中
     /// </summary>
     InGame,
 
