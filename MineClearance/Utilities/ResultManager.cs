@@ -51,6 +51,11 @@ public static class ResultManager
     private static readonly List<SortConditionItem> _sortConditions;
 
     /// <summary>
+    /// 原始游戏结果列表
+    /// </summary>
+    public static IReadOnlyList<GameResult> OriginalResults => Datas.GameResults;
+
+    /// <summary>
     /// 获取操作后的游戏结果(只读列表)
     /// </summary>
     public static IReadOnlyList<GameResult> Results { get; private set; }
@@ -128,6 +133,25 @@ public static class ResultManager
     {
         _filterConditions.Clear();
         _sortConditions.Clear();
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 异步删除指定下标的游戏结果
+    /// </summary>
+    /// <param name="index">要删除的游戏结果下标</param>
+    public static async Task RemoveResultAt(int index)
+    {
+        await Datas.RemoveGameResultAsync(Results[index]);
+        ConditionsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 异步清除所有游戏结果
+    /// </summary>
+    public static async Task ClearAllResultsAsync()
+    {
+        await Datas.ClearGameResultsAsync();
         ConditionsChanged?.Invoke();
     }
 

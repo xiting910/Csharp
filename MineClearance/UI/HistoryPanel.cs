@@ -1,6 +1,5 @@
 using System.Globalization;
 using MineClearance.Models;
-using MineClearance.Services;
 using MineClearance.Utilities;
 
 namespace MineClearance.UI;
@@ -46,6 +45,16 @@ public partial class HistoryPanel : Panel
     private readonly DoubleBufferedDataGridView historyDataGridView;
 
     /// <summary>
+    /// 历史记录列表框行的右键菜单
+    /// </summary>
+    private readonly ContextMenuStrip historyContextMenu;
+
+    /// <summary>
+    /// 记录当前选中的行索引
+    /// </summary>
+    private int selectedRowIndex = -1;
+
+    /// <summary>
     /// 初始化历史记录面板
     /// </summary>
     public HistoryPanel()
@@ -74,6 +83,49 @@ public partial class HistoryPanel : Panel
 
         // 创建历史记录数据网格视图
         historyDataGridView = CreateHistoryDataGridView();
+
+        // 创建历史记录右键菜单
+        historyContextMenu = CreateHistoryContextMenu();
+
+        // 订阅列头点击事件
+        historyDataGridView.ColumnHeaderMouseClick += (sender, e) =>
+        {
+            // 获取当前列的名字
+            var columnName = historyDataGridView.Columns[e.ColumnIndex].Name;
+
+            // 获取右键菜单实例
+            var contextMenu = HistoryContextMenu.GetInstance(columnName);
+
+            // 显示右键菜单
+            contextMenu.Show(Cursor.Position);
+        };
+
+        // 订阅 ResultManager 的条件变化事件
+        ResultManager.ConditionsChanged += UpdateHistoryDataGridView;
+
+        // 订阅 CellValueNeeded 事件
+        historyDataGridView.CellValueNeeded += HistoryDataGridView_CellValueNeeded;
+
+        // 订阅单元格鼠标点击事件
+        historyDataGridView.CellMouseClick += (sender, e) =>
+        {
+            // 检测行索引是否有效
+            if (e.RowIndex < 0 || e.RowIndex >= ResultManager.Results.Count)
+            {
+                return;
+            }
+
+            // 只有点击序号列时才显示菜单
+            if (historyDataGridView.Columns[e.ColumnIndex].Name == "序号")
+            {
+                selectedRowIndex = e.RowIndex;
+                historyContextMenu.Items[0].Text = $"删除序号 {e.RowIndex + 1} 的游戏记录";
+                historyContextMenu.Show(Cursor.Position);
+            }
+        };
+
+        // 订阅选中变化事件
+        historyDataGridView.SelectionChanged += (sender, e) => historyDataGridView.ClearSelection();
 
         // 添加历史记录顶部面板和数据网格视图到排行榜面板
         Controls.Add(historyTopPanel);
@@ -250,7 +302,7 @@ public partial class HistoryPanel : Panel
             { "难度", 0 },
             { "游戏次数", (int)(150 * Constants.DpiScale) },
             { "胜利次数", (int)(150 * Constants.DpiScale) },
-            { "胜利率", (int)(150 * Constants.DpiScale) },
+            { "胜率", (int)(150 * Constants.DpiScale) },
             { "平均胜利用时", (int)(200 * Constants.DpiScale) },
             { "最短胜利用时", (int)(200 * Constants.DpiScale) },
             { "平均完成度", (int)(200 * Constants.DpiScale) }
@@ -299,7 +351,7 @@ public partial class HistoryPanel : Panel
     /// 创建历史记录数据网格视图
     /// </summary>
     /// <returns>返回创建的历史记录数据网格视图</returns>
-    private DoubleBufferedDataGridView CreateHistoryDataGridView()
+    private static DoubleBufferedDataGridView CreateHistoryDataGridView()
     {
         // 设置数据网格视图的列头高度
         var columnHeaderHeight = (int)(29 * Constants.DpiScale);
@@ -374,29 +426,51 @@ public partial class HistoryPanel : Panel
             // 添加列到数据网格视图
             _ = dataGridView.Columns.Add(column);
         }
-
-        // 订阅列头点击事件
-        dataGridView.ColumnHeaderMouseClick += (sender, e) =>
-        {
-            // 获取当前列的名字
-            var columnName = dataGridView.Columns[e.ColumnIndex].Name;
-
-            // 获取右键菜单实例
-            var contextMenu = HistoryContextMenu.GetInstance(columnName);
-
-            // 显示右键菜单
-            contextMenu.Show(Cursor.Position);
-        };
-
-        // 订阅 ResultManager 的条件变化事件
-        ResultManager.ConditionsChanged += UpdateHistoryDataGridView;
-
-        // 订阅 CellValueNeeded 事件
-        dataGridView.CellValueNeeded += HistoryDataGridView_CellValueNeeded;
-
-        // 选择时清除选择
-        dataGridView.SelectionChanged += (s, e) => dataGridView.ClearSelection();
         return dataGridView;
+    }
+
+    /// <summary>
+    /// 创建历史记录右键菜单
+    /// </summary>
+    /// <returns>历史记录右键菜单</returns>
+    private ContextMenuStrip CreateHistoryContextMenu()
+    {
+        var contextMenu = new ContextMenuStrip();
+
+        // 添加菜单项
+        _ = contextMenu.Items.Add("删除记录", null, (s, e) => DeleteHistoryRecord());
+        return contextMenu;
+    }
+
+    /// <summary>
+    /// 统计信息结构体
+    /// </summary>
+    private readonly struct Stats
+    {
+        /// <summary>
+        /// 总游戏次数
+        /// </summary>
+        public int Total { get; init; }
+
+        /// <summary>
+        /// 胜利次数
+        /// </summary>
+        public int Wins { get; init; }
+
+        /// <summary>
+        /// 总胜利用时
+        /// </summary>
+        public TimeSpan TotalDuration { get; init; }
+
+        /// <summary>
+        /// 最短胜利用时
+        /// </summary>
+        public TimeSpan ShortestDuration { get; init; }
+
+        /// <summary>
+        /// 总完成度
+        /// </summary>
+        public double TotalCompletion { get; init; }
     }
 
     /// <summary>
@@ -405,7 +479,7 @@ public partial class HistoryPanel : Panel
     private void UpdateStatisticsDataGridView()
     {
         // 获取所有游戏结果
-        var gameResults = Datas.GameResults;
+        var gameResults = ResultManager.OriginalResults;
 
         // 清空统计信息数据网格视图
         statisticsDataGridView.Rows.Clear();
@@ -548,11 +622,27 @@ public partial class HistoryPanel : Panel
     }
 
     /// <summary>
+    /// 删除选中的历史记录
+    /// </summary>
+    private async void DeleteHistoryRecord()
+    {
+        if (selectedRowIndex >= 0 && selectedRowIndex < ResultManager.Results.Count)
+        {
+            var confirmResult = CustomMessageBox.Show("确定要删除选中的历史记录吗？\n注意: 一旦删除将无法找回！！！", "删除历史记录", "删除指定历史记录");
+            if (confirmResult == DialogResult.Yes)
+            {
+                await ResultManager.RemoveResultAt(selectedRowIndex);
+                selectedRowIndex = -1;
+            }
+        }
+    }
+
+    /// <summary>
     /// 清除历史记录按钮点击事件处理
     /// </summary>
     /// <param name="sender">事件发送者</param>
     /// <param name="e">事件参数</param>
-    private void BtnClearHistory_Click(object? sender, EventArgs e)
+    private async void BtnClearHistory_Click(object? sender, EventArgs e)
     {
         // 添加确认对话框
         var confirmResult = MessageBox.Show("确定要清除所有历史记录吗？\n注意: 一旦清除将无法找回！！！", "清除历史记录", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
@@ -564,43 +654,9 @@ public partial class HistoryPanel : Panel
         }
 
         // 清空历史记录数据
-        _ = Task.Run(Datas.ClearGameResultsAsync);
-
-        // 重启历史记录面板
-        RestartHistoryPanel();
+        await ResultManager.ClearAllResultsAsync();
 
         // 弹窗提示清除成功
         _ = MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
-}
-
-/// <summary>
-/// 统计信息结构体
-/// </summary>
-public readonly struct Stats
-{
-    /// <summary>
-    /// 总游戏次数
-    /// </summary>
-    public int Total { get; init; }
-
-    /// <summary>
-    /// 胜利次数
-    /// </summary>
-    public int Wins { get; init; }
-
-    /// <summary>
-    /// 总胜利用时
-    /// </summary>
-    public TimeSpan TotalDuration { get; init; }
-
-    /// <summary>
-    /// 最短胜利用时
-    /// </summary>
-    public TimeSpan ShortestDuration { get; init; }
-
-    /// <summary>
-    /// 总完成度
-    /// </summary>
-    public double TotalCompletion { get; init; }
 }

@@ -52,6 +52,47 @@ public class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan
     /// 地雷数量
     /// </summary>
     public int? MineCount { get; private init; } = difficulty == DifficultyLevel.Custom ? mineCount : null;
+
+    /// <summary>
+    /// 重写==操作符, 用于比较两个游戏结果是否相等
+    /// </summary>
+    /// <param name="left">左侧游戏结果</param>
+    /// <param name="right">右侧游戏结果</param>
+    /// <returns>是否相等</returns>
+    public static bool operator ==(GameResult? left, GameResult? right)
+    {
+        return (left is null && right is null) || (left is not null && left.Equals(right));
+    }
+
+    /// <summary>
+    /// 重写!=操作符, 用于比较两个游戏结果是否不相等
+    /// </summary>
+    /// <param name="left">左侧游戏结果</param>
+    /// <param name="right">右侧游戏结果</param>
+    /// <returns>是否不相等</returns>
+    public static bool operator !=(GameResult? left, GameResult? right)
+    {
+        return !(left == right);
+    }
+
+    /// <summary>
+    /// 重写Equals方法, 用于比较两个游戏结果是否相等
+    /// </summary>
+    /// <param name="obj">要比较的对象</param>
+    /// <returns>是否相等</returns>
+    public override bool Equals(object? obj)
+    {
+        return obj is GameResult other && StartTime == other.StartTime;
+    }
+
+    /// <summary>
+    /// 获取对象的哈希码
+    /// </summary>
+    /// <returns>对象的哈希码</returns>
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Difficulty, StartTime, Duration, IsWin, Completion, BoardWidth, BoardHeight, MineCount);
+    }
 }
 
 /// <summary>

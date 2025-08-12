@@ -130,6 +130,18 @@ public static class Datas
     }
 
     /// <summary>
+    /// 删除指定的游戏结果
+    /// </summary>
+    /// <param name="result">要删除的游戏结果</param>
+    public static async Task RemoveGameResultAsync(GameResult result)
+    {
+        if (_gameResults.Remove(result))
+        {
+            await SaveGameResultsAsync();
+        }
+    }
+
+    /// <summary>
     /// 清空游戏结果
     /// </summary>
     public static async Task ClearGameResultsAsync()
