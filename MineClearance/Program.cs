@@ -11,6 +11,11 @@ namespace MineClearance;
 internal static class Program
 {
     /// <summary>
+    /// 程序唯一标识符
+    /// </summary>
+    private const string AppId = "Local\\MineClearance_xiting910";
+
+    /// <summary>
     /// 程序入口点
     /// </summary>
     [STAThread]
@@ -20,7 +25,7 @@ internal static class Program
         if (!Methods.IsWindows())
         {
             // 如果不是Windows操作系统，则显示错误信息并退出程序
-            _ = MessageBox.Show("本程序仅支持在Windows操作系统上运行。", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show("本程序仅支持在Windows操作系统上运行", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
 
@@ -41,18 +46,26 @@ internal static class Program
         // 初始化应用程序配置
         ApplicationConfiguration.Initialize();
 
+        // 初始化 DPI 缩放
+        UI.Constants.InitDpiScale();
+
+        // 保证只运行一个实例
+        using var mutex = new Mutex(true, AppId, out var isNewInstance);
+        if (!isNewInstance)
+        {
+            _ = MessageBox.Show("程序已在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        // 初始化数据
+        Datas.Initialize().Wait();
+
         // 初始化自动更新相关设置
         AutoUpdater.Mandatory = true;
         AutoUpdater.RunUpdateAsAdmin = false;
 
         // 订阅更新检查事件
         AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
-
-        // 初始化 DPI 缩放
-        UI.Constants.InitDpiScale();
-
-        // 初始化数据
-        Datas.Initialize().Wait();
 
         // 创建并显示主窗口
         Application.Run(new MainForm());
