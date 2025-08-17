@@ -40,7 +40,7 @@ public class CustomMessageBox : Form
     public static DialogResult Show(string message, string caption, string key)
     {
         // 如果该key已设置为不再显示，直接返回Yes
-        if (_doNotShowAgainDict.TryGetValue(key, out bool skip) && skip)
+        if (_doNotShowAgainDict.TryGetValue(key, out var skip) && skip)
         {
             return DialogResult.Yes;
         }

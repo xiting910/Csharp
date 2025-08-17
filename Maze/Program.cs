@@ -3,7 +3,7 @@
 /// <summary>
 /// 程序入口类
 /// </summary>
-internal static class Program
+file static class Program
 {
     /// <summary>
     /// 程序入口点

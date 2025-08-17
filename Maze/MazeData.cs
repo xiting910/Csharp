@@ -17,14 +17,14 @@ public static partial class MazeData
         {
             if (!Directory.Exists(Constants.DataPath))
             {
-                Directory.CreateDirectory(Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
             }
         }
         catch (Exception ex)
         {
             // 记录异常到日志文件并弹窗提示错误信息
             var logTask = Methods.LogException(ex);
-            MessageBox.Show($"无法创建数据存储路径: {ex.Message}\n错误日志已保存到: {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"无法创建数据存储路径: {ex.Message}\n错误日志已保存到: {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             // 等待日志记录完成后退出应用程序
             logTask.GetAwaiter().GetResult();
@@ -59,14 +59,14 @@ public static partial class MazeData
         foreach (var file in files)
         {
             var match = MazeFileRegex().Match(Path.GetFileName(file));
-            if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var num))
             {
-                numbers.Add(num);
+                _ = numbers.Add(num);
             }
         }
 
         // 返回未出现的最小数字(除了0)对应的文件名
-        for (int i = 1; i <= numbers.Count; ++i)
+        for (var i = 1; i <= numbers.Count; ++i)
         {
             if (!numbers.Contains(i))
             {
@@ -101,8 +101,8 @@ public static partial class MazeData
             }
 
             // 找到修改时间最新的文件
-            string latestFile = files[0];
-            DateTime latestTime = File.GetLastWriteTime(latestFile);
+            var latestFile = files[0];
+            var latestTime = File.GetLastWriteTime(latestFile);
             foreach (var file in files)
             {
                 var lastWriteTime = File.GetLastWriteTime(file);
@@ -142,15 +142,18 @@ public static partial class MazeData
         try
         {
             using var writer = new StreamWriter(path);
-            for (int row = 0; row < Constants.MazeHeight; ++row)
+            for (var row = 0; row < Constants.MazeHeight; ++row)
             {
-                for (int col = 0; col < Constants.MazeWidth; ++col)
+                for (var col = 0; col < Constants.MazeWidth; ++col)
                 {
                     await writer.WriteAsync(mazeData[row, col] switch
                     {
                         GridType.Start => "S",
                         GridType.End => "E",
                         GridType.Obstacle => "X",
+                        GridType.Empty => ".",
+                        GridType.Path => ".",
+                        GridType.FadePath => ".",
                         _ => "."
                     });
                 }
@@ -159,7 +162,7 @@ public static partial class MazeData
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"保存迷宫数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"保存迷宫数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -175,14 +178,14 @@ public static partial class MazeData
         try
         {
             using var reader = new StreamReader(path);
-            for (int row = 0; row < Constants.MazeHeight; ++row)
+            for (var row = 0; row < Constants.MazeHeight; ++row)
             {
                 var line = await reader.ReadLineAsync();
                 if (line == null || line.Length != Constants.MazeWidth)
                 {
                     throw new FormatException("迷宫数据格式不正确");
                 }
-                for (int col = 0; col < Constants.MazeWidth; ++col)
+                for (var col = 0; col < Constants.MazeWidth; ++col)
                 {
                     mazeData[row, col] = line[col] switch
                     {
@@ -197,7 +200,7 @@ public static partial class MazeData
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"加载迷宫数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"加载迷宫数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             // 如果加载失败, 返回一个空的迷宫数据
             return null;

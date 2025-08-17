@@ -8,12 +8,18 @@ namespace MineClearance;
 /// <summary>
 /// 主程序类
 /// </summary>
-internal static class Program
+file static class Program
 {
     /// <summary>
     /// 程序唯一标识符
     /// </summary>
     private const string AppId = "Local\\MineClearance_xiting910";
+
+    /// <summary>
+    /// 未知异常类
+    /// </summary>
+    /// <param name="message">异常消息</param>
+    private sealed class UnknownException(string message) : Exception(message);
 
     /// <summary>
     /// 程序入口点
@@ -139,9 +145,3 @@ internal static class Program
         catch { /* 忽略日志写入异常 */ }
     }
 }
-
-/// <summary>
-/// 未知异常类
-/// </summary>
-/// <param name="message">异常消息</param>
-file sealed class UnknownException(string message) : Exception(message);

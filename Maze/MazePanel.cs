@@ -156,7 +156,7 @@ public class MazePanel
         // 如果当前迷宫全部为空, 提示用户
         if (Maze.Grids.Cast<GridType>().All(g => g == GridType.Empty))
         {
-            MessageBox.Show("当前迷宫全部为空, 无法保存", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _ = MessageBox.Show("当前迷宫全部为空, 无法保存", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -182,14 +182,14 @@ public class MazePanel
             // 如果文件名为空, 提示用户
             if (string.IsNullOrWhiteSpace(filePath))
             {
-                MessageBox.Show("文件名不能为空", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show("文件名不能为空", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // 如果文件名不是以.maze结尾, 提示用户
             if (!MazeData.IsValidMazeDataFileName(filePath))
             {
-                MessageBox.Show("文件名必须以.maze结尾", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show("文件名必须以.maze结尾", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -225,14 +225,14 @@ public class MazePanel
             // 如果文件不存在, 提示用户
             if (!File.Exists(filePath))
             {
-                MessageBox.Show("指定的文件不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show("指定的文件不存在", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             // 如果文件名不是以.maze结尾, 提示用户
             if (!MazeData.IsValidMazeDataFileName(filePath))
             {
-                MessageBox.Show("指定的文件名必须以.maze结尾", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _ = MessageBox.Show("指定的文件名必须以.maze结尾", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -302,9 +302,9 @@ public class MazePanel
         await Task.Run(() =>
         {
             // 遍历每个格子并更新_Grids
-            for (int row = 0; row < Constants.MazeHeight; ++row)
+            for (var row = 0; row < Constants.MazeHeight; ++row)
             {
-                for (int col = 0; col < Constants.MazeWidth; ++col)
+                for (var col = 0; col < Constants.MazeWidth; ++col)
                 {
                     var pos = new Position(row, col);
                     switch (gridTypes[row, col])
@@ -320,6 +320,12 @@ public class MazePanel
                         case GridType.Obstacle:
                             OnGridTypeChanged?.Invoke(pos, GridType.Obstacle);
                             break;
+                        case GridType.Path:
+                            isError = true;
+                            break;
+                        case GridType.FadePath:
+                            isError = true;
+                            break;
                         default:
                             isError = true;
                             return;
@@ -331,7 +337,7 @@ public class MazePanel
         // 如果有错误, 提示用户并重置迷宫
         if (isError)
         {
-            MessageBox.Show("迷宫数据无效", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show("迷宫数据无效", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Maze.ResetMaze();
             return;
         }
@@ -583,17 +589,22 @@ public class MazePanel
             case GridType.FadePath:
                 fillColor = Constants.FadePathColor;
                 break;
+            case GridType.Empty:
+                break;
+            default:
+                break;
         }
 
         // 绘制格子背景
-        using (var brush = new SolidBrush(fillColor)) g.FillRectangle(brush, rect);
+        using var brush = new SolidBrush(fillColor);
+        g.FillRectangle(brush, rect);
 
         // 绘制文本（居中）
         if (!string.IsNullOrEmpty(text))
         {
             var textSize = g.MeasureString(text, Control.DefaultFont);
-            var textX = rect.X + (rect.Width - textSize.Width) / 2;
-            var textY = rect.Y + (rect.Height - textSize.Height) / 2;
+            var textX = rect.X + ((rect.Width - textSize.Width) / 2);
+            var textY = rect.Y + ((rect.Height - textSize.Height) / 2);
             using var textBrush = new SolidBrush(Color.Black);
             g.DrawString(text, Control.DefaultFont, textBrush, textX, textY);
         }

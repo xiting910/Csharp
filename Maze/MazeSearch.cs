@@ -79,7 +79,7 @@ public static partial class Maze
                 // 不是起点时设置当前格子为淡出路径
                 if (current != StartPosition)
                 {
-                    _grids[current.Row, current.Col] = GridType.FadePath;
+                    Grids[current.Row, current.Col] = GridType.FadePath;
                 }
 
                 // 如果需要显示搜索过程
@@ -104,7 +104,7 @@ public static partial class Maze
                     }
 
                     // 如果新位置不是障碍物且未被访问过
-                    if (_grids[next.Row, next.Col] != GridType.Obstacle && !visited[next.Row, next.Col])
+                    if (Grids[next.Row, next.Col] != GridType.Obstacle && !visited[next.Row, next.Col])
                     {
                         // 将新位置加入队列, 标记为已访问, 设置父节点
                         queue.Enqueue(next);
@@ -119,7 +119,7 @@ public static partial class Maze
                         }
 
                         // 设置新位置为路径
-                        _grids[next.Row, next.Col] = GridType.Path;
+                        Grids[next.Row, next.Col] = GridType.Path;
 
                         // 如果需要显示搜索过程
                         if (showSearchProcess)
@@ -207,7 +207,7 @@ public static partial class Maze
                 // 不是起点时设置当前格子为路径
                 if (current != StartPosition)
                 {
-                    _grids[current.Row, current.Col] = GridType.Path;
+                    Grids[current.Row, current.Col] = GridType.Path;
                 }
 
                 // 如果需要显示搜索过程
@@ -237,7 +237,7 @@ public static partial class Maze
                     }
 
                     // 如果新位置不是障碍物且未被访问过
-                    if (_grids[next.Row, next.Col] != GridType.Obstacle && !visited[next.Row, next.Col])
+                    if (Grids[next.Row, next.Col] != GridType.Obstacle && !visited[next.Row, next.Col])
                     {
                         // 将新位置加入栈, 标记为已访问, 设置父节点
                         stack.Push(next);
@@ -256,7 +256,7 @@ public static partial class Maze
                     }
                 }
 
-                // 如果路径数为0 
+                // 如果路径数为0
                 while (pathCount[current.Row, current.Col] == 0)
                 {
                     // 检测是否取消了搜索
@@ -265,7 +265,7 @@ public static partial class Maze
                     // 不是起点时设置当前格子为淡出路径
                     if (current != StartPosition)
                     {
-                        _grids[current.Row, current.Col] = GridType.FadePath;
+                        Grids[current.Row, current.Col] = GridType.FadePath;
                     }
 
                     // 如果需要显示搜索过程
@@ -334,9 +334,9 @@ public static partial class Maze
         var visited = new bool[Constants.MazeHeight, Constants.MazeWidth];
 
         // 初始化
-        for (int i = 0; i < Constants.MazeHeight; ++i)
+        for (var i = 0; i < Constants.MazeHeight; ++i)
         {
-            for (int j = 0; j < Constants.MazeWidth; ++j)
+            for (var j = 0; j < Constants.MazeWidth; ++j)
             {
                 gScore[i, j] = int.MaxValue;
                 cameFrom[i, j] = Position.Invalid;
@@ -380,7 +380,7 @@ public static partial class Maze
                 // 不是起点时设置当前格子为淡出路径
                 if (current != StartPosition)
                 {
-                    _grids[current.Row, current.Col] = GridType.FadePath;
+                    Grids[current.Row, current.Col] = GridType.FadePath;
                 }
 
                 // 如果需要显示搜索过程
@@ -405,13 +405,13 @@ public static partial class Maze
                     }
 
                     // 如果新位置是障碍物, 跳过
-                    if (_grids[neighbor.Row, neighbor.Col] == GridType.Obstacle)
+                    if (Grids[neighbor.Row, neighbor.Col] == GridType.Obstacle)
                     {
                         continue;
                     }
 
                     // 计算新的gScore
-                    int tentative_gScore = gScore[current.Row, current.Col] + 1;
+                    var tentative_gScore = gScore[current.Row, current.Col] + 1;
 
                     // 如果新的gScore小于当前gScore, 则更新路径
                     if (tentative_gScore < gScore[neighbor.Row, neighbor.Col])
@@ -434,7 +434,7 @@ public static partial class Maze
                         // 不是起点时设置当前格子为路径
                         if (neighbor != StartPosition)
                         {
-                            _grids[neighbor.Row, neighbor.Col] = GridType.Path;
+                            Grids[neighbor.Row, neighbor.Col] = GridType.Path;
                         }
 
                         // 如果需要显示搜索过程
@@ -528,7 +528,7 @@ public static partial class Maze
         // 遍历路径, 设置为路径颜色
         foreach (var pos in path)
         {
-            _grids[pos.Row, pos.Col] = GridType.Path;
+            Grids[pos.Row, pos.Col] = GridType.Path;
             OnGridTypeChanged?.Invoke(pos);
         }
     }

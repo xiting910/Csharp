@@ -11,15 +11,15 @@ public class SearchResult(bool isCanceled, bool isSuccess, int pathLength)
     /// <summary>
     /// 搜索是否被取消
     /// </summary>
-    public bool IsCanceled { get; private set; } = isCanceled;
+    public bool IsCanceled { get; private init; } = isCanceled;
 
     /// <summary>
     /// 搜索是否成功
     /// </summary>
-    public bool IsSuccess { get; private set; } = isSuccess;
+    public bool IsSuccess { get; private init; } = isSuccess;
 
     /// <summary>
     /// 搜索路径长度
     /// </summary>
-    public int PathLength { get; private set; } = pathLength;
+    public int PathLength { get; private init; } = pathLength;
 }

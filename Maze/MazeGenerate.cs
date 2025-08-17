@@ -44,18 +44,18 @@ public static partial class Maze
         // 遍历所有格子, 根据Constants.ObstacleRatio随机设置为障碍物或空白
         await Task.Run(() =>
         {
-            for (int i = 0; i < Constants.MazeHeight; ++i)
+            for (var i = 0; i < Constants.MazeHeight; ++i)
             {
-                for (int j = 0; j < Constants.MazeWidth; ++j)
+                for (var j = 0; j < Constants.MazeWidth; ++j)
                 {
                     // 保持起点和终点不变
-                    if (_grids[i, j] == GridType.Start || _grids[i, j] == GridType.End)
+                    if (Grids[i, j] is GridType.Start or GridType.End)
                     {
                         continue;
                     }
 
                     // 根据障碍物比例随机设置格子类型
-                    _grids[i, j] = Methods.RandomInstance.NextDouble() < Constants.ObstacleRatio ? GridType.Obstacle : GridType.Empty;
+                    Grids[i, j] = Methods.RandomInstance.NextDouble() < Constants.ObstacleRatio ? GridType.Obstacle : GridType.Empty;
                 }
             }
         });
@@ -70,7 +70,7 @@ public static partial class Maze
         static void DFS(Position pos)
         {
             // 将当前格子设置为空白
-            _grids[pos.Row, pos.Col] = GridType.Empty;
+            Grids[pos.Row, pos.Col] = GridType.Empty;
 
             // 遍历所有方向
             foreach (var dir in Methods.GetShuffledDirections())
@@ -79,11 +79,11 @@ public static partial class Maze
                 var next = pos + dir + dir;
 
                 // 检查下一个格子是否在边界内且未被设置为空白
-                if (IsInBounds(next) && _grids[next.Row, next.Col] == GridType.Obstacle)
+                if (IsInBounds(next) && Grids[next.Row, next.Col] == GridType.Obstacle)
                 {
                     // 打通路径
                     var between = pos + dir;
-                    _grids[between.Row, between.Col] = GridType.Empty;
+                    Grids[between.Row, between.Col] = GridType.Empty;
 
                     // 递归访问下一个格子
                     DFS(next);
@@ -95,11 +95,11 @@ public static partial class Maze
         await Task.Run(() =>
         {
             // 初始化所有格子为障碍物
-            for (int i = 0; i < Constants.MazeHeight; ++i)
+            for (var i = 0; i < Constants.MazeHeight; ++i)
             {
-                for (int j = 0; j < Constants.MazeWidth; ++j)
+                for (var j = 0; j < Constants.MazeWidth; ++j)
                 {
-                    _grids[i, j] = GridType.Obstacle;
+                    Grids[i, j] = GridType.Obstacle;
                 }
             }
 
@@ -107,8 +107,8 @@ public static partial class Maze
             DFS(StartPosition);
 
             // 设置起点位置和终点位置
-            _grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
-            _grids[EndPosition.Row, EndPosition.Col] = GridType.End;
+            Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
+            Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
 
             // 确保终点可达
             EnsureEndPositionIsReachable();
@@ -202,11 +202,11 @@ public static partial class Maze
                         var openPos = Methods.Next(topLeft.Col, bottomRight.Col, []);
 
                         // 在分割线上除了随机开口的位置设置障碍物
-                        for (int i = topLeft.Col; i <= bottomRight.Col; ++i)
+                        for (var i = topLeft.Col; i <= bottomRight.Col; ++i)
                         {
                             if (i != openPos)
                             {
-                                _grids[lineRowPos, i] = GridType.Obstacle;
+                                Grids[lineRowPos, i] = GridType.Obstacle;
                             }
                         }
 
@@ -245,11 +245,11 @@ public static partial class Maze
                         var openPos = Methods.Next(topLeft.Row, bottomRight.Row, []);
 
                         // 在分割线上除了随机开口的位置设置障碍物
-                        for (int i = topLeft.Row; i <= bottomRight.Row; ++i)
+                        for (var i = topLeft.Row; i <= bottomRight.Row; ++i)
                         {
                             if (i != openPos)
                             {
-                                _grids[i, lineColPos] = GridType.Obstacle;
+                                Grids[i, lineColPos] = GridType.Obstacle;
                             }
                         }
 
@@ -268,15 +268,15 @@ public static partial class Maze
         await Task.Run(() =>
         {
             // 设置边界为障碍物
-            for (int i = 0; i < Constants.MazeHeight; ++i)
+            for (var i = 0; i < Constants.MazeHeight; ++i)
             {
-                _grids[i, 0] = GridType.Obstacle;
-                _grids[i, Constants.MazeWidth - 1] = GridType.Obstacle;
+                Grids[i, 0] = GridType.Obstacle;
+                Grids[i, Constants.MazeWidth - 1] = GridType.Obstacle;
             }
-            for (int j = 0; j < Constants.MazeWidth; ++j)
+            for (var j = 0; j < Constants.MazeWidth; ++j)
             {
-                _grids[0, j] = GridType.Obstacle;
-                _grids[Constants.MazeHeight - 1, j] = GridType.Obstacle;
+                Grids[0, j] = GridType.Obstacle;
+                Grids[Constants.MazeHeight - 1, j] = GridType.Obstacle;
             }
 
             // 开始递归分割
@@ -292,16 +292,16 @@ public static partial class Maze
         await Task.Run(() =>
         {
             // 初始化所有格子为障碍物
-            for (int i = 0; i < Constants.MazeHeight; ++i)
+            for (var i = 0; i < Constants.MazeHeight; ++i)
             {
-                for (int j = 0; j < Constants.MazeWidth; ++j)
+                for (var j = 0; j < Constants.MazeWidth; ++j)
                 {
-                    _grids[i, j] = GridType.Obstacle;
+                    Grids[i, j] = GridType.Obstacle;
                 }
             }
 
             // 设置起点位置为路点
-            _grids[StartPosition.Row, StartPosition.Col] = GridType.Empty;
+            Grids[StartPosition.Row, StartPosition.Col] = GridType.Empty;
 
             // 创建待选路点列表
             var candidatePositions = new List<Position>();
@@ -321,16 +321,16 @@ public static partial class Maze
             {
                 // 随机选择一个候选位置
                 var pos = Methods.RandomSelectPosition(candidatePositions);
-                candidatePositions.Remove(pos);
+                _ = candidatePositions.Remove(pos);
 
                 // 如果当前格子已经是空白, 跳过
-                if (_grids[pos.Row, pos.Col] == GridType.Empty)
+                if (Grids[pos.Row, pos.Col] == GridType.Empty)
                 {
                     continue;
                 }
 
                 // 将当前格子设置为空白
-                _grids[pos.Row, pos.Col] = GridType.Empty;
+                Grids[pos.Row, pos.Col] = GridType.Empty;
 
                 // 是否打通路径
                 var isPathCreated = false;
@@ -341,16 +341,16 @@ public static partial class Maze
                     var next = pos + dir + dir;
                     if (IsInBounds(next))
                     {
-                        if (!isPathCreated && _grids[next.Row, next.Col] == GridType.Empty)
+                        if (!isPathCreated && Grids[next.Row, next.Col] == GridType.Empty)
                         {
                             // 打通路径
                             var between = pos + dir;
-                            _grids[between.Row, between.Col] = GridType.Empty;
+                            Grids[between.Row, between.Col] = GridType.Empty;
 
                             // 只打通一次路径
                             isPathCreated = true;
                         }
-                        else if (_grids[next.Row, next.Col] == GridType.Obstacle)
+                        else if (Grids[next.Row, next.Col] == GridType.Obstacle)
                         {
                             // 添加周围的候选位置
                             candidatePositions.Add(next);
@@ -360,8 +360,8 @@ public static partial class Maze
             }
 
             // 设置起点和终点
-            _grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
-            _grids[EndPosition.Row, EndPosition.Col] = GridType.End;
+            Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
+            Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
 
             // 确保终点可达
             EnsureEndPositionIsReachable();
@@ -378,7 +378,7 @@ public static partial class Maze
         foreach (var dir in Enum.GetValues<Direction>())
         {
             var next = EndPosition + dir;
-            if (IsInBounds(next) && _grids[next.Row, next.Col] == GridType.Empty)
+            if (IsInBounds(next) && Grids[next.Row, next.Col] == GridType.Empty)
             {
                 canReachEnd = true;
                 break;
@@ -391,9 +391,9 @@ public static partial class Maze
             foreach (var dir in Methods.GetShuffledDirections())
             {
                 var next = EndPosition + dir;
-                if (IsInBounds(next) && _grids[next.Row, next.Col] == GridType.Obstacle)
+                if (IsInBounds(next) && Grids[next.Row, next.Col] == GridType.Obstacle)
                 {
-                    _grids[next.Row, next.Col] = GridType.Empty;
+                    Grids[next.Row, next.Col] = GridType.Empty;
                     break;
                 }
             }
@@ -419,9 +419,9 @@ public static partial class Maze
         if (start.Row == end.Row)
         {
             // 在同一行, 遍历列
-            for (int col = Math.Min(start.Col, end.Col); col < Math.Max(start.Col, end.Col); ++col)
+            for (var col = Math.Min(start.Col, end.Col); col < Math.Max(start.Col, end.Col); ++col)
             {
-                if (_grids[start.Row, col] == GridType.Empty)
+                if (Grids[start.Row, col] == GridType.Empty)
                 {
                     openings.Add(new(start.Row, col));
                 }
@@ -430,9 +430,9 @@ public static partial class Maze
         else
         {
             // 在同一列, 遍历行
-            for (int row = Math.Min(start.Row, end.Row); row < Math.Max(start.Row, end.Row); ++row)
+            for (var row = Math.Min(start.Row, end.Row); row < Math.Max(start.Row, end.Row); ++row)
             {
-                if (_grids[row, start.Col] == GridType.Empty)
+                if (Grids[row, start.Col] == GridType.Empty)
                 {
                     openings.Add(new(row, start.Col));
                 }

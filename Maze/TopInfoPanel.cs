@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 顶部信息面板类, 用于管理和显示顶部信息面板, 提供按钮点击事件处理
 /// </summary>
-public class TopInfoPanel
+public class TopInfoPanel : IDisposable
 {
     /// <summary>
     /// 面板切换事件
@@ -248,7 +248,7 @@ public class TopInfoPanel
         // 检查起点和终点是否已设置
         if (!Maze.IsStartAndEndSet())
         {
-            MessageBox.Show("请先设置起点和终点", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            _ = MessageBox.Show("请先设置起点和终点", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
@@ -492,7 +492,7 @@ public class TopInfoPanel
             if (t.IsFaulted)
             {
                 // 异常时的处理
-                MessageBox.Show("搜索过程中发生异常: " + t.Exception?.GetBaseException().Message);
+                _ = MessageBox.Show("搜索过程中发生异常: " + t.Exception?.GetBaseException().Message);
                 return;
             }
 
@@ -510,5 +510,13 @@ public class TopInfoPanel
             OnPanelSwitched?.Invoke(OperationStatus.Default);
 
         }, TaskScheduler.FromCurrentSynchronizationContext());
+    }
+
+    /// <summary>
+    /// 实现 Dispose 方法, 释放资源
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        _searchingTimer.Dispose();
     }
 }

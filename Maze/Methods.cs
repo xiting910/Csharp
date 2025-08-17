@@ -11,6 +11,12 @@ public static class Methods
     public static Random RandomInstance => Random.Shared;
 
     /// <summary>
+    /// 未知异常类
+    /// </summary>
+    /// <param name="message">异常消息</param>
+    private sealed class UnknownException(string message) : Exception(message);
+
+    /// <summary>
     /// 生成一个在[min, max]范围内的不等于excludes中的任意值的随机整数
     /// </summary>
     /// <param name="min">范围最小值</param>
@@ -28,11 +34,7 @@ public static class Methods
         // 如果min等于max
         if (min == max)
         {
-            if (excludes.Contains(min))
-            {
-                return -1;
-            }
-            return min;
+            return excludes.Contains(min) ? -1 : min;
         }
 
         // 如果排除列表为空, 则直接返回随机数
@@ -43,7 +45,7 @@ public static class Methods
 
         // 获得[min, max]范围内不在排除列表中的所有整数
         var validNumbers = new List<int>();
-        for (int i = min; i <= max; i++)
+        for (var i = min; i <= max; i++)
         {
             if (!excludes.Contains(i))
             {
@@ -67,12 +69,12 @@ public static class Methods
     /// <param name="ex">要记录的异常</param>
     public static async Task LogException(Exception ex)
     {
-        string log = $"[{DateTime.Now}] {ex}\n";
+        var log = $"[{DateTime.Now}] {ex}\n";
         try
         {
             if (!Directory.Exists(Constants.DataPath))
             {
-                Directory.CreateDirectory(Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
             }
             await File.AppendAllTextAsync(Constants.ErrorFilePath, log);
         }
@@ -88,7 +90,7 @@ public static class Methods
     {
         // 记录异常到日志文件并弹窗提示错误信息
         var logTask = LogException(e.Exception);
-        MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         // 确认日志写入完成后退出应用程序
         await logTask;
@@ -107,12 +109,12 @@ public static class Methods
         if (e.ExceptionObject is Exception ex)
         {
             logTask = LogException(ex);
-            MessageBox.Show($"发生未处理的应用程序域异常：{ex.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"发生未处理的应用程序域异常：{ex.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
-            logTask = LogException(new("未知错误"));
-            MessageBox.Show($"发生未处理的应用程序域异常：未知错误\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            logTask = LogException(new UnknownException("未知错误"));
+            _ = MessageBox.Show($"发生未处理的应用程序域异常：未知错误\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         // 确认日志写入完成后退出应用程序
@@ -180,8 +182,8 @@ public static class Methods
     /// <returns>返回一个随机位置</returns>
     public static Position RandomGeneratePosition()
     {
-        int row = RandomInstance.Next(0, Constants.MazeHeight);
-        int col = RandomInstance.Next(0, Constants.MazeWidth);
+        var row = RandomInstance.Next(0, Constants.MazeHeight);
+        var col = RandomInstance.Next(0, Constants.MazeWidth);
         return new Position(row, col);
     }
 
@@ -197,7 +199,7 @@ public static class Methods
             return RandomGeneratePosition();
         }
 
-        Position position = RandomGeneratePosition();
+        var position = RandomGeneratePosition();
         while (position == exclude)
         {
             position = RandomGeneratePosition();
@@ -251,12 +253,12 @@ public static class Methods
         // 如果当前位置和终点位置在同一行或同一列
         if (current.Row == end.Row)
         {
-            Direction direction = end.Col < current.Col ? Direction.Left : Direction.Right;
+            var direction = end.Col < current.Col ? Direction.Left : Direction.Right;
             return GetOrderedDirections(direction, direction);
         }
         if (current.Col == end.Col)
         {
-            Direction direction = end.Row < current.Row ? Direction.Up : Direction.Down;
+            var direction = end.Row < current.Row ? Direction.Up : Direction.Down;
             return GetOrderedDirections(direction, direction);
         }
 
@@ -269,14 +271,9 @@ public static class Methods
         var horizontalDirection = colDiff > 0 ? Direction.Right : Direction.Left;
 
         // 根据行列差的绝对值判断优先方向
-        if (Math.Abs(rowDiff) <= Math.Abs(colDiff))
-        {
-            return GetOrderedDirections(horizontalDirection, verticalDirection);
-        }
-        else
-        {
-            return GetOrderedDirections(verticalDirection, horizontalDirection);
-        }
+        return Math.Abs(rowDiff) <= Math.Abs(colDiff)
+            ? GetOrderedDirections(horizontalDirection, verticalDirection)
+            : GetOrderedDirections(verticalDirection, horizontalDirection);
     }
 
     /// <summary>
@@ -295,15 +292,15 @@ public static class Methods
         var orderedDirs = new Direction[dirCount];
 
         // 获取第一优先方向的索引
-        int firstIndex = (int)firstPriority;
+        var firstIndex = (int)firstPriority;
 
         // 获取第二优先方向的索引
-        int secondIndex = (int)secondPriority;
+        var secondIndex = (int)secondPriority;
 
         // 如果第一优先方向和第二优先方向相同, 则以第一优先方向为首顺时针排列
         if (firstIndex == secondIndex)
         {
-            for (int i = 0; i < dirCount; i++)
+            for (var i = 0; i < dirCount; i++)
             {
                 orderedDirs[i] = (Direction)((firstIndex + i) % dirCount);
             }
@@ -314,7 +311,7 @@ public static class Methods
             if ((firstIndex + 1) % dirCount == secondIndex)
             {
                 // 第二优先方向是第一优先方向的顺时针相邻方向
-                for (int i = 0; i < dirCount; ++i)
+                for (var i = 0; i < dirCount; ++i)
                 {
                     orderedDirs[i] = (Direction)((firstIndex + i) % dirCount);
                 }
@@ -322,7 +319,7 @@ public static class Methods
             else if ((firstIndex - 1 + dirCount) % dirCount == secondIndex)
             {
                 // 第二优先方向是第一优先方向的逆时针相邻方向
-                for (int i = 0; i < dirCount; ++i)
+                for (var i = 0; i < dirCount; ++i)
                 {
                     orderedDirs[i] = (Direction)((firstIndex - i + dirCount) % dirCount);
                 }

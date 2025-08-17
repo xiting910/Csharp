@@ -118,9 +118,9 @@ public partial class MainForm : Form
         if (InvokeRequired)
         {
             // 记录异常到日志文件并弹窗提示错误信息
-            var ex = new Exception("切换顶部信息面板时不是在UI线程中调用");
+            var ex = new InvalidOperationException("切换顶部信息面板时不是在UI线程中调用");
             var logTask = Methods.LogException(ex);
-            MessageBox.Show($"发生错误: {ex.Message}\n错误日志已保存到: {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"发生错误: {ex.Message}\n错误日志已保存到: {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             // 等待日志记录完成后退出应用程序
             logTask.GetAwaiter().GetResult();
@@ -177,10 +177,10 @@ public partial class MainForm : Form
         if (m.Msg == WM_MOVING)
         {
             // 获取当前屏幕的工作区域
-            Rectangle workingArea = Screen.GetWorkingArea(this);
+            var workingArea = Screen.GetWorkingArea(this);
 
             // 获取窗口的当前位置
-            object? rectObj = Marshal.PtrToStructure(m.LParam, typeof(RECT));
+            var rectObj = Marshal.PtrToStructure(m.LParam, typeof(RECT));
 
             if (rectObj is RECT rect)
             {

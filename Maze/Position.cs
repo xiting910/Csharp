@@ -86,8 +86,7 @@ public class Position
     /// </summary>
     public static bool operator ==(Position left, (int row, int col)? obj)
     {
-        if (obj == null) return false;
-        return left.Row == obj.Value.row && left.Col == obj.Value.col;
+        return obj != null && left.Row == obj.Value.row && left.Col == obj.Value.col;
     }
 
     /// <summary>
@@ -111,11 +110,7 @@ public class Position
     /// </summary>
     public override bool Equals(object? obj)
     {
-        if (obj is Position other)
-        {
-            return this == other;
-        }
-        return false;
+        return obj is Position other && this == other;
     }
 
     /// <summary>

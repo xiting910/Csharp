@@ -66,7 +66,7 @@ public class BottomStatusBar : StatusStrip
         };
         _repoLinkLabel.Click += (s, e) =>
         {
-            Process.Start(new ProcessStartInfo
+            _ = Process.Start(new ProcessStartInfo
             {
                 FileName = githubRepoUrl,
                 UseShellExecute = true
@@ -83,10 +83,10 @@ public class BottomStatusBar : StatusStrip
         };
 
         // 添加标签到状态栏
-        Items.Add(_statusLabel);
-        Items.Add(_infoLabel1);
-        Items.Add(_repoLinkLabel);
-        Items.Add(_infoLabel2);
+        _ = Items.Add(_statusLabel);
+        _ = Items.Add(_infoLabel1);
+        _ = Items.Add(_repoLinkLabel);
+        _ = Items.Add(_infoLabel2);
     }
 
     /// <summary>

@@ -55,12 +55,7 @@ public static partial class Maze
     /// <summary>
     /// 格子的二维数组, 用于存储迷宫的格子信息
     /// </summary>
-    public static GridType[,] Grids => _grids;
-
-    /// <summary>
-    /// 格子的二维数组, 用于存储迷宫的格子信息
-    /// </summary>
-    private static readonly GridType[,] _grids;
+    public static GridType[,] Grids { get; private set; }
 
     /// <summary>
     /// 当前是否在搜索路径
@@ -77,7 +72,7 @@ public static partial class Maze
         _isSearching = false;
 
         // 初始化迷宫格子数组
-        _grids = new GridType[Constants.MazeHeight, Constants.MazeWidth];
+        Grids = new GridType[Constants.MazeHeight, Constants.MazeWidth];
 
         // 初始化起点和终点位置
         StartPosition = Position.Invalid;
@@ -159,22 +154,22 @@ public static partial class Maze
             }
 
             // 清空迷宫格子数组
-            for (int i = 0; i < Constants.MazeHeight; ++i)
+            for (var i = 0; i < Constants.MazeHeight; ++i)
             {
-                for (int j = 0; j < Constants.MazeWidth; ++j)
+                for (var j = 0; j < Constants.MazeWidth; ++j)
                 {
-                    _grids[i, j] = GridType.Empty;
+                    Grids[i, j] = GridType.Empty;
                 }
             }
 
             // 如果没有重置起点和终点, 且它们已设置, 则重新设置起点和终点格子
             if (StartPosition != Position.Invalid)
             {
-                _grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
+                Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
             }
             if (EndPosition != Position.Invalid)
             {
-                _grids[EndPosition.Row, EndPosition.Col] = GridType.End;
+                Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
             }
         });
     }
@@ -187,13 +182,13 @@ public static partial class Maze
         await Task.Run(() =>
         {
             // 遍历所有格子, 将空格子设置为障碍物
-            for (int i = 0; i < Constants.MazeHeight; ++i)
+            for (var i = 0; i < Constants.MazeHeight; ++i)
             {
-                for (int j = 0; j < Constants.MazeWidth; ++j)
+                for (var j = 0; j < Constants.MazeWidth; ++j)
                 {
-                    if (_grids[i, j] == GridType.Empty)
+                    if (Grids[i, j] == GridType.Empty)
                     {
-                        _grids[i, j] = GridType.Obstacle;
+                        Grids[i, j] = GridType.Obstacle;
                     }
                 }
             }
@@ -206,13 +201,13 @@ public static partial class Maze
     public static void ClearPaths()
     {
         // 清除所有路径格子
-        for (int i = 0; i < Constants.MazeHeight; ++i)
+        for (var i = 0; i < Constants.MazeHeight; ++i)
         {
-            for (int j = 0; j < Constants.MazeWidth; ++j)
+            for (var j = 0; j < Constants.MazeWidth; ++j)
             {
-                if (_grids[i, j] == GridType.Path || _grids[i, j] == GridType.FadePath)
+                if (Grids[i, j] is GridType.Path or GridType.FadePath)
                 {
-                    _grids[i, j] = GridType.Empty;
+                    Grids[i, j] = GridType.Empty;
                     OnGridTypeChanged?.Invoke(new(i, j));
                 }
             }
@@ -233,7 +228,7 @@ public static partial class Maze
         }
 
         // 更新格子类型
-        _grids[position.Row, position.Col] = type;
+        Grids[position.Row, position.Col] = type;
 
         // 如果是起点或终点, 更新起点或终点位置
         if (type == GridType.Start)
