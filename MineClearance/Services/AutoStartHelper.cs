@@ -6,7 +6,7 @@ namespace MineClearance.Services;
 /// <summary>
 /// 自动启动帮助类
 /// </summary>
-public static class AutoStartHelper
+internal static class AutoStartHelper
 {
     /// <summary>
     /// RunKey 注册表路径

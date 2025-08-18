@@ -6,7 +6,7 @@ namespace MineClearance.Core;
 /// <summary>
 /// 表示扫雷游戏的主类, 控制游戏的流程和逻辑
 /// </summary>
-public class Game
+internal sealed class Game
 {
     /// <summary>
     /// 游戏失败时触发

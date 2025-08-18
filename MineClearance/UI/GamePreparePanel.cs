@@ -5,7 +5,7 @@ namespace MineClearance.UI;
 /// <summary>
 /// 准备游戏面板类
 /// </summary>
-public partial class GamePreparePanel : Panel
+internal sealed class GamePreparePanel : Panel
 {
     /// <summary>
     /// 初始化准备游戏面板
@@ -15,16 +15,16 @@ public partial class GamePreparePanel : Panel
         // 设置准备游戏面板属性
         Name = "GamePreparationPanel";
         Location = new(0, 0);
-        Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight);
+        Size = new(UIConstants.MainFormWidth, UIConstants.MainFormHeight - UIConstants.BottomStatusBarHeight);
         BackColor = Color.LightYellow;
 
         // 标题标签宽度和高度
-        var titleLabelWidth = (int)(150 * Constants.DpiScale);
-        var titleLabelHeight = (int)(50 * Constants.DpiScale);
+        var titleLabelWidth = (int)(150 * UIConstants.DpiScale);
+        var titleLabelHeight = (int)(50 * UIConstants.DpiScale);
 
         // 标题标签左侧位置和顶部位置
-        var titleLabelLeft = (Constants.MainFormWidth - titleLabelWidth) / 2;
-        var titleLabelTop = (int)(25 * Constants.DpiScale);
+        var titleLabelLeft = (UIConstants.MainFormWidth - titleLabelWidth) / 2;
+        var titleLabelTop = (int)(25 * UIConstants.DpiScale);
 
         // 添加标题标签
         Label titleLabel = new()
@@ -39,14 +39,14 @@ public partial class GamePreparePanel : Panel
         };
 
         // 按钮宽度和高度
-        var buttonWidth = (int)(125 * Constants.DpiScale);
-        var buttonHeight = (int)(40 * Constants.DpiScale);
+        var buttonWidth = (int)(125 * UIConstants.DpiScale);
+        var buttonHeight = (int)(40 * UIConstants.DpiScale);
 
         // 按钮间距
-        var buttonMargin = (int)(15 * Constants.DpiScale);
+        var buttonMargin = (int)(15 * UIConstants.DpiScale);
 
         // 按钮左侧位置和顶部位置
-        var buttonLeft = (Constants.MainFormWidth - buttonWidth) / 2;
+        var buttonLeft = (UIConstants.MainFormWidth - buttonWidth) / 2;
         var buttonTop = titleLabelTop + titleLabelHeight + buttonMargin;
 
         // 添加简单按钮

@@ -8,7 +8,7 @@ namespace MineClearance.Core;
 /// <param name="width">棋盘的宽度</param>
 /// <param name="height">棋盘的高度</param>
 /// <param name="mineCount">地雷的数量</param>
-public class Mines(int width, int height, int mineCount)
+internal sealed class Mines(int width, int height, int mineCount)
 {
     /// <summary>
     /// 棋盘的宽度

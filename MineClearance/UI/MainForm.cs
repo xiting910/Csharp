@@ -9,7 +9,7 @@ namespace MineClearance.UI;
 /// <summary>
 /// 表示游戏主界面的窗体
 /// </summary>
-public partial class MainForm : Form
+internal sealed class MainForm : Form
 {
     /// <summary>
     /// 用于处理WM_MOVING消息的结构体
@@ -60,7 +60,7 @@ public partial class MainForm : Form
 
         // 设置窗口属性
         Text = "扫雷游戏 - 版本 " + version;
-        Size = new(Constants.MainFormWidth, Constants.MainFormHeight);
+        Size = new(UIConstants.MainFormWidth, UIConstants.MainFormHeight);
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedSingle;
         MaximizeBox = false;
@@ -95,7 +95,7 @@ public partial class MainForm : Form
 
         // 程序启动时检查更新
         Methods.IsHandlingUpdateEvent = true;
-        AutoUpdater.Start(Constants.AutoUpdateUrl);
+        AutoUpdater.Start(UIConstants.AutoUpdateUrl);
     }
 
     /// <summary>
@@ -196,15 +196,15 @@ public partial class MainForm : Form
         }
 
         // 检测有没有更新文件残留
-        if (File.Exists(Utilities.Constants.SevenZipPath))
+        if (File.Exists(Constants.SevenZipPath))
         {
-            var deleteResult = MessageBox.Show($"检测到更新文件 {Utilities.Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Utilities.Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            var deleteResult = MessageBox.Show($"检测到更新文件 {Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
 
             try
             {
                 if (deleteResult == DialogResult.Yes)
                 {
-                    File.Delete(Utilities.Constants.SevenZipPath);
+                    File.Delete(Constants.SevenZipPath);
                 }
             }
             catch (Exception ex)

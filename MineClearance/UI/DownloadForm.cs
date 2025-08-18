@@ -3,7 +3,7 @@ namespace MineClearance.UI;
 /// <summary>
 /// 提供下载进度的窗体
 /// </summary>
-public class DownloadProgressForm : Form
+internal sealed class DownloadProgressForm : Form
 {
     /// <summary>
     /// 信息标签
@@ -36,8 +36,8 @@ public class DownloadProgressForm : Form
     public DownloadProgressForm()
     {
         // 窗体宽度和高度
-        var formWidth = (int)(500 * Constants.DpiScale);
-        var formHeight = (int)(140 * Constants.DpiScale);
+        var formWidth = (int)(500 * UIConstants.DpiScale);
+        var formHeight = (int)(140 * UIConstants.DpiScale);
 
         // 设置窗体属性
         Text = "下载更新";
@@ -51,33 +51,33 @@ public class DownloadProgressForm : Form
         InfoLabel = new()
         {
             Text = "正在下载更新, 请不要中途切换网络或关闭程序......",
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(5 * UIConstants.DpiScale)),
             AutoSize = true,
             TextAlign = ContentAlignment.MiddleCenter
         };
         ProgressBar = new()
         {
-            Location = new((int)(5 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
-            Size = new(formWidth - (int)(25 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(35 * UIConstants.DpiScale)),
+            Size = new(formWidth - (int)(25 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             Minimum = 0,
             Maximum = 100
         };
         StatusLabel = new()
         {
-            Location = new((int)(5 * Constants.DpiScale), (int)(75 * Constants.DpiScale)),
-            Size = new((int)(325 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(75 * UIConstants.DpiScale)),
+            Size = new((int)(325 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             Text = "准备下载..."
         };
         PauseResumeButton = new()
         {
-            Location = new(formWidth - (int)(170 * Constants.DpiScale), (int)(70 * Constants.DpiScale)),
-            Size = new((int)(75 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new(formWidth - (int)(170 * UIConstants.DpiScale), (int)(70 * UIConstants.DpiScale)),
+            Size = new((int)(75 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             Text = "暂停/继续"
         };
         CancelButton = new()
         {
-            Location = new(formWidth - (int)(90 * Constants.DpiScale), (int)(70 * Constants.DpiScale)),
-            Size = new((int)(75 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new(formWidth - (int)(90 * UIConstants.DpiScale), (int)(70 * UIConstants.DpiScale)),
+            Size = new((int)(75 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             Text = "取消下载"
         };
 
@@ -93,7 +93,7 @@ public class DownloadProgressForm : Form
 /// <summary>
 /// 提供下载长时间无进度后的提示窗体
 /// </summary>
-public class TimeoutMessageBox : Form
+internal sealed class TimeoutMessageBox : Form
 {
     /// <summary>
     /// 重试按钮
@@ -142,7 +142,7 @@ public class TimeoutMessageBox : Form
     private TimeoutMessageBox(string text, string caption, int timeoutSeconds)
     {
         Text = caption;
-        Size = new((int)(200 * Constants.DpiScale), (int)(100 * Constants.DpiScale));
+        Size = new((int)(200 * UIConstants.DpiScale), (int)(100 * UIConstants.DpiScale));
         FormBorderStyle = FormBorderStyle.FixedDialog;
         StartPosition = FormStartPosition.CenterScreen;
         ControlBox = false;
@@ -150,21 +150,21 @@ public class TimeoutMessageBox : Form
         lblMsg = new()
         {
             Text = text,
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(5 * UIConstants.DpiScale)),
             AutoSize = true,
         };
         btnRetry = new()
         {
             Text = "重试",
-            Location = new((int)(25 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
-            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new((int)(25 * UIConstants.DpiScale), (int)(35 * UIConstants.DpiScale)),
+            Size = new((int)(40 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             DialogResult = DialogResult.Yes
         };
         btnCancel = new()
         {
             Text = "取消",
-            Location = new((int)(100 * Constants.DpiScale), (int)(35 * Constants.DpiScale)),
-            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new((int)(100 * UIConstants.DpiScale), (int)(35 * UIConstants.DpiScale)),
+            Size = new((int)(40 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             DialogResult = DialogResult.No
         };
 

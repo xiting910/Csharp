@@ -16,6 +16,11 @@ file static class Program
     private const string AppId = "Local\\MineClearance_xiting910";
 
     /// <summary>
+    /// 全局互斥体，保证单实例
+    /// </summary>
+    private static Mutex? _mutex;
+
+    /// <summary>
     /// 未知异常类
     /// </summary>
     /// <param name="message">异常消息</param>
@@ -53,28 +58,45 @@ file static class Program
         ApplicationConfiguration.Initialize();
 
         // 初始化 DPI 缩放
-        UI.Constants.InitDpiScale();
+        UIConstants.InitDpiScale();
 
-        // 保证只运行一个实例
-        using var mutex = new Mutex(true, AppId, out var isNewInstance);
-        if (!isNewInstance)
+        try
         {
-            _ = MessageBox.Show("程序已在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
+            // 保证只运行一个实例
+            _mutex = new(true, AppId, out var isNewInstance);
+            if (!isNewInstance)
+            {
+                _ = MessageBox.Show("程序已在运行中！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // 初始化数据
+            Datas.Initialize().Wait();
+
+            // 初始化自动更新相关设置
+            AutoUpdater.Mandatory = true;
+            AutoUpdater.RunUpdateAsAdmin = false;
+
+            // 订阅更新检查事件
+            AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
+
+            // 创建并显示主窗口
+            Application.Run(new MainForm());
         }
-
-        // 初始化数据
-        Datas.Initialize().Wait();
-
-        // 初始化自动更新相关设置
-        AutoUpdater.Mandatory = true;
-        AutoUpdater.RunUpdateAsAdmin = false;
-
-        // 订阅更新检查事件
-        AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
-
-        // 创建并显示主窗口
-        Application.Run(new MainForm());
+        finally
+        {
+            // 只有获得互斥体时才释放
+            if (_mutex != null)
+            {
+                try
+                {
+                    _mutex.ReleaseMutex();
+                }
+                catch (ApplicationException) { }
+                _mutex.Dispose();
+                _mutex = null;
+            }
+        }
     }
 
     /// <summary>
@@ -92,7 +114,7 @@ file static class Program
 
         // 记录异常到日志文件并弹窗提示错误信息
         LogException(e.Exception);
-        _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         // 退出应用程序
         Application.Exit();
@@ -115,12 +137,12 @@ file static class Program
         if (e.ExceptionObject is Exception ex)
         {
             LogException(ex);
-            _ = MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
             LogException(new UnknownException("发生未知的未处理异常。"));
-            _ = MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Utilities.Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         // 退出应用程序
@@ -136,11 +158,11 @@ file static class Program
         var log = $"[{DateTime.Now}] {ex}\n";
         try
         {
-            if (!Directory.Exists(Utilities.Constants.DataPath))
+            if (!Directory.Exists(Constants.DataPath))
             {
-                _ = Directory.CreateDirectory(Utilities.Constants.DataPath);
+                _ = Directory.CreateDirectory(Constants.DataPath);
             }
-            File.AppendAllText(Utilities.Constants.ErrorFilePath, log);
+            File.AppendAllText(Constants.ErrorFilePath, log);
         }
         catch { /* 忽略日志写入异常 */ }
     }

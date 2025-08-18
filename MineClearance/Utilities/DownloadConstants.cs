@@ -3,7 +3,7 @@ namespace MineClearance.Utilities;
 /// <summary>
 /// 下载常量类, 提供一些下载相关的常量
 /// </summary>
-public static class DownloadConstants
+internal static class DownloadConstants
 {
     /// <summary>
     /// 更新下载速度刷新间隔(毫秒)

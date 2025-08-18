@@ -1,11 +1,12 @@
 using System.Globalization;
+using MineClearance.Utilities;
 
 namespace MineClearance.UI;
 
 /// <summary>
 /// 自定义双缓冲面板
 /// </summary>
-public class DoubleBufferedPanel : Panel
+internal sealed class DoubleBufferedPanel : Panel
 {
     /// <summary>
     /// 构造函数, 初始化双缓冲面板
@@ -21,7 +22,7 @@ public class DoubleBufferedPanel : Panel
 /// <summary>
 /// 自定义双缓冲DataGridView
 /// </summary>
-public class DoubleBufferedDataGridView : DataGridView
+internal sealed class DoubleBufferedDataGridView : DataGridView
 {
     /// <summary>
     /// 构造函数, 初始化双缓冲DataGridView
@@ -37,7 +38,7 @@ public class DoubleBufferedDataGridView : DataGridView
 /// <summary>
 /// 提供自定义难度设置对话框
 /// </summary>
-public partial class CustomDifficultyDialog : Form
+internal sealed class CustomDifficultyDialog : Form
 {
     /// <summary>
     /// 自定义难度设置, 包含宽度、高度和地雷数
@@ -53,8 +54,8 @@ public partial class CustomDifficultyDialog : Form
     public CustomDifficultyDialog()
     {
         // 对话框宽度和高度
-        var dialogWidth = (int)(250 * Constants.DpiScale);
-        var dialogHeight = (int)(175 * Constants.DpiScale);
+        var dialogWidth = (int)(250 * UIConstants.DpiScale);
+        var dialogHeight = (int)(175 * UIConstants.DpiScale);
 
         // 初始化控件和布局
         Text = "自定义难度";
@@ -65,14 +66,14 @@ public partial class CustomDifficultyDialog : Form
         MinimizeBox = false;
 
         // 输入标签和输入框的宽度、高度和位置
-        var inputLabelWidth = (int)(60 * Constants.DpiScale);
-        var inputWidth = (int)(80 * Constants.DpiScale);
-        var inputHeight = (int)(25 * Constants.DpiScale);
+        var inputLabelWidth = (int)(60 * UIConstants.DpiScale);
+        var inputWidth = (int)(80 * UIConstants.DpiScale);
+        var inputHeight = (int)(25 * UIConstants.DpiScale);
         var inputX = (dialogWidth - inputLabelWidth - inputWidth) / 2;
-        var inputY = (int)(15 * Constants.DpiScale);
+        var inputY = (int)(15 * UIConstants.DpiScale);
 
         // 两个输入框之间的垂直间距
-        var verticalSpacing = (int)(25 * Constants.DpiScale);
+        var verticalSpacing = (int)(25 * UIConstants.DpiScale);
 
         // 创建宽度输入标签和输入框
         var widthLabel = new Label
@@ -86,7 +87,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = Utilities.Constants.MaxBoardWidth,
+            Maximum = Constants.MaxBoardWidth,
             Value = 16
         };
         inputY += verticalSpacing;
@@ -103,7 +104,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = Utilities.Constants.MaxBoardHeight,
+            Maximum = Constants.MaxBoardHeight,
             Value = 16
         };
         inputY += verticalSpacing;
@@ -120,7 +121,7 @@ public partial class CustomDifficultyDialog : Form
             Location = new(inputX + inputLabelWidth, inputY),
             Size = new(inputWidth, inputHeight),
             Minimum = 1,
-            Maximum = (Utilities.Constants.MaxBoardWidth * Utilities.Constants.MaxBoardHeight) - 1,
+            Maximum = (Constants.MaxBoardWidth * Constants.MaxBoardHeight) - 1,
             Value = 40
         };
 
@@ -128,15 +129,15 @@ public partial class CustomDifficultyDialog : Form
         okButton = new Button
         {
             Text = "确定",
-            Location = new(dialogWidth - (int)(120 * Constants.DpiScale), dialogHeight - (int)(65 * Constants.DpiScale)),
-            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new(dialogWidth - (int)(120 * UIConstants.DpiScale), dialogHeight - (int)(65 * UIConstants.DpiScale)),
+            Size = new((int)(40 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             DialogResult = DialogResult.OK
         };
         cancelButton = new Button
         {
             Text = "取消",
-            Location = new(dialogWidth - (int)(60 * Constants.DpiScale), dialogHeight - (int)(65 * Constants.DpiScale)),
-            Size = new((int)(40 * Constants.DpiScale), (int)(25 * Constants.DpiScale)),
+            Location = new(dialogWidth - (int)(60 * UIConstants.DpiScale), dialogHeight - (int)(65 * UIConstants.DpiScale)),
+            Size = new((int)(40 * UIConstants.DpiScale), (int)(25 * UIConstants.DpiScale)),
             DialogResult = DialogResult.Cancel
         };
 
@@ -170,12 +171,12 @@ public partial class CustomDifficultyDialog : Form
 /// <summary>
 /// 提供等待更新事件处理完成的窗体
 /// </summary>
-public class WaitingForm : Form
+internal sealed class WaitingForm : Form
 {
     public WaitingForm()
     {
         Text = "请稍候";
-        Size = new((int)(250 * Constants.DpiScale), (int)(90 * Constants.DpiScale));
+        Size = new((int)(250 * UIConstants.DpiScale), (int)(90 * UIConstants.DpiScale));
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -184,7 +185,7 @@ public class WaitingForm : Form
         ProgressBar progressBar = new()
         {
             Dock = DockStyle.Top,
-            Height = (int)(20 * Constants.DpiScale),
+            Height = (int)(20 * UIConstants.DpiScale),
             Style = ProgressBarStyle.Marquee
         };
         Label label = new()
@@ -201,7 +202,7 @@ public class WaitingForm : Form
 /// <summary>
 /// 提供确认卸载的窗体
 /// </summary>
-public class UninstallConfirmDialog : Form
+internal sealed class UninstallConfirmDialog : Form
 {
     /// <summary>
     /// 获取是否保留数据的选项
@@ -235,8 +236,8 @@ public class UninstallConfirmDialog : Form
     public UninstallConfirmDialog(string message)
     {
         // 对话框大小
-        var dialogWidth = (int)(300 * Constants.DpiScale);
-        var dialogHeight = (int)(120 * Constants.DpiScale);
+        var dialogWidth = (int)(300 * UIConstants.DpiScale);
+        var dialogHeight = (int)(120 * UIConstants.DpiScale);
 
         // 设置对话框属性
         Text = "确认卸载";
@@ -248,12 +249,12 @@ public class UninstallConfirmDialog : Form
         FormBorderStyle = FormBorderStyle.FixedDialog;
 
         // 信息标签的大小
-        var labelWidth = dialogWidth - ((int)(15 * Constants.DpiScale) * 2);
-        var labelHeight = (int)(20 * Constants.DpiScale);
+        var labelWidth = dialogWidth - ((int)(15 * UIConstants.DpiScale) * 2);
+        var labelHeight = (int)(20 * UIConstants.DpiScale);
 
         // 信息标签位置
         var labelX = (dialogWidth - labelWidth) / 2;
-        var labelY = (int)(10 * Constants.DpiScale);
+        var labelY = (int)(10 * UIConstants.DpiScale);
 
         // 初始化信息标签
         messageLabel = new()
@@ -265,12 +266,12 @@ public class UninstallConfirmDialog : Form
         };
 
         // 保留数据复选框大小
-        var checkBoxWidth = (int)(100 * Constants.DpiScale);
-        var checkBoxHeight = (int)(30 * Constants.DpiScale);
+        var checkBoxWidth = (int)(100 * UIConstants.DpiScale);
+        var checkBoxHeight = (int)(30 * UIConstants.DpiScale);
 
         // 保留数据复选框位置
-        var checkBoxX = (int)(10 * Constants.DpiScale);
-        var checkBoxY = labelY + labelHeight + (int)(20 * Constants.DpiScale);
+        var checkBoxX = (int)(10 * UIConstants.DpiScale);
+        var checkBoxY = labelY + labelHeight + (int)(20 * UIConstants.DpiScale);
 
         // 初始化保留数据复选框
         keepDataCheckBox = new()
@@ -283,15 +284,15 @@ public class UninstallConfirmDialog : Form
         };
 
         // 按钮大小
-        var buttonWidth = (int)(80 * Constants.DpiScale);
-        var buttonHeight = (int)(30 * Constants.DpiScale);
+        var buttonWidth = (int)(80 * UIConstants.DpiScale);
+        var buttonHeight = (int)(30 * UIConstants.DpiScale);
 
         // 按钮水平间距
-        var buttonSpacing = (int)(10 * Constants.DpiScale);
+        var buttonSpacing = (int)(10 * UIConstants.DpiScale);
 
         // 按钮位置
         var buttonX = dialogWidth - (buttonWidth * 2) - (buttonSpacing * 3);
-        var buttonY = dialogHeight - buttonHeight - (int)(40 * Constants.DpiScale);
+        var buttonY = dialogHeight - buttonHeight - (int)(40 * UIConstants.DpiScale);
 
         // 初始化确认按钮
         okButton = new()
@@ -331,7 +332,7 @@ public class UninstallConfirmDialog : Form
 /// <summary>
 /// 提供自定义日期选择对话框
 /// </summary>
-public class DatePickerDialog : Form
+internal sealed class DatePickerDialog : Form
 {
     /// <summary>
     /// 获取选择的日期列表(只读)
@@ -369,8 +370,8 @@ public class DatePickerDialog : Form
     public DatePickerDialog()
     {
         // 对话框大小
-        var dialogWidth = (int)(500 * Constants.DpiScale);
-        var dialogHeight = (int)(400 * Constants.DpiScale);
+        var dialogWidth = (int)(500 * UIConstants.DpiScale);
+        var dialogHeight = (int)(400 * UIConstants.DpiScale);
 
         // 设置对话框属性
         Text = "选择日期";
@@ -381,13 +382,13 @@ public class DatePickerDialog : Form
         MinimizeBox = false;
 
         // 已选择的日期列表框大小
-        var listBoxWidth = (int)(480 * Constants.DpiScale);
-        var listBoxHeight = (int)(280 * Constants.DpiScale);
+        var listBoxWidth = (int)(480 * UIConstants.DpiScale);
+        var listBoxHeight = (int)(280 * UIConstants.DpiScale);
 
         // 初始化已选择的日期列表框
         selectedDatesListBox = new ListBox
         {
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale)),
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(5 * UIConstants.DpiScale)),
             Size = new(listBoxWidth, listBoxHeight),
             SelectionMode = SelectionMode.MultiExtended
         };
@@ -421,15 +422,15 @@ public class DatePickerDialog : Form
         buttons = [addButton, removeButton, okButton, cancelButton];
 
         // 按钮的水平间距
-        var buttonSpacing = (int)(10 * Constants.DpiScale);
+        var buttonSpacing = (int)(10 * UIConstants.DpiScale);
 
         // 按钮的宽度和高度
         var buttonWidth = (dialogWidth - ((buttons.Count + 2) * buttonSpacing)) / buttons.Count;
-        var buttonHeight = (int)(25 * Constants.DpiScale);
+        var buttonHeight = (int)(25 * UIConstants.DpiScale);
 
         // 按钮位置
         var buttonX = buttonSpacing;
-        var buttonY = dialogHeight - buttonHeight - (int)(50 * Constants.DpiScale);
+        var buttonY = dialogHeight - buttonHeight - (int)(50 * UIConstants.DpiScale);
 
         // 设置每个按钮的位置和大小
         foreach (var button in buttons)
@@ -440,15 +441,15 @@ public class DatePickerDialog : Form
         }
 
         // 日期选择器的大小
-        var datePickerWidth = (int)(300 * Constants.DpiScale);
-        var datePickerHeight = (int)(15 * Constants.DpiScale);
+        var datePickerWidth = (int)(300 * UIConstants.DpiScale);
+        var datePickerHeight = (int)(15 * UIConstants.DpiScale);
 
         // 信息提示标签的大小
-        var infoLabelWidth = (int)(100 * Constants.DpiScale);
-        var infoLabelHeight = (int)(15 * Constants.DpiScale);
+        var infoLabelWidth = (int)(100 * UIConstants.DpiScale);
+        var infoLabelHeight = (int)(15 * UIConstants.DpiScale);
 
         // 间隔宽度
-        var spacing = (int)(10 * Constants.DpiScale);
+        var spacing = (int)(10 * UIConstants.DpiScale);
 
         // 当前X和Y位置
         var currentX = (dialogWidth - datePickerWidth - infoLabelWidth - spacing) / 2;
@@ -531,7 +532,7 @@ public class DatePickerDialog : Form
 /// <summary>
 /// 自定义确认对话框, 支持不再提示勾选框, 以及不同按钮的唯一标识
 /// </summary>
-public class CustomMessageBox : Form
+internal sealed class CustomMessageBox : Form
 {
     /// <summary>
     /// 保存每个弹窗的“不再显示”状态
@@ -566,7 +567,7 @@ public class CustomMessageBox : Form
         {
             Text = message,
             AutoSize = true,
-            Location = new((int)(5 * Constants.DpiScale), (int)(5 * Constants.DpiScale))
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(5 * UIConstants.DpiScale))
         };
         form.Controls.Add(label);
 
@@ -574,7 +575,7 @@ public class CustomMessageBox : Form
         form._doNotShowAgainCheckBox = new CheckBox
         {
             Text = "本次运行不再提示",
-            Location = new((int)(5 * Constants.DpiScale), label.Bottom + (int)(10 * Constants.DpiScale)),
+            Location = new((int)(5 * UIConstants.DpiScale), label.Bottom + (int)(10 * UIConstants.DpiScale)),
             AutoSize = true
         };
         form.Controls.Add(form._doNotShowAgainCheckBox);
@@ -596,12 +597,12 @@ public class CustomMessageBox : Form
         form.Controls.Add(btnNo);
 
         // 计算对话框的宽度和高度
-        var width = Math.Max(label.Width + (int)(10 * Constants.DpiScale), form._doNotShowAgainCheckBox.Width + btnYes.Width + btnNo.Width + (int)(40 * Constants.DpiScale));
-        var height = form._doNotShowAgainCheckBox.Bottom + (int)(15 * Constants.DpiScale);
+        var width = Math.Max(label.Width + (int)(10 * UIConstants.DpiScale), form._doNotShowAgainCheckBox.Width + btnYes.Width + btnNo.Width + (int)(40 * UIConstants.DpiScale));
+        var height = form._doNotShowAgainCheckBox.Bottom + (int)(15 * UIConstants.DpiScale);
 
         // 设置按钮位置
-        btnNo.Location = new(width - btnNo.Width - (int)(10 * Constants.DpiScale), label.Bottom + (int)(10 * Constants.DpiScale));
-        btnYes.Location = new(btnNo.Left - btnYes.Width - (int)(10 * Constants.DpiScale), btnNo.Top);
+        btnNo.Location = new(width - btnNo.Width - (int)(10 * UIConstants.DpiScale), label.Bottom + (int)(10 * UIConstants.DpiScale));
+        btnYes.Location = new(btnNo.Left - btnYes.Width - (int)(10 * UIConstants.DpiScale), btnNo.Top);
 
         // 设置对话框的大小和位置
         form.ClientSize = new(width, height);

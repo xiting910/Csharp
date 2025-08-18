@@ -8,7 +8,7 @@ namespace MineClearance.Services;
 /// <summary>
 /// 设置类, 用于存储和管理游戏设置
 /// </summary>
-public static class Settings
+internal static class Settings
 {
     /// <summary>
     /// JSON序列化选项 - 缓存以避免重复创建

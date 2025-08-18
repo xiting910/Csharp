@@ -8,7 +8,7 @@ namespace MineClearance.Services;
 /// <summary>
 /// 数据类, 记录和控制所有历史游戏数据
 /// </summary>
-public static class Datas
+internal static class Datas
 {
     /// <summary>
     /// 当前数据版本号

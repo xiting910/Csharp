@@ -7,7 +7,7 @@ namespace MineClearance.UI;
 /// <summary>
 /// 设置窗口类
 /// </summary>
-public partial class SettingForm : Form
+internal sealed class SettingForm : Form
 {
     /// <summary>
     /// 设置窗口实例
@@ -64,7 +64,7 @@ public partial class SettingForm : Form
         // 设置窗口属性
         Text = "设置";
         StartPosition = FormStartPosition.CenterScreen;
-        MinimumSize = new(Constants.SettingFormMinWidth, Constants.SettingFormMinHeight);
+        MinimumSize = new(UIConstants.SettingFormMinWidth, UIConstants.SettingFormMinHeight);
 
         // 初始化自动启动复选框
         autoStartCheckBox = new()
@@ -237,14 +237,14 @@ public partial class SettingForm : Form
     private void CreateShortcutButton_Click(object? sender, EventArgs e)
     {
         // 弹窗提示用户输入快捷方式名称
-        var shortcutName = Microsoft.VisualBasic.Interaction.InputBox("请输入快捷方式名称:", "创建桌面快捷方式", Utilities.Constants.ExecutableFileName, -1, -1);
+        var shortcutName = Microsoft.VisualBasic.Interaction.InputBox("请输入快捷方式名称:", "创建桌面快捷方式", Constants.ExecutableFileName, -1, -1);
 
         if (!string.IsNullOrWhiteSpace(shortcutName))
         {
             // 创建快捷方式
             try
             {
-                ShortcutCreator.CreateDesktopShortcut(Utilities.Constants.ExecutableFilePath, shortcutName);
+                ShortcutCreator.CreateDesktopShortcut(Constants.ExecutableFilePath, shortcutName);
                 _ = MessageBox.Show("快捷方式创建成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -291,7 +291,7 @@ public partial class SettingForm : Form
         }
 
         // 再次弹出确认对话框
-        var confirmResult = MessageBox.Show($"请再次确认您要卸载吗？\n这将会彻底删除 {Utilities.Constants.ParentDirectory} 文件夹及其所有内容", "再次确认卸载", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+        var confirmResult = MessageBox.Show($"请再次确认您要卸载吗？\n这将会彻底删除 {Constants.ParentDirectory} 文件夹及其所有内容", "再次确认卸载", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
         // 如果用户没有点击确定按钮
         if (confirmResult != DialogResult.OK)
@@ -331,19 +331,19 @@ public partial class SettingForm : Form
         var height = ClientSize.Height;
 
         // 控件X位置
-        var controlX = (int)(10 * Constants.DpiScale);
+        var controlX = (int)(10 * UIConstants.DpiScale);
 
         // 控件宽度
-        var controlWidth = width - (int)(30 * Constants.DpiScale);
+        var controlWidth = width - (int)(30 * UIConstants.DpiScale);
 
         // 间隔数量
         var controlSpacingCount = buttons.Count + 3;
 
         // 控件垂直间距
-        var controlSpacing = (int)(10 * Constants.DpiScale);
+        var controlSpacing = (int)(10 * UIConstants.DpiScale);
 
         // 复选框高度
-        var checkBoxHeight = (int)(30 * Constants.DpiScale);
+        var checkBoxHeight = (int)(30 * UIConstants.DpiScale);
 
         // 按钮总高度
         var buttonHeight = height - (checkBoxHeight * 2) - (controlSpacing * controlSpacingCount);
@@ -401,8 +401,8 @@ public partial class SettingForm : Form
             }
 
             // 如果配置的宽度和高度小于最小值，则使用最小值
-            Width = Math.Max(Settings.Config.SettingForm.Width, Constants.SettingFormMinWidth);
-            Height = Math.Max(Settings.Config.SettingForm.Height, Constants.SettingFormMinHeight);
+            Width = Math.Max(Settings.Config.SettingForm.Width, UIConstants.SettingFormMinWidth);
+            Height = Math.Max(Settings.Config.SettingForm.Height, UIConstants.SettingFormMinHeight);
         }
 
         // 调整控件位置和大小

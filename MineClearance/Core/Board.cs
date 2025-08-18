@@ -5,7 +5,7 @@ namespace MineClearance.Core;
 /// <summary>
 /// 表示扫雷游戏的场地
 /// </summary>
-public class Board
+internal sealed class Board
 {
     /// <summary>
     /// 格子状态改变事件

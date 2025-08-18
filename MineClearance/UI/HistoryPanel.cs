@@ -7,22 +7,22 @@ namespace MineClearance.UI;
 /// <summary>
 /// 历史记录面板类
 /// </summary>
-public partial class HistoryPanel : Panel
+internal sealed class HistoryPanel : Panel
 {
     /// <summary>
     /// 历史记录顶部面板高度
     /// </summary>
-    private static readonly int historyTopPanelHeight = (int)(43 * Constants.DpiScale);
+    private static readonly int historyTopPanelHeight = (int)(43 * UIConstants.DpiScale);
 
     /// <summary>
     /// 数据网格视图的宽度
     /// </summary>
-    private static readonly int dataGridViewWidth = Constants.MainFormWidth - (int)(12 * Constants.DpiScale);
+    private static readonly int dataGridViewWidth = UIConstants.MainFormWidth - (int)(12 * UIConstants.DpiScale);
 
     /// <summary>
     /// 数据网格视图的高度
     /// </summary>
-    private static readonly int dataGridViewHeight = Constants.MainFormHeight - historyTopPanelHeight - Constants.BottomStatusBarHeight;
+    private static readonly int dataGridViewHeight = UIConstants.MainFormHeight - historyTopPanelHeight - UIConstants.BottomStatusBarHeight;
 
     /// <summary>
     /// 历史记录顶部面板
@@ -62,7 +62,7 @@ public partial class HistoryPanel : Panel
         // 设置历史记录面板属性
         Name = "HistoryPanel";
         Location = new(0, 0);
-        Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight);
+        Size = new(UIConstants.MainFormWidth, UIConstants.MainFormHeight - UIConstants.BottomStatusBarHeight);
 
         // 创建历史记录顶部信息面板
         historyTopPanel = CreateHistoryTopInfoPanel();
@@ -71,8 +71,8 @@ public partial class HistoryPanel : Panel
         tipsLabel = new()
         {
             Text = "点击列头可进行排序和筛选, 点击显示详细历史记录按钮会清除所有筛选和排序条件",
-            Font = new("Arial", 6 * Constants.DpiScale, FontStyle.Regular),
-            Location = new((int)(450 * Constants.DpiScale), (int)(12 * Constants.DpiScale)),
+            Font = new("Arial", 6 * UIConstants.DpiScale, FontStyle.Regular),
+            Location = new((int)(450 * UIConstants.DpiScale), (int)(12 * UIConstants.DpiScale)),
             ForeColor = Color.DarkBlue,
             AutoSize = true
         };
@@ -176,7 +176,7 @@ public partial class HistoryPanel : Panel
         var panel = new Panel
         {
             Name = "HistoryTopPanel",
-            Size = new(Constants.MainFormWidth, historyTopPanelHeight),
+            Size = new(UIConstants.MainFormWidth, historyTopPanelHeight),
             BackColor = Color.LightSalmon,
             Location = new(0, 0)
         };
@@ -185,22 +185,22 @@ public partial class HistoryPanel : Panel
         Label titleLabel = new()
         {
             Text = "历史记录",
-            Font = new("Arial", 12 * Constants.DpiScale, FontStyle.Bold),
-            Location = new((int)(5 * Constants.DpiScale), (int)(2 * Constants.DpiScale)),
+            Font = new("Arial", 12 * UIConstants.DpiScale, FontStyle.Bold),
+            Location = new((int)(5 * UIConstants.DpiScale), (int)(2 * UIConstants.DpiScale)),
             AutoSize = true
         };
         panel.Controls.Add(titleLabel);
 
         // 按钮X位置和Y位置
-        var buttonXPosition = (int)(170 * Constants.DpiScale);
-        var buttonYPosition = (int)(9 * Constants.DpiScale);
+        var buttonXPosition = (int)(170 * UIConstants.DpiScale);
+        var buttonYPosition = (int)(9 * UIConstants.DpiScale);
 
         // 按钮宽度和高度
-        var buttonWidth = (int)(120 * Constants.DpiScale);
-        var buttonHeight = (int)(25 * Constants.DpiScale);
+        var buttonWidth = (int)(120 * UIConstants.DpiScale);
+        var buttonHeight = (int)(25 * UIConstants.DpiScale);
 
         // 按钮水平间距
-        var buttonSpacing = (int)(10 * Constants.DpiScale);
+        var buttonSpacing = (int)(10 * UIConstants.DpiScale);
 
         // 添加按钮以显示统计信息
         Button btnShowStatistics = new()
@@ -229,10 +229,10 @@ public partial class HistoryPanel : Panel
         panel.Controls.Add(btnShowHistory);
 
         // 更新按钮宽度
-        buttonWidth = (int)(70 * Constants.DpiScale);
+        buttonWidth = (int)(70 * UIConstants.DpiScale);
 
         // 更新按钮X位置
-        buttonXPosition = Constants.MainFormWidth - buttonWidth - (4 * buttonSpacing);
+        buttonXPosition = UIConstants.MainFormWidth - buttonWidth - (4 * buttonSpacing);
 
         // 更新按钮间距
         buttonSpacing *= 3;
@@ -272,10 +272,10 @@ public partial class HistoryPanel : Panel
     private static DoubleBufferedDataGridView CreateStatisticsDataGridView()
     {
         // 设置数据网格视图的列头高度
-        var columnHeaderHeight = (int)(94 * Constants.DpiScale);
+        var columnHeaderHeight = (int)(94 * UIConstants.DpiScale);
 
         // 设置数据网格视图的行高
-        var rowHeight = (int)(110 * Constants.DpiScale);
+        var rowHeight = (int)(110 * UIConstants.DpiScale);
 
         // 创建统计信息数据网格视图
         var dataGridView = new DoubleBufferedDataGridView
@@ -289,7 +289,7 @@ public partial class HistoryPanel : Panel
             AllowUserToResizeRows = false,
             AllowUserToResizeColumns = false,
             Location = new(0, historyTopPanelHeight),
-            Size = new(Constants.MainFormWidth, dataGridViewHeight),
+            Size = new(UIConstants.MainFormWidth, dataGridViewHeight),
             ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing,
             ColumnHeadersHeight = columnHeaderHeight,
             EnableHeadersVisualStyles = false,
@@ -300,17 +300,17 @@ public partial class HistoryPanel : Panel
         var columnDefinitions = new Dictionary<string, int>
         {
             { "难度", 0 },
-            { "游戏次数", (int)(150 * Constants.DpiScale) },
-            { "胜利次数", (int)(150 * Constants.DpiScale) },
-            { "胜率", (int)(150 * Constants.DpiScale) },
-            { "平均胜利用时", (int)(200 * Constants.DpiScale) },
-            { "最短胜利用时", (int)(200 * Constants.DpiScale) },
-            { "平均完成度", (int)(200 * Constants.DpiScale) }
+            { "游戏次数", (int)(150 * UIConstants.DpiScale) },
+            { "胜利次数", (int)(150 * UIConstants.DpiScale) },
+            { "胜率", (int)(150 * UIConstants.DpiScale) },
+            { "平均胜利用时", (int)(200 * UIConstants.DpiScale) },
+            { "最短胜利用时", (int)(200 * UIConstants.DpiScale) },
+            { "平均完成度", (int)(200 * UIConstants.DpiScale) }
         };
 
         // 剩余宽度
-        var remainWidth = Constants.MainFormWidth - columnDefinitions.Values.Sum();
-        remainWidth -= (int)(10 * Constants.DpiScale);
+        var remainWidth = UIConstants.MainFormWidth - columnDefinitions.Values.Sum();
+        remainWidth -= (int)(10 * UIConstants.DpiScale);
 
         // 难度列增加剩余宽度
         columnDefinitions["难度"] += remainWidth;
@@ -354,10 +354,10 @@ public partial class HistoryPanel : Panel
     private static DoubleBufferedDataGridView CreateHistoryDataGridView()
     {
         // 设置数据网格视图的列头高度
-        var columnHeaderHeight = (int)(29 * Constants.DpiScale);
+        var columnHeaderHeight = (int)(29 * UIConstants.DpiScale);
 
         // 设置数据网格视图的行高
-        var rowHeight = (int)(25 * Constants.DpiScale);
+        var rowHeight = (int)(25 * UIConstants.DpiScale);
 
         // 创建历史记录数据网格视图
         var dataGridView = new DoubleBufferedDataGridView
@@ -382,20 +382,20 @@ public partial class HistoryPanel : Panel
         // 保存每一列的名字和最小宽度的字典
         var columnDefinitions = new Dictionary<string, int>
         {
-            { "序号", (int)(80 * Constants.DpiScale) },
+            { "序号", (int)(80 * UIConstants.DpiScale) },
             { "开始时间", 0 },
-            { "难度", (int)(160 * Constants.DpiScale) },
-            { "结果", (int)(160 * Constants.DpiScale) },
-            { "完成度", (int)(160 * Constants.DpiScale) },
-            { "用时", (int)(160 * Constants.DpiScale) },
-            { "宽度", (int)(100 * Constants.DpiScale) },
-            { "高度", (int)(100 * Constants.DpiScale) },
-            { "地雷数", (int)(100 * Constants.DpiScale) }
+            { "难度", (int)(160 * UIConstants.DpiScale) },
+            { "结果", (int)(160 * UIConstants.DpiScale) },
+            { "完成度", (int)(160 * UIConstants.DpiScale) },
+            { "用时", (int)(160 * UIConstants.DpiScale) },
+            { "宽度", (int)(100 * UIConstants.DpiScale) },
+            { "高度", (int)(100 * UIConstants.DpiScale) },
+            { "地雷数", (int)(100 * UIConstants.DpiScale) }
         };
 
         // 剩余宽度
         var remainWidth = dataGridViewWidth - columnDefinitions.Values.Sum();
-        remainWidth -= (int)(19 * Constants.DpiScale);
+        remainWidth -= (int)(19 * UIConstants.DpiScale);
 
         // 开始时间列增加剩余宽度
         columnDefinitions["开始时间"] += remainWidth;
@@ -440,37 +440,6 @@ public partial class HistoryPanel : Panel
         // 添加菜单项
         _ = contextMenu.Items.Add("删除记录", null, (s, e) => DeleteHistoryRecord());
         return contextMenu;
-    }
-
-    /// <summary>
-    /// 统计信息结构体
-    /// </summary>
-    private readonly struct Stats
-    {
-        /// <summary>
-        /// 总游戏次数
-        /// </summary>
-        public int Total { get; init; }
-
-        /// <summary>
-        /// 胜利次数
-        /// </summary>
-        public int Wins { get; init; }
-
-        /// <summary>
-        /// 总胜利用时
-        /// </summary>
-        public TimeSpan TotalDuration { get; init; }
-
-        /// <summary>
-        /// 最短胜利用时
-        /// </summary>
-        public TimeSpan ShortestDuration { get; init; }
-
-        /// <summary>
-        /// 总完成度
-        /// </summary>
-        public double TotalCompletion { get; init; }
     }
 
     /// <summary>
@@ -614,9 +583,9 @@ public partial class HistoryPanel : Panel
             "结果" => result.IsWin ? "胜利" : "失败",
             "完成度" => $"{result.Completion ?? 100.0:0.##}%",
             "用时" => $"{(int)result.Duration.TotalMinutes:D2}:{result.Duration.Seconds:D2}.{result.Duration.Milliseconds / 10:D2}",
-            "宽度" => result.BoardWidth ?? Utilities.Constants.GetSettings(result.Difficulty).width,
-            "高度" => result.BoardHeight ?? Utilities.Constants.GetSettings(result.Difficulty).height,
-            "地雷数" => result.MineCount ?? Utilities.Constants.GetSettings(result.Difficulty).mineCount,
+            "宽度" => result.BoardWidth ?? Constants.GetSettings(result.Difficulty).width,
+            "高度" => result.BoardHeight ?? Constants.GetSettings(result.Difficulty).height,
+            "地雷数" => result.MineCount ?? Constants.GetSettings(result.Difficulty).mineCount,
             _ => "",
         };
     }
@@ -658,5 +627,36 @@ public partial class HistoryPanel : Panel
 
         // 弹窗提示清除成功
         _ = MessageBox.Show("历史记录已清除！", "清除成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    /// <summary>
+    /// 统计信息结构体
+    /// </summary>
+    private readonly struct Stats
+    {
+        /// <summary>
+        /// 总游戏次数
+        /// </summary>
+        public int Total { get; init; }
+
+        /// <summary>
+        /// 胜利次数
+        /// </summary>
+        public int Wins { get; init; }
+
+        /// <summary>
+        /// 总胜利用时
+        /// </summary>
+        public TimeSpan TotalDuration { get; init; }
+
+        /// <summary>
+        /// 最短胜利用时
+        /// </summary>
+        public TimeSpan ShortestDuration { get; init; }
+
+        /// <summary>
+        /// 总完成度
+        /// </summary>
+        public double TotalCompletion { get; init; }
     }
 }

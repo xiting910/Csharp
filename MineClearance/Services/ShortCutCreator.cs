@@ -6,7 +6,7 @@ namespace MineClearance.Services;
 /// <summary>
 /// 快捷方式创建器类
 /// </summary>
-public partial class ShortcutCreator
+internal sealed partial class ShortcutCreator
 {
     [ComImport]
     [Guid("00021401-0000-0000-C000-000000000046")]

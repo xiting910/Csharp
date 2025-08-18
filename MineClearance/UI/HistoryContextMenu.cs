@@ -6,7 +6,7 @@ namespace MineClearance.UI;
 /// <summary>
 /// 历史记录面板的右键菜单
 /// </summary>
-public partial class HistoryContextMenu : ContextMenuStrip
+internal sealed class HistoryContextMenu : ContextMenuStrip
 {
     /// <summary>
     /// 存储每个列名对应的右键菜单单例的字典

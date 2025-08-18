@@ -5,7 +5,7 @@ namespace MineClearance.Models;
 /// </summary>
 /// <param name="row">行</param>
 /// <param name="col">列</param>
-public class Position(int row, int col)
+internal sealed class Position(int row, int col)
 {
     /// <summary>
     /// 行
@@ -26,14 +26,6 @@ public class Position(int row, int col)
     }
 
     /// <summary>
-    /// 重写+运算符
-    /// </summary>
-    public static Position operator +(Position left, (int row, int col) right)
-    {
-        return new(left.Row + right.row, left.Col + right.col);
-    }
-
-    /// <summary>
     /// 重写==运算符
     /// </summary>
     public static bool operator ==(Position left, Position right)
@@ -42,27 +34,11 @@ public class Position(int row, int col)
     }
 
     /// <summary>
-    /// 重写==运算符
-    /// </summary>
-    public static bool operator ==(Position left, (int row, int col)? obj)
-    {
-        return obj != null && left.Row == obj.Value.row && left.Col == obj.Value.col;
-    }
-
-    /// <summary>
     /// 重写!=运算符
     /// </summary>
     public static bool operator !=(Position left, Position right)
     {
         return !(left == right);
-    }
-
-    /// <summary>
-    /// 重写!=运算符
-    /// </summary>
-    public static bool operator !=(Position left, (int row, int col)? obj)
-    {
-        return !(left == obj);
     }
 
     /// <summary>

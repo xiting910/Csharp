@@ -3,13 +3,14 @@ using System.Globalization;
 using MineClearance.Core;
 using MineClearance.Models;
 using MineClearance.Services;
+using MineClearance.Utilities;
 
 namespace MineClearance.UI;
 
 /// <summary>
 /// 游戏面板类
 /// </summary>
-public partial class GamePanel : Panel
+internal sealed class GamePanel : Panel
 {
     /// <summary>
     /// 游戏顶部信息栏
@@ -114,7 +115,7 @@ public partial class GamePanel : Panel
         // 设置游戏面板属性
         Name = "GamePanel";
         Location = new(0, 0);
-        Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight);
+        Size = new(UIConstants.MainFormWidth, UIConstants.MainFormHeight - UIConstants.BottomStatusBarHeight);
 
         // 初始化游戏计时器
         _gameTimer = new System.Windows.Forms.Timer
@@ -129,21 +130,21 @@ public partial class GamePanel : Panel
         // 初始化鼠标状态
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
-        _mouseGridPosition = Constants.InvalidPosition;
+        _mouseGridPosition = UIConstants.InvalidPosition;
 
         // 设置游戏左上角格子位置
         _gameStartPosition = new(0, 0);
 
         // 信息面板高度
-        var infoPanelHeight = (int)(47 * Constants.DpiScale);
+        var infoPanelHeight = (int)(47 * UIConstants.DpiScale);
 
         // 标签Y轴位置
-        var labelY = (int)(15 * Constants.DpiScale);
+        var labelY = (int)(15 * UIConstants.DpiScale);
 
         // 初始化信息面板
         _infoPanel = new()
         {
-            Size = new(Constants.MainFormWidth, infoPanelHeight),
+            Size = new(UIConstants.MainFormWidth, infoPanelHeight),
             Location = new(0, 0),
             BackColor = Color.Cyan,
         };
@@ -152,7 +153,7 @@ public partial class GamePanel : Panel
         _minesLeftLabel = new()
         {
             ForeColor = Color.DarkGreen,
-            Location = new((int)(5 * Constants.DpiScale), labelY),
+            Location = new((int)(5 * UIConstants.DpiScale), labelY),
             AutoSize = true
         };
 
@@ -160,7 +161,7 @@ public partial class GamePanel : Panel
         _unopenedCountLabel = new()
         {
             ForeColor = Color.DarkOrange,
-            Location = new((int)(110 * Constants.DpiScale), labelY),
+            Location = new((int)(110 * UIConstants.DpiScale), labelY),
             AutoSize = true
         };
 
@@ -168,7 +169,7 @@ public partial class GamePanel : Panel
         _gameTimeLabel = new()
         {
             ForeColor = Color.DarkBlue,
-            Location = new((int)(230 * Constants.DpiScale), labelY),
+            Location = new((int)(230 * UIConstants.DpiScale), labelY),
             AutoSize = true
         };
 
@@ -176,20 +177,20 @@ public partial class GamePanel : Panel
         Label hintLabel = new()
         {
             Text = "提示: 左键打开格子, 右键标记地雷(在打开一个格子之前无效), 支持按住鼠标滑动操作多个格子, 灰色格子为未打开, 绿色格子表示插旗\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子(注意: 如果错误插旗可能会导致打开到地雷)\n右键点击数字格子时, 如果周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子\n当数字格子周围插旗的数量大于数字时, 该格子会变为黄色表示警告状态",
-            Font = new(DefaultFont.FontFamily, 3.1f * Constants.DpiScale, DefaultFont.Style),
-            Location = new((int)(380 * Constants.DpiScale), 0),
+            Font = new(DefaultFont.FontFamily, 3.1f * UIConstants.DpiScale, DefaultFont.Style),
+            Location = new((int)(380 * UIConstants.DpiScale), 0),
             AutoSize = true
         };
 
         // 按钮Y轴位置
-        var buttonY = (int)(12.5 * Constants.DpiScale);
+        var buttonY = (int)(12.5 * UIConstants.DpiScale);
 
         // 添加显示/隐藏提示复选框
         CheckBox toggleHintCheckBox = new()
         {
             Text = "隐藏提示",
             BackColor = Color.YellowGreen,
-            Location = new(Constants.MainFormWidth - (int)(315 * Constants.DpiScale), buttonY),
+            Location = new(UIConstants.MainFormWidth - (int)(315 * UIConstants.DpiScale), buttonY),
             Appearance = Appearance.Button,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -206,7 +207,7 @@ public partial class GamePanel : Panel
         {
             Text = "暂停游戏",
             BackColor = Color.Coral,
-            Location = new(Constants.MainFormWidth - (int)(240 * Constants.DpiScale), buttonY),
+            Location = new(UIConstants.MainFormWidth - (int)(240 * UIConstants.DpiScale), buttonY),
             Appearance = Appearance.Button,
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
@@ -218,7 +219,7 @@ public partial class GamePanel : Panel
         {
             Text = "重新开始",
             BackColor = Color.Yellow,
-            Location = new(Constants.MainFormWidth - (int)(165 * Constants.DpiScale), buttonY),
+            Location = new(UIConstants.MainFormWidth - (int)(165 * UIConstants.DpiScale), buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -229,7 +230,7 @@ public partial class GamePanel : Panel
         {
             Text = "返回菜单",
             BackColor = Color.LightCoral,
-            Location = new(Constants.MainFormWidth - (int)(90 * Constants.DpiScale), buttonY),
+            Location = new(UIConstants.MainFormWidth - (int)(90 * UIConstants.DpiScale), buttonY),
             FlatStyle = FlatStyle.Flat,
             AutoSize = true
         };
@@ -255,7 +256,7 @@ public partial class GamePanel : Panel
         {
             BackColor = Color.White,
             Location = new(0, infoPanelHeight),
-            Size = new(Constants.MainFormWidth, Constants.MainFormHeight - Constants.BottomStatusBarHeight - infoPanelHeight)
+            Size = new(UIConstants.MainFormWidth, UIConstants.MainFormHeight - UIConstants.BottomStatusBarHeight - infoPanelHeight)
         };
 
         // 添加鼠标按下事件
@@ -272,10 +273,10 @@ public partial class GamePanel : Panel
         {
             // 获取当前绘图区域
             var clip = e.ClipRectangle;
-            var rowStart = clip.Top / Constants.GridSize;
-            var rowEnd = clip.Bottom / Constants.GridSize;
-            var colStart = clip.Left / Constants.GridSize;
-            var colEnd = clip.Right / Constants.GridSize;
+            var rowStart = clip.Top / UIConstants.GridSize;
+            var rowEnd = clip.Bottom / UIConstants.GridSize;
+            var colStart = clip.Left / UIConstants.GridSize;
+            var colEnd = clip.Right / UIConstants.GridSize;
 
             // 遍历指定区域的格子并绘制
             for (var row = rowStart; row <= rowEnd; ++row)
@@ -327,7 +328,7 @@ public partial class GamePanel : Panel
         // 当前鼠标状态重置
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
-        _mouseGridPosition = Constants.InvalidPosition;
+        _mouseGridPosition = UIConstants.InvalidPosition;
 
         // 重置暂停计时相关
         _pauseStopwatch.Reset();
@@ -342,7 +343,7 @@ public partial class GamePanel : Panel
         _pauseResumeCheckBox.Checked = false;
 
         // 设置游戏左上角格子位置, 使游戏能在面板居中显示
-        var colOffset = (Utilities.Constants.MaxBoardWidth - _gameInstance.Board.Width) / 2;
+        var colOffset = (Constants.MaxBoardWidth - _gameInstance.Board.Width) / 2;
         _gameStartPosition = new(0, colOffset);
 
         // 运行游戏实例
@@ -527,7 +528,7 @@ public partial class GamePanel : Panel
         var col = position.Col + _gameStartPosition.Col;
 
         // 重绘指定格子
-        _gameAreaPanel.Invalidate(new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+        _gameAreaPanel.Invalidate(new Rectangle(col * UIConstants.GridSize, row * UIConstants.GridSize, UIConstants.GridSize, UIConstants.GridSize));
     }
 
     /// <summary>
@@ -671,7 +672,7 @@ public partial class GamePanel : Panel
             var pos = GetGridPositionAtMousePosition(e.Location);
 
             // 如果鼠标位置不在任何格子上, 不做任何处理
-            if (pos == Constants.InvalidPosition)
+            if (pos == UIConstants.InvalidPosition)
             {
                 return;
             }
@@ -717,18 +718,18 @@ public partial class GamePanel : Panel
             _mouseGridPosition = pos;
 
             // 如果先前鼠标格子位置不为无效位置, 则重绘先前格子
-            if (prevPos != Constants.InvalidPosition)
+            if (prevPos != UIConstants.InvalidPosition)
             {
                 // 获取先前格子行列坐标
                 var prevRow = prevPos.Row + _gameStartPosition.Row;
                 var prevCol = prevPos.Col + _gameStartPosition.Col;
 
                 // 重绘先前格子
-                _gameAreaPanel.Invalidate(new Rectangle(prevCol * Constants.GridSize, prevRow * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+                _gameAreaPanel.Invalidate(new Rectangle(prevCol * UIConstants.GridSize, prevRow * UIConstants.GridSize, UIConstants.GridSize, UIConstants.GridSize));
             }
 
             // 如果pos为无效位置, 则返回
-            if (pos == Constants.InvalidPosition)
+            if (pos == UIConstants.InvalidPosition)
             {
                 return;
             }
@@ -751,7 +752,7 @@ public partial class GamePanel : Panel
                 var currCol = _mouseGridPosition.Col + _gameStartPosition.Col;
 
                 // 重绘当前鼠标格子
-                _gameAreaPanel.Invalidate(new Rectangle(currCol * Constants.GridSize, currRow * Constants.GridSize, Constants.GridSize, Constants.GridSize));
+                _gameAreaPanel.Invalidate(new Rectangle(currCol * UIConstants.GridSize, currRow * UIConstants.GridSize, UIConstants.GridSize, UIConstants.GridSize));
             }
         }
     }
@@ -774,8 +775,8 @@ public partial class GamePanel : Panel
     private Position GetGridPositionAtMousePosition(Point mousePosition)
     {
         // 计算鼠标位置对应的游戏格子行列
-        var col = (mousePosition.X / Constants.GridSize) - _gameStartPosition.Col;
-        var row = (mousePosition.Y / Constants.GridSize) - _gameStartPosition.Row;
+        var col = (mousePosition.X / UIConstants.GridSize) - _gameStartPosition.Col;
+        var row = (mousePosition.Y / UIConstants.GridSize) - _gameStartPosition.Row;
 
         if (row >= 0 && row < _gameInstance?.Board.Height && col >= 0 && col < _gameInstance?.Board.Width)
         {
@@ -784,7 +785,7 @@ public partial class GamePanel : Panel
         }
 
         // 如果鼠标位置不在任何格子上, 返回无效位置
-        return Constants.InvalidPosition;
+        return UIConstants.InvalidPosition;
     }
 
     /// <summary>
@@ -812,7 +813,7 @@ public partial class GamePanel : Panel
         }
 
         // 获取格子矩形区域
-        var rect = new Rectangle(col * Constants.GridSize, row * Constants.GridSize, Constants.GridSize, Constants.GridSize);
+        var rect = new Rectangle(col * UIConstants.GridSize, row * UIConstants.GridSize, UIConstants.GridSize, UIConstants.GridSize);
 
         // 当前格子是否真的是地雷格子
         var isRealMine = _gameInstance.Board.Mines.MineGrid[gameRow, gameCol] == -1;

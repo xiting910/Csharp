@@ -5,7 +5,7 @@ namespace MineClearance.Core;
 /// <summary>
 /// 表示扫雷游戏的棋盘格子
 /// </summary>
-public class Grid
+internal sealed class Grid
 {
     /// <summary>
     /// 格子类型, 默认是未打开的格子

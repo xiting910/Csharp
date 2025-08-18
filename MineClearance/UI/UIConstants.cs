@@ -4,9 +4,9 @@ using MineClearance.Models;
 namespace MineClearance.UI;
 
 /// <summary>
-/// UI常量类, 提供一些UI相关的常量
+/// UI 常量类, 提供一些 UI 相关的常量
 /// </summary>
-public static partial class Constants
+internal static partial class UIConstants
 {
     /// <summary>
     /// 自动更新的URL

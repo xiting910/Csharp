@@ -4,42 +4,42 @@ using MineClearance.Services;
 namespace MineClearance.Utilities;
 
 /// <summary>
-/// 筛选条件项
-/// </summary>
-public class FilterConditionItem
-{
-    /// <summary>
-    /// 筛选器, 用于定义筛选逻辑
-    /// </summary>
-    public required Func<GameResult, bool> Filter { get; init; }
-
-    /// <summary>
-    /// 筛选的属性
-    /// </summary>
-    public required string Property { get; init; }
-}
-
-/// <summary>
-/// 排序条件项
-/// </summary>
-public class SortConditionItem
-{
-    /// <summary>
-    /// 比较器, 用于定义排序逻辑
-    /// </summary>
-    public required IComparer<GameResult> Comparer { get; init; }
-
-    /// <summary>
-    /// 优先级, 数字越小优先级越高
-    /// </summary>
-    public int Priority { get; init; }
-}
-
-/// <summary>
 /// 结果管理类, 用于实现游戏结果的筛选和排序
 /// </summary>
-public static class ResultManager
+internal static class ResultManager
 {
+    /// <summary>
+    /// 筛选条件项
+    /// </summary>
+    private sealed class FilterConditionItem
+    {
+        /// <summary>
+        /// 筛选器, 用于定义筛选逻辑
+        /// </summary>
+        public required Func<GameResult, bool> Filter { get; init; }
+
+        /// <summary>
+        /// 筛选的属性
+        /// </summary>
+        public required string Property { get; init; }
+    }
+
+    /// <summary>
+    /// 排序条件项
+    /// </summary>
+    private sealed class SortConditionItem
+    {
+        /// <summary>
+        /// 比较器, 用于定义排序逻辑
+        /// </summary>
+        public required IComparer<GameResult> Comparer { get; init; }
+
+        /// <summary>
+        /// 优先级, 数字越小优先级越高
+        /// </summary>
+        public int Priority { get; init; }
+    }
+
     /// <summary>
     /// 筛选条件集合
     /// </summary>

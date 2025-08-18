@@ -8,7 +8,7 @@ namespace MineClearance.Models;
 /// 版本3开始, 胜利时不再保存完成度(为null).
 /// 版本4开始, 游戏结果保存按时间倒序排列.
 /// </summary>
-public record GameData
+internal sealed record GameData
 {
     /// <summary>
     /// 数据版本号

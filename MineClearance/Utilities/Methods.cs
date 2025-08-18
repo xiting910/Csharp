@@ -9,7 +9,7 @@ namespace MineClearance.Utilities;
 /// <summary>
 /// 方法类, 提供一些常用方法
 /// </summary>
-public static partial class Methods
+internal static partial class Methods
 {
     [GeneratedRegex(@"<li>(.*?)</li>", RegexOptions.Singleline)]
     private static partial Regex ChangeLogRegex();

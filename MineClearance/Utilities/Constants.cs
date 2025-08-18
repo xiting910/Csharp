@@ -5,7 +5,7 @@ namespace MineClearance.Utilities;
 /// <summary>
 /// 常量类, 提供一些程序通用的常量
 /// </summary>
-public static class Constants
+internal static class Constants
 {
     /// <summary>
     /// 数据存储路径

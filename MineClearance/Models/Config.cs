@@ -3,7 +3,7 @@ namespace MineClearance.Models;
 /// <summary>
 /// 配置数据类
 /// </summary>
-public record Config
+internal sealed record Config
 {
     /// <summary>
     /// 主窗体配置
@@ -24,7 +24,7 @@ public record Config
 /// <summary>
 /// 主窗体配置
 /// </summary>
-public record MainFormConfig
+internal sealed record MainFormConfig
 {
     /// <summary>
     /// 获取或设置窗口左侧位置
@@ -40,7 +40,7 @@ public record MainFormConfig
 /// <summary>
 /// 设置窗口配置
 /// </summary>
-public record SettingFormConfig
+internal sealed record SettingFormConfig
 {
     /// <summary>
     /// 获取或设置窗口左侧位置

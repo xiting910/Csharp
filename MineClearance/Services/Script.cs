@@ -6,7 +6,7 @@ namespace MineClearance.Services;
 /// <summary>
 /// 脚本类, 用于创建和启动 powershell 脚本
 /// </summary>
-public static class Script
+internal static class Script
 {
     /// <summary>
     /// 用于更新程序的powershell脚本路径
@@ -17,6 +17,30 @@ public static class Script
     /// 卸载脚本路径
     /// </summary>
     private static readonly string uninstallPowerShellScriptPath = Path.Combine(Path.GetTempPath(), "UninstallScript.ps1");
+
+    /// <summary>
+    /// 删除残留的所有脚本文件
+    /// </summary>
+    public static void RemoveAllResidualScripts()
+    {
+        try
+        {
+            // 删除所有脚本文件
+            var scriptFiles = new[]
+            {
+                updatePowerShellScriptPath,
+                uninstallPowerShellScriptPath
+            };
+            foreach (var scriptFile in scriptFiles)
+            {
+                if (File.Exists(scriptFile))
+                {
+                    File.Delete(scriptFile);
+                }
+            }
+        }
+        catch {/* 忽略异常 */ }
+    }
 
     /// <summary>
     /// 创建并启动自动更新的powershell脚本
@@ -111,29 +135,5 @@ public static class Script
         {
             _ = MessageBox.Show($"自动卸载失败: {ex.Message}", @"自动卸载失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-    }
-
-    /// <summary>
-    /// 删除残留的所有脚本文件
-    /// </summary>
-    public static void RemoveAllResidualScripts()
-    {
-        try
-        {
-            // 删除所有脚本文件
-            var scriptFiles = new[]
-            {
-                updatePowerShellScriptPath,
-                uninstallPowerShellScriptPath
-            };
-            foreach (var scriptFile in scriptFiles)
-            {
-                if (File.Exists(scriptFile))
-                {
-                    File.Delete(scriptFile);
-                }
-            }
-        }
-        catch {/* 忽略异常 */ }
     }
 }

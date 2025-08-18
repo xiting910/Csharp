@@ -6,7 +6,7 @@ namespace MineClearance.UI;
 /// <summary>
 /// 底部状态栏
 /// </summary>
-public class BottomStatusBar : StatusStrip
+internal sealed class BottomStatusBar : StatusStrip
 {
     /// <summary>
     /// 作者名字
@@ -49,8 +49,8 @@ public class BottomStatusBar : StatusStrip
     public BottomStatusBar()
     {
         // 设置状态栏属性
-        Size = new(Constants.MainFormWidth, Constants.BottomStatusBarHeight);
-        Location = new(0, Constants.MainFormHeight - Constants.BottomStatusBarHeight);
+        Size = new(UIConstants.MainFormWidth, UIConstants.BottomStatusBarHeight);
+        Location = new(0, UIConstants.MainFormHeight - UIConstants.BottomStatusBarHeight);
         BackColor = Color.SkyBlue;
         ShowItemToolTips = true;
 

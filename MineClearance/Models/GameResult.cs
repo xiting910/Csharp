@@ -11,7 +11,7 @@ namespace MineClearance.Models;
 /// <param name="boardWidth">棋盘宽度</param>
 /// <param name="boardHeight">棋盘高度</param>
 /// <param name="mineCount">地雷总数</param>
-public class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan duration, bool isWin, double? completion = null, int? boardWidth = null, int? boardHeight = null, int? mineCount = null)
+internal sealed class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan duration, bool isWin, double? completion = null, int? boardWidth = null, int? boardHeight = null, int? mineCount = null)
 {
     /// <summary>
     /// 游戏的难度级别
@@ -100,7 +100,7 @@ public class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan
 /// </summary>
 /// <param name="propertyName">属性名称</param>
 /// <param name="sortOrder">排序顺序</param>
-public class GameResultComparer(string propertyName, SortOrder sortOrder) : IComparer<GameResult>
+internal sealed class GameResultComparer(string propertyName, SortOrder sortOrder) : IComparer<GameResult>
 {
     /// <summary>
     /// 属性名称

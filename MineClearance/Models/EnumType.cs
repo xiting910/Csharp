@@ -3,7 +3,7 @@ namespace MineClearance.Models;
 /// <summary>
 /// 格子类型枚举
 /// </summary>
-public enum GridType
+internal enum GridType
 {
     /// <summary>
     /// 未打开的格子
@@ -39,7 +39,7 @@ public enum GridType
 /// <summary>
 /// 难度级别枚举
 /// </summary>
-public enum DifficultyLevel
+internal enum DifficultyLevel
 {
     /// <summary>
     /// 简单
@@ -70,7 +70,7 @@ public enum DifficultyLevel
 /// <summary>
 /// 面板类型枚举
 /// </summary>
-public enum PanelType
+internal enum PanelType
 {
     /// <summary>
     /// 菜单面板
@@ -96,7 +96,7 @@ public enum PanelType
 /// <summary>
 /// 底部状态栏状态枚举
 /// </summary>
-public enum StatusBarState
+internal enum StatusBarState
 {
     /// <summary>
     /// 就绪
