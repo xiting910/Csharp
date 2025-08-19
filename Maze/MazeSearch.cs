@@ -1,7 +1,7 @@
 namespace Maze;
 
 // 迷宫类的搜索算法实现部分
-public static partial class Maze
+internal static partial class Maze
 {
     /// <summary>
     /// 根据选择的算法搜索路径

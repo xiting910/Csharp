@@ -7,7 +7,7 @@ namespace MineClearance.Models;
 /// <param name="startTime">游戏开始时间</param>
 /// <param name="duration">游戏持续时间</param>
 /// <param name="isWin">游戏是否获胜</param>
-/// <param name="completion">游戏完成度, 取值范围 0 到 99, null 表示胜利</param>
+/// <param name="completion">游戏完成度, 取值范围 [0, 100), null 表示胜利</param>
 /// <param name="boardWidth">棋盘宽度</param>
 /// <param name="boardHeight">棋盘高度</param>
 /// <param name="mineCount">地雷总数</param>
@@ -34,7 +34,7 @@ internal sealed class GameResult(DifficultyLevel difficulty, DateTime startTime,
     public bool IsWin { get; private init; } = isWin;
 
     /// <summary>
-    /// 游戏完成度, 取值范围 0 到 99, null 表示胜利
+    /// 游戏完成度, 取值范围 [0, 100), null 表示胜利
     /// </summary>
     public double? Completion { get; private init; } = isWin ? null : completion;
 
@@ -91,7 +91,7 @@ internal sealed class GameResult(DifficultyLevel difficulty, DateTime startTime,
     /// <returns>对象的哈希码</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Difficulty, StartTime, Duration, IsWin, Completion, BoardWidth, BoardHeight, MineCount);
+        return StartTime.GetHashCode();
     }
 }
 

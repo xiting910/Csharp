@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 底部状态栏
 /// </summary>
-public class BottomStatusBar : StatusStrip
+internal sealed class BottomStatusBar : StatusStrip
 {
     /// <summary>
     /// 左侧状态标签

@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 常量类, 提供一些常用的常量
 /// </summary>
-public static partial class Constants
+internal static partial class Constants
 {
     /// <summary>
     /// 作者名字

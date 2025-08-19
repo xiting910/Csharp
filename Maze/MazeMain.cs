@@ -4,7 +4,7 @@ namespace Maze;
 /// <summary>
 /// 迷宫类, 提供迷宫的随机生成和搜索功能
 /// </summary>
-public static partial class Maze
+internal static partial class Maze
 {
     /// <summary>
     /// 格子状态改变事件

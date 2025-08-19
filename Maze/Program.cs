@@ -29,12 +29,9 @@ file static class Program
         Constants.InitDpiScale();
 
         // 重置迷宫
-        Maze.ResetMaze().Wait();
+        Maze.ResetMaze().GetAwaiter().GetResult();
 
-        // 创建主窗口
-        var mainForm = new MainForm();
-
-        // 运行主窗口
-        Application.Run(mainForm);
+        // 创建并运行主窗口
+        Application.Run(new MainForm());
     }
 }

@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 主窗体类, 负责显示和管理界面
 /// </summary>
-public partial class MainForm : Form
+internal sealed class MainForm : Form
 {
     /// <summary>
     /// 用于处理WM_MOVING消息的结构体

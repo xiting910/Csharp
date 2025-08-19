@@ -3,17 +3,19 @@ namespace Maze;
 /// <summary>
 /// 位置类, 用于表示迷宫中的位置
 /// </summary>
-public class Position
+/// <param name="row">行</param>
+/// <param name="col">列</param>
+internal sealed class Position(int row, int col)
 {
     /// <summary>
     /// 行
     /// </summary>
-    public int Row { get; set; }
+    public int Row { get; } = row;
 
     /// <summary>
     /// 列
     /// </summary>
-    public int Col { get; set; }
+    public int Col { get; } = col;
 
     /// <summary>
     /// 无效位置
@@ -21,40 +23,11 @@ public class Position
     public static Position Invalid => new(-1, -1);
 
     /// <summary>
-    /// 构造函数, 初始化位置
-    /// </summary>
-    /// <param name="row">行</param>
-    /// <param name="col">列</param>
-    public Position(int row, int col)
-    {
-        Row = row;
-        Col = col;
-    }
-
-    /// <summary>
-    /// 构造函数, 初始化位置
-    /// </summary>
-    /// <param name="position">位置元组</param>
-    public Position((int row, int col) position)
-    {
-        Row = position.row;
-        Col = position.col;
-    }
-
-    /// <summary>
     /// 重写+运算符
     /// </summary>
     public static Position operator +(Position left, Position right)
     {
         return new Position(left.Row + right.Row, left.Col + right.Col);
-    }
-
-    /// <summary>
-    /// 重写+运算符
-    /// </summary>
-    public static Position operator +(Position left, (int row, int col) right)
-    {
-        return new Position(left.Row + right.row, left.Col + right.col);
     }
 
     /// <summary>
@@ -82,27 +55,11 @@ public class Position
     }
 
     /// <summary>
-    /// 重写==运算符
-    /// </summary>
-    public static bool operator ==(Position left, (int row, int col)? obj)
-    {
-        return obj != null && left.Row == obj.Value.row && left.Col == obj.Value.col;
-    }
-
-    /// <summary>
     /// 重写!=运算符
     /// </summary>
     public static bool operator !=(Position left, Position right)
     {
         return !(left == right);
-    }
-
-    /// <summary>
-    /// 重写!=运算符
-    /// </summary>
-    public static bool operator !=(Position left, (int row, int col)? obj)
-    {
-        return !(left == obj);
     }
 
     /// <summary>

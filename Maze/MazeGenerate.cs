@@ -1,7 +1,7 @@
 namespace Maze;
 
 // 迷宫类的生成算法实现部分
-public static partial class Maze
+internal static partial class Maze
 {
     /// <summary>
     /// 根据指定的生成算法随机生成迷宫

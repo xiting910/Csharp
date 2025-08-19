@@ -3,7 +3,7 @@ namespace Maze;
 /// <summary>
 /// 自定义双缓冲面板
 /// </summary>
-public class DoubleBufferedPanel : Panel
+internal sealed class DoubleBufferedPanel : Panel
 {
     /// <summary>
     /// 构造函数, 初始化双缓冲面板
@@ -19,7 +19,7 @@ public class DoubleBufferedPanel : Panel
 /// <summary>
 /// 自定义确认对话框, 支持不再提示勾选框, 以及不同按钮的唯一标识
 /// </summary>
-public class CustomMessageBox : Form
+internal sealed class CustomMessageBox : Form
 {
     /// <summary>
     /// 保存每个弹窗的“不再显示”状态

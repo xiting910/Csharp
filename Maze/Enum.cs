@@ -3,7 +3,7 @@ namespace Maze;
 /// <summary>
 /// 底部状态栏状态
 /// </summary>
-public enum StatusBarState
+internal enum StatusBarState
 {
     /// <summary>
     /// 就绪状态
@@ -29,7 +29,7 @@ public enum StatusBarState
 /// <summary>
 /// 当前操作状态
 /// </summary>
-public enum OperationStatus
+internal enum OperationStatus
 {
     /// <summary>
     /// 默认状态
@@ -50,7 +50,7 @@ public enum OperationStatus
 /// <summary>
 /// 表示迷宫的格子类型
 /// </summary>
-public enum GridType
+internal enum GridType
 {
     /// <summary>
     /// 空白格子
@@ -86,7 +86,7 @@ public enum GridType
 /// <summary>
 /// 表示迷宫的生成算法
 /// </summary>
-public enum GenerationAlgorithm
+internal enum GenerationAlgorithm
 {
     /// <summary>
     /// 完全随机生成
@@ -112,7 +112,7 @@ public enum GenerationAlgorithm
 /// <summary>
 /// 表示迷宫的搜索算法
 /// </summary>
-public enum SearchAlgorithm
+internal enum SearchAlgorithm
 {
     /// <summary>
     /// 广度优先搜索
@@ -133,7 +133,7 @@ public enum SearchAlgorithm
 /// <summary>
 /// 表示迷宫的方向(顺时针排列)
 /// </summary>
-public enum Direction
+internal enum Direction
 {
     /// <summary>
     /// 上

@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 迷宫数据类, 提供迷宫的保存和加载功能
 /// </summary>
-public static partial class MazeData
+internal static partial class MazeData
 {
     /// <summary>
     /// 静态构造函数, 初始化迷宫数据类

@@ -3,7 +3,7 @@ namespace Maze;
 /// <summary>
 /// 方法类, 提供一些常用的方法
 /// </summary>
-public static class Methods
+internal static class Methods
 {
     /// <summary>
     /// 线程安全的随机数生成器

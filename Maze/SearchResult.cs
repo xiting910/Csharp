@@ -6,7 +6,7 @@ namespace Maze;
 /// <param name="isCanceled">搜索是否被取消</param>
 /// <param name="isSuccess">搜索是否成功</param>
 /// <param name="pathLength">搜索路径长度</param>
-public class SearchResult(bool isCanceled, bool isSuccess, int pathLength)
+internal sealed class SearchResult(bool isCanceled, bool isSuccess, int pathLength)
 {
     /// <summary>
     /// 搜索是否被取消

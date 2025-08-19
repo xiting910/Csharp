@@ -71,7 +71,7 @@ file static class Program
             }
 
             // 初始化数据
-            Datas.Initialize().Wait();
+            Datas.Initialize().GetAwaiter().GetResult();
 
             // 初始化自动更新相关设置
             AutoUpdater.Mandatory = true;
@@ -79,6 +79,10 @@ file static class Program
 
             // 订阅更新检查事件
             AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
+
+            // 程序启动时检查更新
+            Methods.IsHandlingUpdateEvent = true;
+            AutoUpdater.Start(UIConstants.AutoUpdateUrl);
 
             // 创建并显示主窗口
             Application.Run(new MainForm());

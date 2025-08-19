@@ -1,4 +1,3 @@
-using AutoUpdaterDotNET;
 using System.Runtime.InteropServices;
 using MineClearance.Models;
 using MineClearance.Services;
@@ -92,10 +91,6 @@ internal sealed class MainForm : Form
 
         // 显示菜单面板
         ShowPanel(PanelType.Menu);
-
-        // 程序启动时检查更新
-        Methods.IsHandlingUpdateEvent = true;
-        AutoUpdater.Start(UIConstants.AutoUpdateUrl);
     }
 
     /// <summary>

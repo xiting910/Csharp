@@ -3,7 +3,7 @@ namespace Maze;
 /// <summary>
 /// 创建信息面板类, 提供创建信息面板的功能
 /// </summary>
-public static class CreateInfoPanel
+internal static class CreateInfoPanel
 {
     /// <summary>
     /// 创建主信息面板

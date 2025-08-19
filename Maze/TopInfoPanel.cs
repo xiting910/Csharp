@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 顶部信息面板类, 用于管理和显示顶部信息面板, 提供按钮点击事件处理
 /// </summary>
-public class TopInfoPanel : IDisposable
+internal sealed class TopInfoPanel : IDisposable
 {
     /// <summary>
     /// 面板切换事件

@@ -5,7 +5,7 @@ namespace Maze;
 /// <summary>
 /// 表示迷宫面板的类
 /// </summary>
-public class MazePanel
+internal sealed class MazePanel
 {
     /// <summary>
     /// 格子状态改变事件
