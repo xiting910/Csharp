@@ -514,6 +514,7 @@ internal sealed class TopInfoPanel : IDisposable
 
     /// <summary>
     /// 实现 Dispose 方法, 释放资源
+    /// </summary>
     public void Dispose()
     {
         GC.SuppressFinalize(this);

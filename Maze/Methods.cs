@@ -67,7 +67,7 @@ internal static class Methods
     /// 记录异常到日志文件
     /// </summary>
     /// <param name="ex">要记录的异常</param>
-    public static async Task LogException(Exception ex)
+    public static void LogException(Exception ex)
     {
         var log = $"[{DateTime.Now}] {ex}\n";
         try
@@ -76,7 +76,7 @@ internal static class Methods
             {
                 _ = Directory.CreateDirectory(Constants.DataPath);
             }
-            await File.AppendAllTextAsync(Constants.ErrorFilePath, log);
+            File.AppendAllText(Constants.ErrorFilePath, log);
         }
         catch { /* 忽略日志写入异常 */ }
     }
@@ -86,14 +86,13 @@ internal static class Methods
     /// </summary>
     /// <param name="sender">发送者</param>
     /// <param name="e">线程异常事件参数</param>
-    public static async void OnThreadException(object sender, ThreadExceptionEventArgs e)
+    public static void OnThreadException(object sender, ThreadExceptionEventArgs e)
     {
         // 记录异常到日志文件并弹窗提示错误信息
-        var logTask = LogException(e.Exception);
+        LogException(e.Exception);
         _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-        // 确认日志写入完成后退出应用程序
-        await logTask;
+        // 退出应用程序
         Application.Exit();
     }
 
@@ -102,23 +101,21 @@ internal static class Methods
     /// </summary>
     /// <param name="sender">发送者</param>
     /// <param name="e">应用程序域异常事件参数</param>
-    public static async void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    public static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         // 记录异常到日志文件并弹窗提示错误信息
-        Task logTask;
         if (e.ExceptionObject is Exception ex)
         {
-            logTask = LogException(ex);
+            LogException(ex);
             _ = MessageBox.Show($"发生未处理的应用程序域异常：{ex.Message}\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
-            logTask = LogException(new UnknownException("未知错误"));
+            LogException(new UnknownException("未知错误"));
             _ = MessageBox.Show($"发生未处理的应用程序域异常：未知错误\n错误日志已保存到：{Constants.ErrorFilePath}", @"错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        // 确认日志写入完成后退出应用程序
-        await logTask;
+        // 退出应用程序
         Application.Exit();
     }
 
@@ -130,7 +127,7 @@ internal static class Methods
     {
         var buttonX = Constants.MainFormWidth - (int)(10 * Constants.DpiScale);
         buttonX -= Constants.ButtonWidth + Constants.ButtonSpacing;
-        return new Button
+        return new()
         {
             Text = "退出",
             Size = new(Constants.ButtonWidth, Constants.ButtonHeight),
@@ -148,7 +145,7 @@ internal static class Methods
     {
         var buttonX = Constants.MainFormWidth - (int)(10 * Constants.DpiScale);
         buttonX -= (Constants.ButtonWidth + Constants.ButtonSpacing) * 2;
-        return new Button
+        return new()
         {
             Text = "返回",
             Size = new(Constants.ButtonWidth, Constants.ButtonHeight),
@@ -166,7 +163,7 @@ internal static class Methods
     {
         var buttonX = Constants.MainFormWidth - (int)(10 * Constants.DpiScale);
         buttonX -= (Constants.ButtonWidth + Constants.ButtonSpacing) * 3;
-        return new Button
+        return new()
         {
             Text = text,
             Size = new(Constants.ButtonWidth, Constants.ButtonHeight),
@@ -184,7 +181,7 @@ internal static class Methods
     {
         var row = RandomInstance.Next(0, Constants.MazeHeight);
         var col = RandomInstance.Next(0, Constants.MazeWidth);
-        return new Position(row, col);
+        return new(row, col);
     }
 
     /// <summary>

@@ -23,11 +23,10 @@ internal static partial class MazeData
         catch (Exception ex)
         {
             // 记录异常到日志文件并弹窗提示错误信息
-            var logTask = Methods.LogException(ex);
+            Methods.LogException(ex);
             _ = MessageBox.Show($"无法创建数据存储路径: {ex.Message}\n错误日志已保存到: {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            // 等待日志记录完成后退出应用程序
-            logTask.GetAwaiter().GetResult();
+            // 退出应用程序
             Application.Exit();
         }
     }

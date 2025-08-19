@@ -17,14 +17,17 @@ internal sealed class MainForm : Form
         /// 左边界
         /// </summary>
         public int Left;
+
         /// <summary>
         /// 上边界
         /// </summary>
         public int Top;
+
         /// <summary>
         /// 右边界
         /// </summary>
         public int Right;
+
         /// <summary>
         /// 下边界
         /// </summary>
@@ -119,11 +122,10 @@ internal sealed class MainForm : Form
         {
             // 记录异常到日志文件并弹窗提示错误信息
             var ex = new InvalidOperationException("切换顶部信息面板时不是在UI线程中调用");
-            var logTask = Methods.LogException(ex);
+            Methods.LogException(ex);
             _ = MessageBox.Show($"发生错误: {ex.Message}\n错误日志已保存到: {Constants.ErrorFilePath}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            // 等待日志记录完成后退出应用程序
-            logTask.GetAwaiter().GetResult();
+            // 退出应用程序
             Application.Exit();
         }
 
