@@ -18,10 +18,6 @@ file static class Program
         Application.ThreadException += Methods.OnThreadException;
         AppDomain.CurrentDomain.UnhandledException += Methods.OnUnhandledException;
 
-        // 设置应用程序的视觉样式和文本渲染方式
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-
         // 初始化应用程序配置
         ApplicationConfiguration.Initialize();
 
