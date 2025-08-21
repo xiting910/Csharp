@@ -1,4 +1,3 @@
-using AutoUpdaterDotNET;
 using MineClearance.UI;
 using MineClearance.Services;
 using MineClearance.Utilities;
@@ -69,17 +68,6 @@ file static class Program
             // 初始化数据
             Datas.Initialize().GetAwaiter().GetResult();
 
-            // 初始化自动更新相关设置
-            AutoUpdater.Mandatory = true;
-            AutoUpdater.RunUpdateAsAdmin = false;
-
-            // 订阅更新检查事件
-            AutoUpdater.CheckForUpdateEvent += Methods.AutoUpdaterOnCheckForUpdateEvent;
-
-            // 程序启动时检查更新
-            Methods.IsHandlingUpdateEvent = true;
-            AutoUpdater.Start(UIConstants.AutoUpdateUrl);
-
             // 创建并显示主窗口
             Application.Run(new MainForm());
         }
@@ -106,14 +94,8 @@ file static class Program
     /// <param name="e">线程异常事件参数</param>
     private static void OnThreadException(object sender, ThreadExceptionEventArgs e)
     {
-        // 取消下载
-        Methods.CTS.Cancel();
-
-        // 设置强制关闭标志
-        Methods.IsForceClose = true;
-
         // 记录异常到日志文件并弹窗提示错误信息
-        LogException(e.Exception);
+        Methods.LogException(e.Exception);
         _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         // 退出应用程序
@@ -127,43 +109,19 @@ file static class Program
     /// <param name="e">未处理异常事件参数</param>
     private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-        // 取消下载
-        Methods.CTS.Cancel();
-
-        // 设置强制关闭标志
-        Methods.IsForceClose = true;
-
         // 记录异常到日志文件并弹窗提示错误信息
         if (e.ExceptionObject is Exception ex)
         {
-            LogException(ex);
+            Methods.LogException(ex);
             _ = MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
-            LogException(new UnknownException("发生未知的未处理异常。"));
+            Methods.LogException(new UnknownException("发生未知的未处理异常。"));
             _ = MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         // 退出应用程序
         Application.Exit();
-    }
-
-    /// <summary>
-    /// 记录异常到日志文件
-    /// </summary>
-    /// <param name="ex">要记录的异常</param>
-    private static void LogException(Exception ex)
-    {
-        var log = $"[{DateTime.Now}] {ex}\n";
-        try
-        {
-            if (!Directory.Exists(Constants.DataPath))
-            {
-                _ = Directory.CreateDirectory(Constants.DataPath);
-            }
-            File.AppendAllText(Constants.ErrorFilePath, log);
-        }
-        catch { /* 忽略日志写入异常 */ }
     }
 }

@@ -70,7 +70,8 @@ internal static class Settings
                 }
                 catch (JsonException ex)
                 {
-                    // 如果反序列化失败, 显示错误信息并创建一个新的配置对象
+                    // 如果反序列化失败, 记录并显示错误信息
+                    Methods.LogException(ex);
                     _ = MessageBox.Show($"加载配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Config = new();
                 }
@@ -78,7 +79,8 @@ internal static class Settings
         }
         catch (Exception ex)
         {
-            // 显示错误信息
+            // 记录并显示错误信息
+            Methods.LogException(ex);
             _ = MessageBox.Show($"加载配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -86,6 +88,7 @@ internal static class Settings
     /// <summary>
     /// 修改配置数据
     /// </summary>
+    /// <param name="modifyFunc">修改配置的函数</param>
     public static void ModifyConfig(Func<Config, Config> modifyFunc)
     {
         Config = modifyFunc.Invoke(Config);
@@ -114,7 +117,8 @@ internal static class Settings
         }
         catch (Exception ex)
         {
-            // 显示错误信息
+            // 记录并显示错误信息
+            Methods.LogException(ex);
             _ = MessageBox.Show($"保存配置数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }

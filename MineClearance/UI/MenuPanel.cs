@@ -1,6 +1,4 @@
-using AutoUpdaterDotNET;
 using MineClearance.Models;
-using MineClearance.Utilities;
 
 namespace MineClearance.UI;
 
@@ -9,6 +7,31 @@ namespace MineClearance.UI;
 /// </summary>
 internal sealed class MenuPanel : Panel
 {
+    /// <summary>
+    /// 标题标签
+    /// </summary>
+    private readonly Label _titleLabel;
+
+    /// <summary>
+    /// 新游戏按钮
+    /// </summary>
+    private readonly Button _btnNewGame;
+
+    /// <summary>
+    /// 游戏历史记录按钮
+    /// </summary>
+    private readonly Button _btnShowHistory;
+
+    /// <summary>
+    /// 设置按钮
+    /// </summary>
+    private readonly Button _btnSettings;
+
+    /// <summary>
+    /// 退出按钮
+    /// </summary>
+    private readonly Button _btnExit;
+
     /// <summary>
     /// 初始化菜单面板
     /// </summary>
@@ -29,7 +52,7 @@ internal sealed class MenuPanel : Panel
         var titleLabelTop = (int)(25 * UIConstants.DpiScale);
 
         // 添加标题标签
-        Label titleLabel = new()
+        _titleLabel = new()
         {
             Text = "扫雷游戏",
             Font = new("Microsoft YaHei", 24, FontStyle.Bold),
@@ -52,7 +75,7 @@ internal sealed class MenuPanel : Panel
         var buttonTop = titleLabelTop + titleLabelHeight + buttonMargin;
 
         // 添加新游戏按钮
-        Button btnNewGame = new()
+        _btnNewGame = new()
         {
             Text = "新游戏",
             Size = new(buttonWidth, buttonHeight),
@@ -61,11 +84,11 @@ internal sealed class MenuPanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnNewGame.Click += BtnNewGame_Click;
+        _btnNewGame.Click += (sender, e) => MainForm.ShowPanel(PanelType.GamePrepare);
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加显示历史记录按钮
-        Button btnShowHistory = new()
+        _btnShowHistory = new()
         {
             Text = "游戏历史记录",
             Size = new(buttonWidth, buttonHeight),
@@ -74,24 +97,11 @@ internal sealed class MenuPanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnShowHistory.Click += BtnShowHistory_Click;
-        buttonTop += buttonHeight + buttonMargin;
-
-        // 添加检查更新按钮
-        Button btnCheckUpdate = new()
-        {
-            Text = "检查更新",
-            Size = new(buttonWidth, buttonHeight),
-            Location = new(buttonLeft, buttonTop),
-            BackColor = Color.DarkCyan,
-            ForeColor = Color.DarkBlue,
-            FlatStyle = FlatStyle.Flat
-        };
-        btnCheckUpdate.Click += BtnCheckUpdate_Click;
+        _btnShowHistory.Click += (sender, e) => MainForm.ShowPanel(PanelType.History);
         buttonTop += buttonHeight + buttonMargin;
 
         // 创建设置按钮
-        Button btnSettings = new()
+        _btnSettings = new()
         {
             Text = "设置",
             Size = new(buttonWidth, buttonHeight),
@@ -100,11 +110,11 @@ internal sealed class MenuPanel : Panel
             ForeColor = Color.DarkBlue,
             FlatStyle = FlatStyle.Flat
         };
-        btnSettings.Click += BtnSettings_Click;
+        _btnSettings.Click += (sender, e) => SettingForm.ShowForm();
         buttonTop += buttonHeight + buttonMargin;
 
         // 添加退出按钮
-        Button btnExit = new()
+        _btnExit = new()
         {
             Text = "退出",
             Size = new(buttonWidth, buttonHeight),
@@ -113,76 +123,13 @@ internal sealed class MenuPanel : Panel
             ForeColor = Color.White,
             FlatStyle = FlatStyle.Flat
         };
-        btnExit.Click += (sender, e) => Application.Exit();
+        _btnExit.Click += (sender, e) => Application.Exit();
 
         // 添加控件到菜单面板
-        Controls.Add(titleLabel);
-        Controls.Add(btnNewGame);
-        Controls.Add(btnShowHistory);
-        Controls.Add(btnCheckUpdate);
-        Controls.Add(btnSettings);
-        Controls.Add(btnExit);
-    }
-
-    /// <summary>
-    /// 新游戏按钮点击事件处理
-    /// </summary>
-    private void BtnNewGame_Click(object? sender, EventArgs e)
-    {
-        // 如果需要强制更新, 则提示用户
-        if (Methods.IsForceUpdate)
-        {
-            _ = MessageBox.Show("当前需要强制更新, 请先更新应用程序后再开始新游戏。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        // 显示游戏准备面板
-        MainForm.ShowPanel(PanelType.GamePrepare);
-    }
-
-    /// <summary>
-    /// 游戏历史记录按钮点击事件处理
-    /// </summary>
-    private void BtnShowHistory_Click(object? sender, EventArgs e)
-    {
-        // 如果需要强制更新, 则提示用户
-        if (Methods.IsForceUpdate)
-        {
-            _ = MessageBox.Show("当前需要强制更新, 请先更新应用程序后再查看游戏历史记录。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        // 显示历史记录面板
-        MainForm.ShowPanel(PanelType.History);
-    }
-
-    /// <summary>
-    /// 检查更新按钮点击事件处理
-    /// </summary>
-    private void BtnCheckUpdate_Click(object? sender, EventArgs e)
-    {
-        if (Methods.IsHandlingUpdateEvent)
-        {
-            _ = MessageBox.Show("当前已经有更新事件正在处理, 请稍后再试。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-        Methods.IsHandlingUpdateEvent = true;
-        AutoUpdater.Start(UIConstants.AutoUpdateUrl);
-    }
-
-    /// <summary>
-    /// 设置按钮点击事件处理
-    /// </summary>
-    private void BtnSettings_Click(object? sender, EventArgs e)
-    {
-        // 如果需要强制更新, 则提示用户
-        if (Methods.IsForceUpdate)
-        {
-            _ = MessageBox.Show("当前需要强制更新, 请先更新应用程序后再打开设置。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            return;
-        }
-
-        // 显示设置窗口
-        SettingForm.ShowForm();
+        Controls.Add(_titleLabel);
+        Controls.Add(_btnNewGame);
+        Controls.Add(_btnShowHistory);
+        Controls.Add(_btnSettings);
+        Controls.Add(_btnExit);
     }
 }

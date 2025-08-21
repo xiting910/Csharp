@@ -14,11 +14,6 @@ internal sealed record Config
     /// 设置窗口配置
     /// </summary>
     public SettingFormConfig? SettingForm { get; init; }
-
-    /// <summary>
-    /// 是否隐藏更新详细提示
-    /// </summary>
-    public bool HideUpdateDetails { get; init; }
 }
 
 /// <summary>

@@ -113,7 +113,8 @@ internal static class Datas
         }
         catch (Exception ex)
         {
-            // 显示错误信息
+            // 记录并显示错误信息
+            Methods.LogException(ex);
             _ = MessageBox.Show($"初始化游戏数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -178,7 +179,8 @@ internal static class Datas
         }
         catch (Exception ex)
         {
-            // 显示错误信息
+            // 记录并显示错误信息
+            Methods.LogException(ex);
             _ = MessageBox.Show($"保存游戏结果失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }

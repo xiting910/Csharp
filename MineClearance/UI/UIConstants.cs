@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using MineClearance.Models;
 
 namespace MineClearance.UI;
 
@@ -8,16 +7,6 @@ namespace MineClearance.UI;
 /// </summary>
 internal static partial class UIConstants
 {
-    /// <summary>
-    /// 自动更新的URL
-    /// </summary>
-    public const string AutoUpdateUrl = "https://gitee.com/xiting910/mine-clearance/raw/main/AutoUpdater.xml";
-
-    /// <summary>
-    /// 无效位置
-    /// </summary>
-    public static readonly Position InvalidPosition = new(-1, -1);
-
     /// <summary>
     /// 主窗体的宽度
     /// </summary>
@@ -46,7 +35,7 @@ internal static partial class UIConstants
     /// <summary>
     /// 设置窗体的最小高度
     /// </summary>
-    public static int SettingFormMinHeight => (int)(250 * DpiScale);
+    public static int SettingFormMinHeight => (int)(150 * DpiScale);
 
     /// <summary>
     /// DPI缩放比例

@@ -169,37 +169,6 @@ internal sealed class CustomDifficultyDialog : Form
 }
 
 /// <summary>
-/// 提供等待更新事件处理完成的窗体
-/// </summary>
-internal sealed class WaitingForm : Form
-{
-    public WaitingForm()
-    {
-        Text = "请稍候";
-        Size = new((int)(250 * UIConstants.DpiScale), (int)(90 * UIConstants.DpiScale));
-        StartPosition = FormStartPosition.CenterScreen;
-        FormBorderStyle = FormBorderStyle.FixedDialog;
-        MaximizeBox = false;
-        MinimizeBox = false;
-        ControlBox = false;
-        ProgressBar progressBar = new()
-        {
-            Dock = DockStyle.Top,
-            Height = (int)(20 * UIConstants.DpiScale),
-            Style = ProgressBarStyle.Marquee
-        };
-        Label label = new()
-        {
-            Text = "正在取消更新事件处理，请稍候...",
-            Dock = DockStyle.Fill,
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-        Controls.Add(progressBar);
-        Controls.Add(label);
-    }
-}
-
-/// <summary>
 /// 提供确认卸载的窗体
 /// </summary>
 internal sealed class UninstallConfirmDialog : Form

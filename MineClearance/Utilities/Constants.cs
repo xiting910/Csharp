@@ -28,16 +28,6 @@ internal static class Constants
     public static readonly string ConfigFilePath = Path.Combine(DataPath, "config.json");
 
     /// <summary>
-    /// 更新文件路径
-    /// </summary>
-    public static readonly string SevenZipPath = Path.Combine(Path.GetTempPath(), "MineClearance.7z");
-
-    /// <summary>
-    /// 当前程序的目录
-    /// </summary>
-    public static readonly string CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-
-    /// <summary>
     /// 当前程序的完整路径
     /// </summary>
     public static readonly string ExecutableFilePath = Application.ExecutablePath;
@@ -46,16 +36,6 @@ internal static class Constants
     /// 当前程序的可执行文件名
     /// </summary>
     public static readonly string ExecutableFileName = Path.GetFileName(ExecutableFilePath);
-
-    /// <summary>
-    /// 当前程序的目录的上级目录
-    /// </summary>
-    public static readonly string ParentDirectory = Path.GetDirectoryName(CurrentDirectory) ?? throw new InvalidOperationException("无法获取上级目录");
-
-    /// <summary>
-    /// 7za.exe的路径
-    /// </summary>
-    public static readonly string SevenZipExe = Path.Combine(ParentDirectory, "7za.exe");
 
     /// <summary>
     /// 扫雷棋盘的最大宽度
@@ -72,7 +52,7 @@ internal static class Constants
     /// </summary>
     /// <param name="level">难度级别</param>
     /// <returns>棋盘宽度、高度和地雷数量的元组</returns>
-    /// <exception cref="NotImplementedException">如果难度级别为自定义, 则抛出异常</exception>
+    /// <exception cref="ArgumentException">如果难度级别为自定义, 则抛出异常</exception>
     /// <exception cref="ArgumentOutOfRangeException">如果难度级别不在预定义范围内</exception>
     public static (int width, int height, int mineCount) GetSettings(DifficultyLevel level)
     {
@@ -82,8 +62,8 @@ internal static class Constants
             DifficultyLevel.Medium => (16, 16, 40),
             DifficultyLevel.Hard => (30, 16, 99),
             DifficultyLevel.Hell => (50, 30, 309),
-            DifficultyLevel.Custom => throw new NotImplementedException(),
-            _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+            DifficultyLevel.Custom => throw new ArgumentException("自定义难度需要手动设置棋盘参数", nameof(level)),
+            _ => throw new ArgumentOutOfRangeException(nameof(level), level, "未知的难度级别")
         };
     }
 }

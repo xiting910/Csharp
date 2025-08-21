@@ -14,9 +14,15 @@ internal static class AutoStartHelper
     private const string RunKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
 
     /// <summary>
-    /// 应用程序名称
+    /// 检查是否启用自动启动
     /// </summary>
-    private const string AppName = "MineClearance";
+    /// <returns>是否启用自动启动</returns>
+    public static bool IsAutoStartEnabled()
+    {
+        using var key = Registry.CurrentUser.OpenSubKey(RunKey, false)!;
+        var value = key.GetValue(Constants.ExecutableFileName) as string;
+        return !string.IsNullOrEmpty(value);
+    }
 
     /// <summary>
     /// 启用自动启动
@@ -24,7 +30,7 @@ internal static class AutoStartHelper
     public static void EnableAutoStart()
     {
         using var key = Registry.CurrentUser.OpenSubKey(RunKey, true)!;
-        key.SetValue(AppName, $"\"{Constants.ExecutableFilePath}\"");
+        key.SetValue(Constants.ExecutableFileName, $"\"{Constants.ExecutableFilePath}\"");
     }
 
     /// <summary>
@@ -33,16 +39,6 @@ internal static class AutoStartHelper
     public static void DisableAutoStart()
     {
         using var key = Registry.CurrentUser.OpenSubKey(RunKey, true)!;
-        key.DeleteValue(AppName, false);
-    }
-
-    /// <summary>
-    /// 检查是否启用自动启动
-    /// </summary>
-    public static bool IsAutoStartEnabled()
-    {
-        using var key = Registry.CurrentUser.OpenSubKey(RunKey, false)!;
-        var value = key.GetValue(AppName) as string;
-        return !string.IsNullOrEmpty(value);
+        key.DeleteValue(Constants.ExecutableFileName, false);
     }
 }

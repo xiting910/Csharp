@@ -130,7 +130,7 @@ internal sealed class GamePanel : Panel
         // 初始化鼠标状态
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
-        _mouseGridPosition = UIConstants.InvalidPosition;
+        _mouseGridPosition = Position.Invalid;
 
         // 设置游戏左上角格子位置
         _gameStartPosition = new(0, 0);
@@ -328,7 +328,7 @@ internal sealed class GamePanel : Panel
         // 当前鼠标状态重置
         _isMouseDown = false;
         _mouseButton = MouseButtons.None;
-        _mouseGridPosition = UIConstants.InvalidPosition;
+        _mouseGridPosition = Position.Invalid;
 
         // 重置暂停计时相关
         _pauseStopwatch.Reset();
@@ -672,7 +672,7 @@ internal sealed class GamePanel : Panel
             var pos = GetGridPositionAtMousePosition(e.Location);
 
             // 如果鼠标位置不在任何格子上, 不做任何处理
-            if (pos == UIConstants.InvalidPosition)
+            if (pos == Position.Invalid)
             {
                 return;
             }
@@ -718,7 +718,7 @@ internal sealed class GamePanel : Panel
             _mouseGridPosition = pos;
 
             // 如果先前鼠标格子位置不为无效位置, 则重绘先前格子
-            if (prevPos != UIConstants.InvalidPosition)
+            if (prevPos != Position.Invalid)
             {
                 // 获取先前格子行列坐标
                 var prevRow = prevPos.Row + _gameStartPosition.Row;
@@ -729,7 +729,7 @@ internal sealed class GamePanel : Panel
             }
 
             // 如果pos为无效位置, 则返回
-            if (pos == UIConstants.InvalidPosition)
+            if (pos == Position.Invalid)
             {
                 return;
             }
@@ -785,7 +785,7 @@ internal sealed class GamePanel : Panel
         }
 
         // 如果鼠标位置不在任何格子上, 返回无效位置
-        return UIConstants.InvalidPosition;
+        return Position.Invalid;
     }
 
     /// <summary>

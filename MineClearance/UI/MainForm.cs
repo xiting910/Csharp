@@ -65,9 +65,6 @@ internal sealed class MainForm : Form
         MaximizeBox = false;
         BackColor = Color.LightBlue;
 
-        // 绑定关闭事件
-        FormClosing += MainFormClosing;
-
         // 初始化所有面板
         _panels = new Dictionary<PanelType, Panel>
         {
@@ -132,95 +129,28 @@ internal sealed class MainForm : Form
     }
 
     /// <summary>
-    /// 关闭程序事件
+    /// 重写OnFormClosing方法
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private async void MainFormClosing(object? sender, FormClosingEventArgs e)
+    /// <param name="e">窗体关闭事件参数</param>
+    protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        // 如果强制关闭标志为真, 则关闭
-        if (Methods.IsForceClose)
+        base.OnFormClosing(e);
+
+        // 保存主窗体位置
+        Settings.ModifyConfig(config => config with
         {
-            // 保存主窗体位置
-            Settings.ModifyConfig(config =>
+            MainForm = new()
             {
-                return config with
-                {
-                    MainForm = new()
-                    {
-                        Left = Left,
-                        Top = Top
-                    }
-                };
-            });
-
-            // 直接返回
-            return;
-        }
-
-        // 先取消关闭
-        e.Cancel = true;
-
-        // 如果正在处理更新事件, 向用户确认是否要强制关闭
-        if (Methods.IsHandlingUpdateEvent)
-        {
-            var result = MessageBox.Show("正在处理更新事件, 确定要强制关闭程序吗？", "警告", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
-
-            // 如果用户不选择强制关闭, 则取消关闭事件
-            if (result != DialogResult.Yes)
-            {
-                return;
+                Left = Left,
+                Top = Top
             }
-
-            // 如果用户选择强制关闭, 则取消更新事件处理
-            Methods.CTS.Cancel();
-
-            // 弹窗提示正在等待
-            using var waitingForm = new WaitingForm();
-            waitingForm.Show();
-
-            // 等待处理更新事件完成时间
-            var waitUntil = DateTime.Now.AddSeconds(10);
-            while (Methods.IsHandlingUpdateEvent && DateTime.Now < waitUntil)
-            {
-                await Task.Delay(100);
-            }
-
-            // 关闭等待提示窗口
-            waitingForm.Close();
-        }
-
-        // 检测有没有更新文件残留
-        if (File.Exists(Constants.SevenZipPath))
-        {
-            var deleteResult = MessageBox.Show($"检测到更新文件 {Constants.SevenZipPath} 残留, 可能是之前程序尝试自动更新失败导致的, 您可以手动将该 7z 压缩文件解压到目录 {Constants.ParentDirectory} 下以完成更新 (如果该目录下已经有MineClearance文件夹则将其替换) , 或者您想要将其删除吗？", @"更新文件残留", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-
-            try
-            {
-                if (deleteResult == DialogResult.Yes)
-                {
-                    File.Delete(Constants.SevenZipPath);
-                }
-            }
-            catch (Exception ex)
-            {
-                _ = MessageBox.Show($"删除残留的更新文件失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        // 删除所有残留的脚本文件
-        Script.RemoveAllResidualScripts();
-
-        // 设置强制关闭标志
-        Methods.IsForceClose = true;
-
-        // 关闭应用程序
-        Close();
+        });
     }
 
     /// <summary>
     /// 重写OnLoad方法, 恢复窗口位置和大小
     /// </summary>
+    /// <param name="e">窗体加载事件参数</param>
     protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
@@ -264,6 +194,7 @@ internal sealed class MainForm : Form
     /// <summary>
     /// 重写WndProc方法, 处理WM_MOVING消息, 用于使窗口保持在可见区域内
     /// </summary>
+    /// <param name="m">Windows 消息</param>
     protected override void WndProc(ref Message m)
     {
         const int WM_MOVING = 0x0216;

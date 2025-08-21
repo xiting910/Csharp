@@ -64,7 +64,7 @@ internal sealed partial class ShortcutCreator
     /// <param name="description">描述信息</param>
     /// <param name="iconPath">图标路径</param>
     /// <param name="iconIndex">图标索引</param>
-    /// <exception cref="Exception">如果创建快捷方式失败</exception>
+    /// <exception cref="InvalidOperationException">如果创建快捷方式失败</exception>
     public static void CreateDesktopShortcut(string targetPath, string shortcutName, string arguments = "", string description = "", string? iconPath = null, int iconIndex = 0)
     {
         // 如果目标路径为空或无效，则不创建快捷方式

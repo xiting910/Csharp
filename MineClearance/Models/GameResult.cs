@@ -11,7 +11,7 @@ namespace MineClearance.Models;
 /// <param name="boardWidth">棋盘宽度</param>
 /// <param name="boardHeight">棋盘高度</param>
 /// <param name="mineCount">地雷总数</param>
-internal sealed class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan duration, bool isWin, double? completion = null, int? boardWidth = null, int? boardHeight = null, int? mineCount = null)
+internal sealed class GameResult(DifficultyLevel difficulty, DateTime startTime, TimeSpan duration, bool isWin, double? completion = null, int? boardWidth = null, int? boardHeight = null, int? mineCount = null) : IEquatable<GameResult>
 {
     /// <summary>
     /// 游戏的难度级别
@@ -76,13 +76,23 @@ internal sealed class GameResult(DifficultyLevel difficulty, DateTime startTime,
     }
 
     /// <summary>
+    /// 判断当前游戏结果是否与另一个游戏结果相等
+    /// </summary>
+    /// <param name="other">另一个游戏结果</param>
+    /// <returns>是否相等</returns>
+    public bool Equals(GameResult? other)
+    {
+        return ReferenceEquals(this, other) || (other is not null && StartTime == other.StartTime);
+    }
+
+    /// <summary>
     /// 重写Equals方法, 用于比较两个游戏结果是否相等
     /// </summary>
     /// <param name="obj">要比较的对象</param>
     /// <returns>是否相等</returns>
     public override bool Equals(object? obj)
     {
-        return obj is GameResult other && StartTime == other.StartTime;
+        return obj is GameResult other && Equals(other);
     }
 
     /// <summary>
