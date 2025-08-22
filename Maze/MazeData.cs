@@ -113,7 +113,7 @@ internal static partial class MazeData
             }
             return Path.GetFileName(latestFile);
         }
-        catch (Exception)
+        catch
         {
             // 如果发生异常, 返回null
             return null;
@@ -161,6 +161,7 @@ internal static partial class MazeData
         }
         catch (Exception ex)
         {
+            Methods.LogException(ex);
             _ = MessageBox.Show($"保存迷宫数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
@@ -199,6 +200,7 @@ internal static partial class MazeData
         }
         catch (Exception ex)
         {
+            Methods.LogException(ex);
             _ = MessageBox.Show($"加载迷宫数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             // 如果加载失败, 返回一个空的迷宫数据
