@@ -130,9 +130,9 @@ internal sealed class MenuPanel : Panel
         // 显示对话框并检查结果
         if (dateTimeDialog.ShowDialog() == DialogResult.OK)
         {
-            // 尝试暂停更新
             try
             {
+                // 尝试暂停更新
                 UpdateManager.PauseUpdateUntil(dateTimeDialog.SelectedDate);
 
                 // 询问用户是否需要禁用 Windows 更新计划和服务以彻底暂停更新
@@ -160,11 +160,17 @@ internal sealed class MenuPanel : Panel
     /// <param name="e">事件参数</param>
     private void OnResumeUpdateButtonClick(object? sender, EventArgs e)
     {
-        // 尝试恢复更新
         try
         {
+            // 尝试恢复更新
             UpdateManager.ResumeUpdate();
-            _ = MessageBox.Show("更新已恢复", "操作成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            var result = MessageBox.Show("更新已恢复, 需要重启才能生效, 是否立即重启?", "需要重启", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            // 如果用户选择是, 则重启计算机
+            if (result == DialogResult.Yes)
+            {
+                UpdateManager.RestartComputer();
+            }
         }
         catch (InvalidOperationException ex)
         {

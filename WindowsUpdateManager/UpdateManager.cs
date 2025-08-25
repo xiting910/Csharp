@@ -83,6 +83,32 @@ public static class UpdateManager
     }
 
     /// <summary>
+    /// 重启计算机
+    /// </summary>
+    /// <exception cref="InvalidOperationException">如果重启计算机失败</exception>
+    public static void RestartComputer()
+    {
+        var processInfo = new ProcessStartInfo
+        {
+            FileName = "shutdown",
+            Arguments = "/r /t 0",
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            Verb = "runas"
+        };
+
+        try
+        {
+            _ = Process.Start(processInfo);
+            Application.Exit();
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("重启计算机失败", ex);
+        }
+    }
+
+    /// <summary>
     /// 暂停更新到指定时间
     /// </summary>
     /// <param name="endTime">暂停更新的结束时间</param>

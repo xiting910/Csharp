@@ -96,7 +96,7 @@ file static class Program
     {
         // 记录异常到日志文件并弹窗提示错误信息
         Methods.LogException(e.Exception);
-        _ = MessageBox.Show($"发生未处理的线程异常：{e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        _ = MessageBox.Show($"发生未处理的线程异常: {e.Exception.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         // 退出应用程序
         Application.Exit();
@@ -113,11 +113,11 @@ file static class Program
         if (e.ExceptionObject is Exception ex)
         {
             Methods.LogException(ex);
-            _ = MessageBox.Show($"发生未处理的应用程序异常：{ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            _ = MessageBox.Show($"发生未处理的应用程序异常: {ex.Message}\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         else
         {
-            Methods.LogException(new UnknownException("发生未知的未处理异常。"));
+            Methods.LogException(new UnknownException("发生未知的未处理异常"));
             _ = MessageBox.Show($"发生未知的未处理异常\n错误日志见 {Constants.ErrorFilePath}\n请联系开发者并提供相关信息", "严重错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 

@@ -40,7 +40,7 @@ internal static partial class Constants
     /// <summary>
     /// 主窗体的最小宽度
     /// </summary>
-    public static int MainFormMinWidth => (int)(600 * DpiScale);
+    public static int MainFormMinWidth => (int)(700 * DpiScale);
 
     /// <summary>
     /// 主窗体的最小高度
