@@ -1,0 +1,3 @@
+[*.cs]
+# 禁用特定的诊断
+dotnet_diagnostic.SYSLIB1096.severity = none
