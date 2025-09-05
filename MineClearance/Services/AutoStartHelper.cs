@@ -49,20 +49,28 @@ internal static class AutoStartHelper
     }
 
     /// <summary>
-    /// 确保注册表中不存在无效项
+    /// 确保注册表中不存在无效启动项
     /// </summary>
     public static void EnsureValidRegistryEntries()
     {
+        // 打开注册表 RunKey 项
         using var runKey = OpenRunKey();
+
+        // 确保 MineClearance 项的值是正确的
         EnsureCorrectStringValue(runKey, AutoStartName, $"\"{Application.ExecutablePath}\"");
 
+        // 遍历所有值, 检查文件是否存在
         foreach (var name in runKey.GetValueNames())
         {
+            // 获取值
             var value = runKey.GetValue(name) as string;
 
             // 解析值
             if (!string.IsNullOrEmpty(value))
             {
+                // 原始值
+                var originalValue = value;
+
                 // 如果值以 " 开头, 提取 "" 中的路径
                 if (value.StartsWith('"'))
                 {
@@ -77,7 +85,7 @@ internal static class AutoStartHelper
                 if (!File.Exists(value))
                 {
                     runKey.DeleteValue(name, false);
-                    FileLogger.LogWarning($"删除判断为无效的注册表项 {runKey.Name}\\{name}");
+                    FileLogger.LogWarning($"删除判断为无效的注册表项 {runKey.Name}\\{name}, 原值为 {originalValue}");
                 }
             }
         }
