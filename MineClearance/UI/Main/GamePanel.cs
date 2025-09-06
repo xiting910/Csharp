@@ -46,7 +46,7 @@ internal sealed partial class GamePanel : Panel
     private readonly Label _difficultyLabel;
 
     /// <summary>
-    /// 剩余地雷数标签
+    /// 剩余未标记地雷数标签
     /// </summary>
     private readonly Label _minesLeftLabel;
 
@@ -71,9 +71,9 @@ internal sealed partial class GamePanel : Panel
     private readonly Label _hintLabel;
 
     /// <summary>
-    /// 显示/隐藏提示复选框
+    /// 启用/禁止作弊复选框
     /// </summary>
-    private readonly CheckBox _toggleHintCheckBox;
+    private readonly CheckBox _cheatCheckBox;
 
     /// <summary>
     /// 暂停/继续游戏复选框
@@ -120,127 +120,154 @@ internal sealed partial class GamePanel : Panel
         // 设置游戏左上角格子位置
         _gameStartPosition = new(0, 0);
 
-        // 标签Y轴位置1
-        var labelY1 = (int)(5 * UIConstants.DpiScale);
-
-        // 标签Y轴位置2
-        var labelY2 = (int)(25 * UIConstants.DpiScale);
-
-        // 标签高度
-        var labelHeight = (int)(15 * UIConstants.DpiScale);
-
         // 初始化信息面板
         _infoPanel = new()
         {
             Size = new(UIConstants.MainFormWidth, InfoPanelHeight),
             Location = new(0, 0),
-            BackColor = Color.Cyan,
+            BackColor = Color.LightGoldenrodYellow
         };
 
-        // 初始化当前游戏难度标签
-        _difficultyLabel = new()
-        {
-            ForeColor = Color.BlueViolet,
-            Location = new(0, labelY1),
-            Size = new((int)(400 * UIConstants.DpiScale), labelHeight),
-            TextAlign = ContentAlignment.TopCenter
-        };
+        // 标签高度1
+        var labelHeight1 = (int)(20 * UIConstants.DpiScale);
+
+        // 标签高度2
+        var labelHeight2 = InfoPanelHeight - labelHeight1;
 
         // 当前标签X轴位置
         var labelX = 0;
 
-        // 初始化剩下的地雷数标签
+        // 初始化剩余未标记地雷数标签
         _minesLeftLabel = new()
         {
+            BackColor = Color.Cyan,
             ForeColor = Color.Purple,
-            Location = new(labelX, labelY2),
-            Size = new((int)(95 * UIConstants.DpiScale), labelHeight),
-            TextAlign = ContentAlignment.TopCenter
+            Location = new(labelX, labelHeight1),
+            Size = new((int)(140 * UIConstants.DpiScale), labelHeight2),
+            TextAlign = ContentAlignment.MiddleCenter
         };
         labelX += _minesLeftLabel.Width;
 
         // 初始化剩余未处理格子数标签
         _unopenedCountLabel = new()
         {
+            BackColor = Color.Cyan,
             ForeColor = Color.DarkOrange,
-            Location = new(labelX, labelY2),
-            Size = new((int)(115 * UIConstants.DpiScale), labelHeight),
-            TextAlign = ContentAlignment.TopCenter
+            Location = new(labelX, labelHeight1),
+            Size = new((int)(115 * UIConstants.DpiScale), labelHeight2),
+            TextAlign = ContentAlignment.MiddleCenter
         };
         labelX += _unopenedCountLabel.Width;
 
         // 初始化完成度标签
         _completionLabel = new()
         {
+            BackColor = Color.Cyan,
             ForeColor = Color.Green,
-            Location = new(labelX, labelY2),
-            Size = new((int)(95 * UIConstants.DpiScale), labelHeight),
-            TextAlign = ContentAlignment.TopCenter
+            Location = new(labelX, labelHeight1),
+            Size = new((int)(95 * UIConstants.DpiScale), labelHeight2),
+            TextAlign = ContentAlignment.MiddleCenter
         };
         labelX += _completionLabel.Width;
 
         // 初始化游戏时间标签
         _gameTimeLabel = new()
         {
+            BackColor = Color.Cyan,
             ForeColor = Color.Blue,
-            Location = new(labelX, labelY2),
-            Size = new((int)(100 * UIConstants.DpiScale), labelHeight),
-            TextAlign = ContentAlignment.TopCenter
+            Location = new(labelX, labelHeight1),
+            Size = new((int)(100 * UIConstants.DpiScale), labelHeight2),
+            TextAlign = ContentAlignment.MiddleCenter
         };
+        labelX += _gameTimeLabel.Width;
 
-        // 初始化提示信息标签
-        _hintLabel = new()
+        // 初始化当前游戏难度标签
+        _difficultyLabel = new()
         {
-            Text = "提示: 左键打开格子, 右键标记地雷(在打开一个格子之前无效), 支持按住鼠标滑动操作多个格子, 灰色格子为未打开, 绿色格子表示插旗\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子(注意: 如果错误插旗可能会导致打开到地雷)\n右键点击数字格子时, 如果周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子\n当数字格子周围插旗的数量大于数字时, 该格子会变为黄色表示警告状态",
-            Font = new(DefaultFont.FontFamily, 3.1f * UIConstants.DpiScale, DefaultFont.Style),
-            Size = new((int)(520 * UIConstants.DpiScale), InfoPanelHeight),
-            Location = new((int)(415 * UIConstants.DpiScale), 0),
-            TextAlign = ContentAlignment.MiddleLeft
+            BackColor = Color.Cyan,
+            ForeColor = Color.BlueViolet,
+            Location = new(0, 0),
+            Size = new(labelX, labelHeight1),
+            TextAlign = ContentAlignment.BottomCenter
         };
 
         // 按钮Y轴位置
-        var buttonY = (int)(13 * UIConstants.DpiScale);
+        var buttonY = (int)(14 * UIConstants.DpiScale);
 
-        // 初始化显示/隐藏提示复选框
-        _toggleHintCheckBox = new()
-        {
-            Text = "隐藏提示",
-            BackColor = Color.Orange,
-            Location = new(UIConstants.MainFormWidth - (int)(315 * UIConstants.DpiScale), buttonY),
-            Appearance = Appearance.Button,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
-        };
+        // 按钮高度
+        var buttonHeight = (int)(20 * UIConstants.DpiScale);
 
-        // 初始化暂停/继续游戏复选框
-        _pauseResumeCheckBox = new()
-        {
-            Text = "暂停游戏",
-            BackColor = Color.Coral,
-            Location = new(UIConstants.MainFormWidth - (int)(240 * UIConstants.DpiScale), buttonY),
-            Appearance = Appearance.Button,
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
-        };
+        // 按钮宽度
+        var buttonWidth = (int)(65 * UIConstants.DpiScale);
 
-        // 初始化重新开始按钮
-        _restartButton = new()
-        {
-            Text = "重新开始",
-            BackColor = Color.Yellow,
-            Location = new(UIConstants.MainFormWidth - (int)(165 * UIConstants.DpiScale), buttonY),
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
-        };
+        // 按钮间距
+        var buttonSpacing = (int)(15 * UIConstants.DpiScale);
+
+        // 面板右侧与按钮的间距
+        var panelRightSpacing = (int)(15 * UIConstants.DpiScale);
+
+        // 按钮X轴位置
+        var buttonX = UIConstants.MainFormWidth - panelRightSpacing - buttonSpacing - buttonWidth;
 
         // 初始化返回菜单按钮
         _backToMenuButton = new()
         {
             Text = "返回菜单",
             BackColor = Color.LightCoral,
-            Location = new(UIConstants.MainFormWidth - (int)(90 * UIConstants.DpiScale), buttonY),
-            FlatStyle = FlatStyle.Flat,
-            AutoSize = true
+            Location = new(buttonX, buttonY),
+            Size = new(buttonWidth, buttonHeight),
+            TextAlign = ContentAlignment.MiddleCenter,
+            FlatStyle = FlatStyle.Flat
+        };
+        buttonX -= buttonSpacing + buttonWidth;
+
+        // 初始化重新开始按钮
+        _restartButton = new()
+        {
+            Text = "重新开始",
+            BackColor = Color.Yellow,
+            Location = new(buttonX, buttonY),
+            Size = new(buttonWidth, buttonHeight),
+            TextAlign = ContentAlignment.MiddleCenter,
+            FlatStyle = FlatStyle.Flat
+        };
+        buttonX -= buttonSpacing + buttonWidth;
+
+        // 初始化暂停/继续游戏复选框
+        _pauseResumeCheckBox = new()
+        {
+            Text = "暂停游戏",
+            BackColor = Color.Coral,
+            Location = new(buttonX, buttonY),
+            Size = new(buttonWidth, buttonHeight),
+            TextAlign = ContentAlignment.MiddleCenter,
+            Appearance = Appearance.Button,
+            FlatStyle = FlatStyle.Flat
+        };
+        buttonWidth += (int)(10 * UIConstants.DpiScale);
+        buttonX -= buttonSpacing + buttonWidth;
+
+        // 初始化启用/禁止作弊复选框
+        _cheatCheckBox = new()
+        {
+            Text = "启用作弊",
+            BackColor = Color.OrangeRed,
+            Location = new(buttonX, buttonY),
+            Size = new(buttonWidth, buttonHeight),
+            TextAlign = ContentAlignment.MiddleCenter,
+            Appearance = Appearance.Button,
+            FlatStyle = FlatStyle.Flat
+        };
+        buttonX -= buttonSpacing;
+
+        // 初始化提示信息标签
+        _hintLabel = new()
+        {
+            BackColor = Color.LightGreen,
+            Text = "鼠标移动至此绿色部分可查看详细游戏提示",
+            Location = new(labelX, 0),
+            Size = new(buttonX - labelX, InfoPanelHeight),
+            TextAlign = ContentAlignment.MiddleCenter
         };
 
         // 初始化游戏区域面板
@@ -266,13 +293,8 @@ internal sealed partial class GamePanel : Panel
         // 订阅游戏计时器事件
         _gameTimer.Tick += OnGameTimerTick;
 
-        // 订阅提示框切换事件
-        _toggleHintCheckBox.CheckedChanged += (sender, e) =>
-        {
-            _hintLabel.Visible = !_toggleHintCheckBox.Checked;
-            _toggleHintCheckBox.Text = _toggleHintCheckBox.Checked ? "显示提示" : "隐藏提示";
-            _toggleHintCheckBox.BackColor = _toggleHintCheckBox.Checked ? Color.Orchid : Color.Orange;
-        };
+        // 订阅启用/禁止作弊复选框事件
+        _cheatCheckBox.CheckedChanged += OnCheatCheckBoxCheckedChanged;
 
         // 订阅暂停/继续游戏复选框事件
         _pauseResumeCheckBox.CheckedChanged += OnPauseResumeCheckBoxCheckedChanged;
@@ -296,7 +318,7 @@ internal sealed partial class GamePanel : Panel
         _infoPanel.Controls.Add(_completionLabel);
         _infoPanel.Controls.Add(_gameTimeLabel);
         _infoPanel.Controls.Add(_hintLabel);
-        _infoPanel.Controls.Add(_toggleHintCheckBox);
+        _infoPanel.Controls.Add(_cheatCheckBox);
         _infoPanel.Controls.Add(_pauseResumeCheckBox);
         _infoPanel.Controls.Add(_restartButton);
         _infoPanel.Controls.Add(_backToMenuButton);
@@ -335,10 +357,12 @@ internal sealed partial class GamePanel : Panel
         Controls.Add(_gameAreaPanel);
 
         // 添加提示气泡
-        _toolTip.SetToolTip(_toggleHintCheckBox, "点击显示/隐藏提示");
-        _toolTip.SetToolTip(_pauseResumeCheckBox, "点击暂停/继续游戏, 游戏时间也会暂停/继续, 暂停时不能操作格子, 游戏未开始或已结束时无法暂停");
+        _toolTip.SetToolTip(_cheatCheckBox, "点击启动作弊模式(若游戏已结束则无法启用), 一旦启用本局游戏将无法禁用, 且本局游戏结果将不再保存\n启用后, 当鼠标进入未打开的地雷格子时该格子会显示为红色, 错误插旗的格子会显示为橙色");
+        _toolTip.SetToolTip(_pauseResumeCheckBox, "点击暂停当前游戏, 游戏时间也会暂停, 暂停时不能操作格子, 游戏未开始或已结束时无法暂停");
         _toolTip.SetToolTip(_restartButton, "点击重新开始一个与当前宽度、高度和总地雷数都相同的新游戏, 未结束的游戏将结束并且不会保存");
         _toolTip.SetToolTip(_backToMenuButton, "点击返回菜单, 未结束的游戏将结束并且不会保存");
+        _toolTip.SetToolTip(_hintLabel, "提示: 灰色格子为未打开, 绿色格子表示插旗(作弊模式下橙色格子表示错误插旗), 均支持鼠标聚焦效果\n左键点击未打开格子将其打开, 右键点击则标记地雷(在打开一个格子之前无效), 支持按住鼠标滑动操作多个格子\n左键点击数字格子时, 如果周围插旗数量等于数字, 则打开周围所有未插旗的格子(注意: 如果错误插旗可能会导致打开到地雷)\n右键点击数字格子时, 如果周围未打开格子数量等于数字, 则插旗所有周围未插旗的格子\n当数字格子周围插旗的数量大于其数字时, 该数字格子会变为黄色表示警告");
+        _toolTip.SetToolTip(_gameTimeLabel, $"计时器更新频率: {_gameTimer.Interval / 1000.0:0.###}s");
     }
 
     /// <summary>
@@ -379,30 +403,49 @@ internal sealed partial class GamePanel : Panel
     }
 
     /// <summary>
-    /// 剩余地雷数量改变事件处理
+    /// 剩余未标记地雷数量改变事件处理
     /// </summary>
     /// <param name="changeNum">变化的数量</param>
+    /// <exception cref="ArgumentNullException">当前游戏实例为空时抛出</exception>
     private void OnRemainingMinesChanged(int changeNum)
     {
-        // 更新剩余地雷数量
+        // 确保当前游戏实例不为空
+        ArgumentNullException.ThrowIfNull(_gameInstance, nameof(_gameInstance));
+
+        // 更新剩余未标记地雷数量
         _remainingMines += changeNum;
 
-        // 确保显示的剩余地雷数不小于0
+        // 确保显示的剩余未标记地雷数不小于0
         var showRemainingMines = Math.Max(0, _remainingMines);
-        _minesLeftLabel.Text = $"剩余地雷数: {showRemainingMines}";
+
+        // 更新剩余未标记地雷数标签
+        _minesLeftLabel.Text = $"剩余未标记地雷数: {showRemainingMines}";
+
+        // 更新提示气泡
+        _toolTip.SetToolTip(_minesLeftLabel, $"总地雷数: {_gameInstance.TotalMines}, 已标记地雷数: {_gameInstance.TotalMines - _remainingMines}");
     }
 
     /// <summary>
     /// 未处理格子数量改变事件处理
     /// </summary>
     /// <param name="changeNum">变化的数量</param>
+    /// <exception cref="ArgumentNullException">当前游戏实例为空时抛出</exception>
     private void OnUnopenedCountChanged(int changeNum)
     {
+        // 确保当前游戏实例不为空
+        ArgumentNullException.ThrowIfNull(_gameInstance, nameof(_gameInstance));
+
         // 更新未处理格子数量
         _unopenedCount += changeNum;
 
         // 更新未处理格子数标签
         _unopenedCountLabel.Text = $"未处理格子数: {_unopenedCount}";
+
+        // 计算总格子数
+        var totalCount = _gameInstance.TotalMines + _gameInstance.TotalSafeCount;
+
+        // 更新提示气泡
+        _toolTip.SetToolTip(_unopenedCountLabel, $"总格子数: {totalCount}, 已处理格子数: {totalCount - _unopenedCount}");
     }
 
     /// <summary>
@@ -424,7 +467,7 @@ internal sealed partial class GamePanel : Panel
         _completionLabel.Text = $"完成度: {completion:0.##}%";
 
         // 更新提示气泡
-        _toolTip.SetToolTip(_completionLabel, $"已打开安全格子数: {openedSafeCount}, 总安全格子数: {_gameInstance.TotalSafeCount}");
+        _toolTip.SetToolTip(_completionLabel, $"已打开安全格子数: {openedSafeCount}, 剩余安全格子数: {currentCount}, 总安全格子数: {_gameInstance.TotalSafeCount}");
     }
 
     /// <summary>
@@ -495,10 +538,10 @@ internal sealed partial class GamePanel : Panel
                 fillColor = Color.White;
                 break;
             case GridType.Unopened:
-                fillColor = _isGameLost && isRealMine ? Color.Red : _isGameWon && isRealMine ? Color.Green : isMouseOver ? Color.Gray : Color.LightGray;
+                fillColor = _isGameLost ? isRealMine ? Color.Red : Color.LightGray : _isGameWon ? isRealMine ? Color.Green : Color.LightGray : isMouseOver ? _isCheatEnabled && isRealMine ? Color.Red : Color.Gray : Color.LightGray;
                 break;
             case GridType.Flagged:
-                fillColor = _isGameLost || _isGameWon ? isRealMine ? Color.Green : Color.Yellow : isMouseOver ? Color.DarkGreen : Color.Green;
+                fillColor = _isGameLost || _isGameWon ? isRealMine ? Color.Green : Color.Orange : _isCheatEnabled && !isRealMine ? isMouseOver ? Color.DarkOrange : Color.Orange : isMouseOver ? Color.DarkGreen : Color.Green;
                 break;
             case GridType.Number:
                 fillColor = isMouseOver && !_isGameLost && !_isGameWon ? Color.WhiteSmoke : Color.White;
@@ -537,7 +580,7 @@ internal sealed partial class GamePanel : Panel
                 6 => ("6", Color.Turquoise),
                 7 => ("7", Color.Black),
                 8 => ("8", Color.Gray),
-                _ => ("?", Color.OrangeRed)
+                _ => ("?", Color.PaleVioletRed)
             };
 
             // 计算文本位置并绘制

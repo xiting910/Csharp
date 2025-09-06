@@ -47,6 +47,11 @@ internal partial class GamePanel
     private bool _isGameLost;
 
     /// <summary>
+    /// 当前游戏是否开启了作弊
+    /// </summary>
+    private bool _isCheatEnabled;
+
+    /// <summary>
     /// 鼠标按下状态
     /// </summary>
     private bool _isMouseDown;
@@ -85,6 +90,8 @@ internal partial class GamePanel
         // 重置游戏状态
         _isGameWon = false;
         _isGameLost = false;
+        _isCheatEnabled = false;
+        _cheatCheckBox.Checked = false;
         _pauseResumeCheckBox.Checked = false;
 
         // 设置游戏左上角格子位置, 使游戏能在面板居中显示
@@ -121,8 +128,8 @@ internal partial class GamePanel
         // 更新当前游戏难度标签
         _difficultyLabel.Text = $"当前游戏难度: {UIMethods.GetDifficultyText(_gameInstance.Difficulty)}(雷率: {mineRate:0.##}%)";
 
-        // 更新剩余地雷数标签
-        _minesLeftLabel.Text = $"剩余地雷数: {_remainingMines}";
+        // 更新剩余未标记地雷数标签
+        _minesLeftLabel.Text = $"剩余未标记地雷数: {_remainingMines}";
 
         // 更新未处理格子数标签
         _unopenedCountLabel.Text = $"未处理格子数: {_unopenedCount}";
@@ -135,9 +142,9 @@ internal partial class GamePanel
 
         // 添加提示气泡
         _toolTip.SetToolTip(_difficultyLabel, $"宽度: {_gameInstance.Board.Width}, 高度: {_gameInstance.Board.Height}, 总地雷数: {_remainingMines}");
-        _toolTip.SetToolTip(_minesLeftLabel, $"总地雷数: {_remainingMines}");
-        _toolTip.SetToolTip(_unopenedCountLabel, $"总格子数: {_unopenedCount}");
-        _toolTip.SetToolTip(_completionLabel, $"已打开安全格子数: 0, 总安全格子数: {_gameInstance.TotalSafeCount}");
+        _toolTip.SetToolTip(_minesLeftLabel, $"总地雷数: {_remainingMines}, 已标记地雷数: 0");
+        _toolTip.SetToolTip(_unopenedCountLabel, $"总格子数: {_unopenedCount}, 已处理格子数: 0");
+        _toolTip.SetToolTip(_completionLabel, $"已打开安全格子数: 0, 剩余安全格子数: {_gameInstance.TotalSafeCount}, 总安全格子数: {_gameInstance.TotalSafeCount}");
 
         // 记录游戏开始信息
         FileLogger.LogInfo($"开始难度为 {_gameInstance.Difficulty} 的新游戏: " + $"宽度为 {_gameInstance.Board.Width}, 高度为 {_gameInstance.Board.Height}, 地雷数为 {_remainingMines}");
@@ -234,8 +241,11 @@ internal partial class GamePanel
     /// <param name="gameResult">游戏结果</param>
     private void OnGameWon(GameResult gameResult)
     {
-        // 保存游戏结果
-        _ = Datas.AddGameResultAsync(gameResult);
+        // 如果作弊模式未开启, 保存游戏结果
+        if (!_isCheatEnabled)
+        {
+            _ = Datas.AddGameResultAsync(gameResult);
+        }
 
         // 切换状态栏状态
         BottomStatusBar.Instance.SetStatus(StatusBarState.GameWon);
@@ -246,8 +256,8 @@ internal partial class GamePanel
         // 重绘游戏区域面板
         _gameAreaPanel.Invalidate();
 
-        // 更新剩余地雷数标签
-        _minesLeftLabel.Text = "剩余地雷数: 0";
+        // 更新剩余未标记地雷数标签
+        _minesLeftLabel.Text = "剩余未标记地雷数: 0";
 
         // 更新未处理格子数标签
         _unopenedCountLabel.Text = $"未处理格子数: 0";
@@ -271,8 +281,11 @@ internal partial class GamePanel
     /// <param name="gameResult">游戏结果</param>
     private void OnGameLost(GameResult gameResult)
     {
-        // 保存游戏结果
-        _ = Datas.AddGameResultAsync(gameResult);
+        // 如果作弊模式未开启, 保存游戏结果
+        if (!_isCheatEnabled)
+        {
+            _ = Datas.AddGameResultAsync(gameResult);
+        }
 
         // 切换状态栏状态
         BottomStatusBar.Instance.SetStatus(StatusBarState.GameLost);
@@ -287,7 +300,7 @@ internal partial class GamePanel
         _gameTimer.Stop();
 
         // 弹出游戏失败提示, 并询问是否再来一局
-        var result = MessageBox.Show("很遗憾，你踩到了地雷！\n深红色格子表示踩到的地雷\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n黄色格子表示错误标记的地雷\n是否再来一局?", "游戏失败", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
+        var result = MessageBox.Show("很遗憾，你踩到了地雷！\n深红色格子表示踩到的地雷\n红色格子表示未标记的地雷\n绿色格子表示正确标记的地雷\n橙色格子表示错误标记的地雷\n是否再来一局?", "游戏失败", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Error);
 
         if (result == DialogResult.Yes)
         {
@@ -297,7 +310,56 @@ internal partial class GamePanel
     }
 
     /// <summary>
-    /// 暂停/继续游戏复选框点击事件处理
+    /// 启用/禁止作弊复选框状态改变事件处理
+    /// </summary>
+    /// <param name="sender">事件发送者</param>
+    /// <param name="e">事件参数</param>
+    private void OnCheatCheckBoxCheckedChanged(object? sender, EventArgs e)
+    {
+        // 游戏是否已经结束
+        var gameEnded = _isGameWon || _isGameLost;
+
+        // 根据复选框状态启用或禁止作弊
+        if (_cheatCheckBox.Checked)
+        {
+            // 如果游戏已经结束且作弊未启用, 则无法启用作弊
+            if (gameEnded && !_isCheatEnabled)
+            {
+                _cheatCheckBox.Checked = false;
+                return;
+            }
+
+            // 更新_cheatCheckBox的文本
+            _cheatCheckBox.Text = "已启用作弊";
+
+            // 更新提示气泡
+            _toolTip.SetToolTip(_cheatCheckBox, "作弊模式已启用, 本局游戏无法禁用, 且本局游戏结果将不再保存\n当鼠标进入未打开的地雷格子时该格子会显示为红色, 错误插旗的格子会显示为橙色");
+
+            // 启用作弊
+            _isCheatEnabled = true;
+
+            // 重绘游戏区域面板
+            _gameAreaPanel.Invalidate();
+        }
+        else
+        {
+            // 如果作弊已经启用, 则无法禁用
+            if (_isCheatEnabled)
+            {
+                _cheatCheckBox.Checked = true;
+                return;
+            }
+
+            // 更新_cheatCheckBox的文本
+            _cheatCheckBox.Text = "启用作弊";
+
+            // 更新提示气泡
+            _toolTip.SetToolTip(_cheatCheckBox, "点击启动作弊模式(若游戏已结束则无法启用), 一旦启用本局游戏将无法禁用, 且本局游戏结果将不再保存\n启用后, 当鼠标进入未打开的地雷格子时该格子会显示为红色, 错误插旗的格子会显示为橙色");
+        }
+    }
+
+    /// <summary>
+    /// 暂停/继续游戏复选框状态改变事件处理
     /// </summary>
     /// <param name="sender">事件发送者</param>
     /// <param name="e">事件参数</param>
@@ -321,7 +383,10 @@ internal partial class GamePanel
 
             // 更新_pausedResumedCheckBox的文本和颜色
             _pauseResumeCheckBox.Text = "继续游戏";
-            _pauseResumeCheckBox.BackColor = Color.DarkGreen;
+            _pauseResumeCheckBox.BackColor = Color.Green;
+
+            // 更新提示气泡
+            _toolTip.SetToolTip(_pauseResumeCheckBox, "点击继续当前游戏");
 
             // 更新状态栏
             BottomStatusBar.Instance.SetStatus(StatusBarState.Paused);
@@ -337,6 +402,9 @@ internal partial class GamePanel
             // 更新_pausedResumedCheckBox的文本和颜色
             _pauseResumeCheckBox.Text = "暂停游戏";
             _pauseResumeCheckBox.BackColor = Color.Coral;
+
+            // 更新提示气泡
+            _toolTip.SetToolTip(_pauseResumeCheckBox, "点击暂停当前游戏, 游戏时间也会暂停, 暂停时不能操作格子, 游戏未开始或已结束时无法暂停");
 
             // 如果游戏已经开始并且没有结束, 则继续游戏
             if (gameStarted && !gameEnded)
