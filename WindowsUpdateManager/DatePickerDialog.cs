@@ -1,4 +1,4 @@
-namespace WindowsUpdateManager;
+﻿namespace WindowsUpdateManager;
 
 /// <summary>
 /// 提供自定义日期选择对话框

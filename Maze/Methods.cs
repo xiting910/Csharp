@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 /// <summary>
 /// 方法类, 提供一些常用的方法

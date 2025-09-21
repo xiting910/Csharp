@@ -1,4 +1,4 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace FabricServerManager;
 
@@ -11,10 +11,7 @@ public static partial class Methods
     /// 判断当前操作系统是否为Windows
     /// </summary>
     /// <returns>如果是Windows系统则返回true, 否则返回false</returns>
-    public static bool IsWindows()
-    {
-        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    }
+    public static bool IsWindows() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
     /// <summary>
     /// 用于暂停程序, 并输出提示信息, 要按任意键继续
@@ -59,17 +56,11 @@ public static partial class Methods
     /// 移除文件隐藏属性
     /// </summary>
     /// <param name="filePath">文件路径</param>
-    public static void RemoveHiddenAttribute(string filePath)
-    {
-        File.SetAttributes(filePath, File.GetAttributes(filePath) & ~FileAttributes.Hidden);
-    }
+    public static void RemoveHiddenAttribute(string filePath) => File.SetAttributes(filePath, File.GetAttributes(filePath) & ~FileAttributes.Hidden);
 
     /// <summary>
     /// 设置文件隐藏属性
     /// </summary>
     /// <param name="filePath">文件路径</param>
-    public static void SetHiddenAttribute(string filePath)
-    {
-        File.SetAttributes(filePath, File.GetAttributes(filePath) | FileAttributes.Hidden);
-    }
+    public static void SetHiddenAttribute(string filePath) => File.SetAttributes(filePath, File.GetAttributes(filePath) | FileAttributes.Hidden);
 }

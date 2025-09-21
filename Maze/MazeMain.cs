@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 // 迷宫类的主体实现部分
 /// <summary>
@@ -83,10 +83,7 @@ internal static partial class Maze
     /// 判断起点和终点是否都已设置
     /// </summary>
     /// <returns>如果都已设置则返回true, 否则返回false</returns>
-    public static bool IsStartAndEndSet()
-    {
-        return StartPosition != Position.Invalid && EndPosition != Position.Invalid;
-    }
+    public static bool IsStartAndEndSet() => StartPosition != Position.Invalid && EndPosition != Position.Invalid;
 
     /// <summary>
     /// 确保当前没有正在搜索
@@ -142,58 +139,52 @@ internal static partial class Maze
     /// 重置迷宫为初始状态
     /// </summary>
     /// <param name="resetStartAndEnd">是否重置起点和终点</param>
-    public static async Task ResetMaze(bool resetStartAndEnd = true)
-    {
-        await Task.Run(() =>
-        {
-            // 重置起点和终点位置
-            if (resetStartAndEnd)
-            {
-                StartPosition = Position.Invalid;
-                EndPosition = Position.Invalid;
-            }
+    public static async Task ResetMaze(bool resetStartAndEnd = true) => await Task.Run(() =>
+                                                                             {
+                                                                                 // 重置起点和终点位置
+                                                                                 if (resetStartAndEnd)
+                                                                                 {
+                                                                                     StartPosition = Position.Invalid;
+                                                                                     EndPosition = Position.Invalid;
+                                                                                 }
 
-            // 清空迷宫格子数组
-            for (var i = 0; i < Constants.MazeHeight; ++i)
-            {
-                for (var j = 0; j < Constants.MazeWidth; ++j)
-                {
-                    Grids[i, j] = GridType.Empty;
-                }
-            }
+                                                                                 // 清空迷宫格子数组
+                                                                                 for (var i = 0; i < Constants.MazeHeight; ++i)
+                                                                                 {
+                                                                                     for (var j = 0; j < Constants.MazeWidth; ++j)
+                                                                                     {
+                                                                                         Grids[i, j] = GridType.Empty;
+                                                                                     }
+                                                                                 }
 
-            // 如果没有重置起点和终点, 且它们已设置, 则重新设置起点和终点格子
-            if (StartPosition != Position.Invalid)
-            {
-                Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
-            }
-            if (EndPosition != Position.Invalid)
-            {
-                Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
-            }
-        });
-    }
+                                                                                 // 如果没有重置起点和终点, 且它们已设置, 则重新设置起点和终点格子
+                                                                                 if (StartPosition != Position.Invalid)
+                                                                                 {
+                                                                                     Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
+                                                                                 }
+                                                                                 if (EndPosition != Position.Invalid)
+                                                                                 {
+                                                                                     Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
+                                                                                 }
+                                                                             });
 
     /// <summary>
     /// 设置所有空格子为障碍物
     /// </summary>
-    public static async Task SetAllObstacles()
-    {
-        await Task.Run(() =>
-        {
-            // 遍历所有格子, 将空格子设置为障碍物
-            for (var i = 0; i < Constants.MazeHeight; ++i)
-            {
-                for (var j = 0; j < Constants.MazeWidth; ++j)
-                {
-                    if (Grids[i, j] == GridType.Empty)
-                    {
-                        Grids[i, j] = GridType.Obstacle;
-                    }
-                }
-            }
-        });
-    }
+    public static async Task SetAllObstacles() => await Task.Run(() =>
+                                                       {
+                                                           // 遍历所有格子, 将空格子设置为障碍物
+                                                           for (var i = 0; i < Constants.MazeHeight; ++i)
+                                                           {
+                                                               for (var j = 0; j < Constants.MazeWidth; ++j)
+                                                               {
+                                                                   if (Grids[i, j] == GridType.Empty)
+                                                                   {
+                                                                       Grids[i, j] = GridType.Obstacle;
+                                                                   }
+                                                               }
+                                                           }
+                                                       });
 
     /// <summary>
     /// 清除所有已设置路径
@@ -258,8 +249,5 @@ internal static partial class Maze
     /// </summary>
     /// <param name="position">位置</param>
     /// <returns>如果位置在边界内返回true, 否则返回false</returns>
-    private static bool IsInBounds(Position position)
-    {
-        return position.Row >= 0 && position.Row < Constants.MazeHeight && position.Col >= 0 && position.Col < Constants.MazeWidth;
-    }
+    private static bool IsInBounds(Position position) => position.Row >= 0 && position.Row < Constants.MazeHeight && position.Col >= 0 && position.Col < Constants.MazeWidth;
 }

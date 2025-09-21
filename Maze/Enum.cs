@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 /// <summary>
 /// 底部状态栏状态

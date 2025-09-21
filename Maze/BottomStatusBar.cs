@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Maze;
 
@@ -65,6 +65,7 @@ internal sealed class BottomStatusBar : StatusStrip
         // 设置状态栏属性
         Dock = DockStyle.Bottom;
         ShowItemToolTips = true;
+        SizingGrip = false;
 
         // 左侧状态标签
         _statusLabel = new()
@@ -168,15 +169,12 @@ internal sealed class BottomStatusBar : StatusStrip
     /// 设置左侧状态文本
     /// </summary>
     /// <param name="status">状态枚举</param>
-    public void SetStatus(StatusBarState status)
+    public void SetStatus(StatusBarState status) => _statusLabel.Text = status switch
     {
-        _statusLabel.Text = status switch
-        {
-            StatusBarState.Ready => "状态: 就绪",
-            StatusBarState.SetStartAndEnd => "状态: 设置起点和终点",
-            StatusBarState.SetObstacle => "状态: 设置障碍物",
-            StatusBarState.SearchingPath => "状态: 正在搜索路径",
-            _ => "状态: 未知",
-        };
-    }
+        StatusBarState.Ready => "状态: 就绪",
+        StatusBarState.SetStartAndEnd => "状态: 设置起点和终点",
+        StatusBarState.SetObstacle => "状态: 设置障碍物",
+        StatusBarState.SearchingPath => "状态: 正在搜索路径",
+        _ => "状态: 未知",
+    };
 }

@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 /// <summary>
 /// 自定义双缓冲面板

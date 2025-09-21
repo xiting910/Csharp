@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 /// <summary>
 /// 搜索结果类, 用于存储搜索结果信息

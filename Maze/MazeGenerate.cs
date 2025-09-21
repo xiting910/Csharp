@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 // 迷宫类的生成算法实现部分
 internal static partial class Maze
@@ -39,8 +39,7 @@ internal static partial class Maze
     /// <remarks>
     /// 通过调整Constants.ObstacleRatio来控制障碍物的密度
     /// </remarks>
-    private static async Task RandomGenerateMaze()
-    {
+    private static async Task RandomGenerateMaze() =>
         // 遍历所有格子, 根据Constants.ObstacleRatio随机设置为障碍物或空白
         await Task.Run(() =>
         {
@@ -59,7 +58,6 @@ internal static partial class Maze
                 }
             }
         });
-    }
 
     /// <summary>
     /// 使用DFS算法随机生成迷宫
@@ -287,86 +285,83 @@ internal static partial class Maze
     /// <summary>
     /// 使用Prim算法随机生成迷宫
     /// </summary>
-    private static async Task GenerateMazeByPrim()
-    {
-        await Task.Run(() =>
-        {
-            // 初始化所有格子为障碍物
-            for (var i = 0; i < Constants.MazeHeight; ++i)
-            {
-                for (var j = 0; j < Constants.MazeWidth; ++j)
-                {
-                    Grids[i, j] = GridType.Obstacle;
-                }
-            }
+    private static async Task GenerateMazeByPrim() => await Task.Run(() =>
+                                                           {
+                                                               // 初始化所有格子为障碍物
+                                                               for (var i = 0; i < Constants.MazeHeight; ++i)
+                                                               {
+                                                                   for (var j = 0; j < Constants.MazeWidth; ++j)
+                                                                   {
+                                                                       Grids[i, j] = GridType.Obstacle;
+                                                                   }
+                                                               }
 
-            // 设置起点位置为路点
-            Grids[StartPosition.Row, StartPosition.Col] = GridType.Empty;
+                                                               // 设置起点位置为路点
+                                                               Grids[StartPosition.Row, StartPosition.Col] = GridType.Empty;
 
-            // 创建待选路点列表
-            var candidatePositions = new List<Position>();
+                                                               // 创建待选路点列表
+                                                               var candidatePositions = new List<Position>();
 
-            // 添加起点周围的候选位置
-            foreach (var dir in Enum.GetValues<Direction>())
-            {
-                var next = StartPosition + dir + dir;
-                if (IsInBounds(next))
-                {
-                    candidatePositions.Add(next);
-                }
-            }
+                                                               // 添加起点周围的候选位置
+                                                               foreach (var dir in Enum.GetValues<Direction>())
+                                                               {
+                                                                   var next = StartPosition + dir + dir;
+                                                                   if (IsInBounds(next))
+                                                                   {
+                                                                       candidatePositions.Add(next);
+                                                                   }
+                                                               }
 
-            // Prim算法核心逻辑
-            while (candidatePositions.Count > 0)
-            {
-                // 随机选择一个候选位置
-                var pos = Methods.RandomSelectPosition(candidatePositions);
-                _ = candidatePositions.Remove(pos);
+                                                               // Prim算法核心逻辑
+                                                               while (candidatePositions.Count > 0)
+                                                               {
+                                                                   // 随机选择一个候选位置
+                                                                   var pos = Methods.RandomSelectPosition(candidatePositions);
+                                                                   _ = candidatePositions.Remove(pos);
 
-                // 如果当前格子已经是空白, 跳过
-                if (Grids[pos.Row, pos.Col] == GridType.Empty)
-                {
-                    continue;
-                }
+                                                                   // 如果当前格子已经是空白, 跳过
+                                                                   if (Grids[pos.Row, pos.Col] == GridType.Empty)
+                                                                   {
+                                                                       continue;
+                                                                   }
 
-                // 将当前格子设置为空白
-                Grids[pos.Row, pos.Col] = GridType.Empty;
+                                                                   // 将当前格子设置为空白
+                                                                   Grids[pos.Row, pos.Col] = GridType.Empty;
 
-                // 是否打通路径
-                var isPathCreated = false;
+                                                                   // 是否打通路径
+                                                                   var isPathCreated = false;
 
-                // 打通当前格子与周围随机的空白格子之间的路径
-                foreach (var dir in Methods.GetShuffledDirections())
-                {
-                    var next = pos + dir + dir;
-                    if (IsInBounds(next))
-                    {
-                        if (!isPathCreated && Grids[next.Row, next.Col] == GridType.Empty)
-                        {
-                            // 打通路径
-                            var between = pos + dir;
-                            Grids[between.Row, between.Col] = GridType.Empty;
+                                                                   // 打通当前格子与周围随机的空白格子之间的路径
+                                                                   foreach (var dir in Methods.GetShuffledDirections())
+                                                                   {
+                                                                       var next = pos + dir + dir;
+                                                                       if (IsInBounds(next))
+                                                                       {
+                                                                           if (!isPathCreated && Grids[next.Row, next.Col] == GridType.Empty)
+                                                                           {
+                                                                               // 打通路径
+                                                                               var between = pos + dir;
+                                                                               Grids[between.Row, between.Col] = GridType.Empty;
 
-                            // 只打通一次路径
-                            isPathCreated = true;
-                        }
-                        else if (Grids[next.Row, next.Col] == GridType.Obstacle)
-                        {
-                            // 添加周围的候选位置
-                            candidatePositions.Add(next);
-                        }
-                    }
-                }
-            }
+                                                                               // 只打通一次路径
+                                                                               isPathCreated = true;
+                                                                           }
+                                                                           else if (Grids[next.Row, next.Col] == GridType.Obstacle)
+                                                                           {
+                                                                               // 添加周围的候选位置
+                                                                               candidatePositions.Add(next);
+                                                                           }
+                                                                       }
+                                                                   }
+                                                               }
 
-            // 设置起点和终点
-            Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
-            Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
+                                                               // 设置起点和终点
+                                                               Grids[StartPosition.Row, StartPosition.Col] = GridType.Start;
+                                                               Grids[EndPosition.Row, EndPosition.Col] = GridType.End;
 
-            // 确保终点可达
-            EnsureEndPositionIsReachable();
-        });
-    }
+                                                               // 确保终点可达
+                                                               EnsureEndPositionIsReachable();
+                                                           });
 
     /// <summary>
     /// 如果终点不可达, 随机打通终点周围的一个障碍物

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace FabricServerManager;
@@ -174,10 +174,7 @@ public static partial class ConfigCommands
     /// </summary>
     /// <param name="input">用户输入</param>
     /// <returns>如果是配置命令则返回true, 否则返回false</returns>
-    public static bool IsConfigCommand(string input)
-    {
-        return AllCommands.Any(command => input.StartsWith(command, StringComparison.OrdinalIgnoreCase));
-    }
+    public static bool IsConfigCommand(string input) => AllCommands.Any(command => input.StartsWith(command, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// 处理配置命令

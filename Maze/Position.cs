@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 /// <summary>
 /// 位置类, 用于表示迷宫中的位置
@@ -25,56 +25,38 @@ internal sealed class Position(int row, int col)
     /// <summary>
     /// 重写+运算符
     /// </summary>
-    public static Position operator +(Position left, Position right)
-    {
-        return new Position(left.Row + right.Row, left.Col + right.Col);
-    }
+    public static Position operator +(Position left, Position right) => new(left.Row + right.Row, left.Col + right.Col);
 
     /// <summary>
     /// 重写+运算符
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">如果方向无效</exception>
-    public static Position operator +(Position left, Direction direction)
+    public static Position operator +(Position left, Direction direction) => direction switch
     {
-        return direction switch
-        {
-            Direction.Up => new Position(left.Row - 1, left.Col),
-            Direction.Right => new Position(left.Row, left.Col + 1),
-            Direction.Down => new Position(left.Row + 1, left.Col),
-            Direction.Left => new Position(left.Row, left.Col - 1),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), "无效的方向")
-        };
-    }
+        Direction.Up => new Position(left.Row - 1, left.Col),
+        Direction.Right => new Position(left.Row, left.Col + 1),
+        Direction.Down => new Position(left.Row + 1, left.Col),
+        Direction.Left => new Position(left.Row, left.Col - 1),
+        _ => throw new ArgumentOutOfRangeException(nameof(direction), "无效的方向")
+    };
 
     /// <summary>
     /// 重写==运算符
     /// </summary>
-    public static bool operator ==(Position left, Position right)
-    {
-        return left.Row == right.Row && left.Col == right.Col;
-    }
+    public static bool operator ==(Position left, Position right) => left.Row == right.Row && left.Col == right.Col;
 
     /// <summary>
     /// 重写!=运算符
     /// </summary>
-    public static bool operator !=(Position left, Position right)
-    {
-        return !(left == right);
-    }
+    public static bool operator !=(Position left, Position right) => !(left == right);
 
     /// <summary>
     /// 重写Equals方法
     /// </summary>
-    public override bool Equals(object? obj)
-    {
-        return obj is Position other && this == other;
-    }
+    public override bool Equals(object? obj) => obj is Position other && this == other;
 
     /// <summary>
     /// 重写GetHashCode方法
     /// </summary>
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Row, Col);
-    }
+    public override int GetHashCode() => HashCode.Combine(Row, Col);
 }

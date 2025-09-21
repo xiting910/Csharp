@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace WindowsUpdateManager;
 
@@ -119,14 +119,11 @@ internal sealed class BottomStatusBar : StatusStrip
         };
 
         // GitHub 仓库链接点击事件处理
-        _repoLinkLabel.Click += (s, e) =>
+        _repoLinkLabel.Click += (s, e) => _ = Process.Start(new ProcessStartInfo
         {
-            _ = Process.Start(new ProcessStartInfo
-            {
-                FileName = GitHubRepoUrl,
-                UseShellExecute = true
-            });
-        };
+            FileName = GitHubRepoUrl,
+            UseShellExecute = true
+        });
 
         // 信息标签3
         _infoLabel3 = new()

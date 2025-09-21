@@ -1,4 +1,4 @@
-namespace WindowsUpdateManager;
+﻿namespace WindowsUpdateManager;
 
 /// <summary>
 /// 方法类, 提供程序中常用的方法

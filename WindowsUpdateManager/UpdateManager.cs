@@ -1,7 +1,7 @@
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
-using System.Collections.Immutable;
 
 namespace WindowsUpdateManager;
 
@@ -54,10 +54,7 @@ public static class UpdateManager
     /// <returns>Windows 更新设置注册表项的句柄</returns>
     /// <exception cref="System.Security.SecurityException">如果没有足够的权限访问注册表</exception>
     /// <exception cref="InvalidOperationException">如果无法打开注册表项</exception>
-    private static RegistryKey OpenWindowsUpdateSettingsKey()
-    {
-        return Registry.LocalMachine.OpenSubKey(WindowsUpdateSettingsRegistryPath, true) ?? throw new InvalidOperationException("无法打开 Windows 更新设置注册表项");
-    }
+    private static RegistryKey OpenWindowsUpdateSettingsKey() => Registry.LocalMachine.OpenSubKey(WindowsUpdateSettingsRegistryPath, true) ?? throw new InvalidOperationException("无法打开 Windows 更新设置注册表项");
 
     /// <summary>
     /// 打开系统服务注册表项
@@ -65,22 +62,16 @@ public static class UpdateManager
     /// <returns>系统服务注册表项的句柄</returns>
     /// <exception cref="System.Security.SecurityException">如果没有足够的权限访问注册表</exception>
     /// <exception cref="InvalidOperationException">如果无法打开注册表项</exception>
-    private static RegistryKey OpenSystemServicesKey()
-    {
-        return Registry.LocalMachine.OpenSubKey(SystemServicesRegistryPath, true) ?? throw new InvalidOperationException("无法打开系统服务注册表项");
-    }
+    private static RegistryKey OpenSystemServicesKey() => Registry.LocalMachine.OpenSubKey(SystemServicesRegistryPath, true) ?? throw new InvalidOperationException("无法打开系统服务注册表项");
 
     /// <summary>
     /// 打开系统更新页面
     /// </summary>
-    public static void OpenWindowsUpdatePage()
+    public static void OpenWindowsUpdatePage() => _ = Process.Start(new ProcessStartInfo
     {
-        _ = Process.Start(new ProcessStartInfo
-        {
-            FileName = "ms-settings:windowsupdate",
-            UseShellExecute = true
-        });
-    }
+        FileName = "ms-settings:windowsupdate",
+        UseShellExecute = true
+    });
 
     /// <summary>
     /// 重启计算机

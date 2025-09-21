@@ -1,4 +1,4 @@
-namespace WindowsUpdateManager;
+﻿namespace WindowsUpdateManager;
 
 /// <summary>
 /// 菜单面板类

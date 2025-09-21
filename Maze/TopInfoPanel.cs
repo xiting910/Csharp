@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Maze;
 
@@ -117,13 +117,7 @@ internal sealed class TopInfoPanel : IDisposable
         {
             Interval = 10
         };
-        _searchingTimer.Tick += (s, e) =>
-        {
-            if (SearchingTimeLabel != null)
-            {
-                SearchingTimeLabel.Text = $"已用时: {_searchingStopwatch.Elapsed.TotalSeconds:F2} 秒";
-            }
-        };
+        _searchingTimer.Tick += (s, e) => SearchingTimeLabel?.Text = $"已用时: {_searchingStopwatch.Elapsed.TotalSeconds:F2} 秒";
     }
 
     /// <summary>
@@ -316,10 +310,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// <summary>
     /// 显示搜索过程复选框的勾选状态改变事件处理
     /// </summary>
-    public void OnShowSearchProcessCheckedChanged(object? sender, EventArgs e)
-    {
-        _showSearchProcessChecked = !_showSearchProcessChecked;
-    }
+    public void OnShowSearchProcessCheckedChanged(object? sender, EventArgs e) => _showSearchProcessChecked = !_showSearchProcessChecked;
 
     /// <summary>
     /// 查看搜索过程按钮点击事件处理

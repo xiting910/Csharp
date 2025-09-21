@@ -1,4 +1,4 @@
-namespace Maze;
+﻿namespace Maze;
 
 // 迷宫类的搜索算法实现部分
 internal static partial class Maze
@@ -539,8 +539,5 @@ internal static partial class Maze
     /// <param name="a">起点位置</param>
     /// <param name="b">终点位置</param>
     /// <returns>返回曼哈顿距离</returns>
-    private static int ManhattanDistance(Position a, Position b)
-    {
-        return Math.Abs(a.Row - b.Row) + Math.Abs(a.Col - b.Col);
-    }
+    private static int ManhattanDistance(Position a, Position b) => Math.Abs(a.Row - b.Row) + Math.Abs(a.Col - b.Col);
 }

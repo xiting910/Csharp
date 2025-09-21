@@ -1,4 +1,4 @@
-namespace WindowsUpdateManager;
+﻿namespace WindowsUpdateManager;
 
 /// <summary>
 /// 配置数据类

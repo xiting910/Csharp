@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Maze;
 
@@ -108,11 +108,9 @@ internal static partial class MazeData
     /// </summary>
     /// <param name="fileName">文件名</param>
     /// <returns>如果是有效的迷宫数据文件名则返回true，否则返回false</returns>
-    public static bool IsValidMazeDataFileName(string fileName)
-    {
+    public static bool IsValidMazeDataFileName(string fileName) =>
         // 只要后缀名是.maze即可
-        return Path.GetExtension(fileName).Equals(".maze", StringComparison.OrdinalIgnoreCase);
-    }
+        Path.GetExtension(fileName).Equals(".maze", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// 异步保存迷宫数据到指定路径

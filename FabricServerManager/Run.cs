@@ -1,6 +1,6 @@
-using System.Collections.Concurrent;
-using System.Globalization;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace FabricServerManager;
 
@@ -57,42 +57,27 @@ public static partial class Run
     /// <summary>
     /// 玩家数量增加
     /// </summary>
-    private static void IncrementPlayerCount()
-    {
-        _ = Interlocked.Increment(ref _playerCount);
-    }
+    private static void IncrementPlayerCount() => _ = Interlocked.Increment(ref _playerCount);
 
     /// <summary>
     /// 玩家数量减少
     /// </summary>
-    private static void DecrementPlayerCount()
-    {
-        _ = Interlocked.Decrement(ref _playerCount);
-    }
+    private static void DecrementPlayerCount() => _ = Interlocked.Decrement(ref _playerCount);
 
     /// <summary>
     /// 自动关闭服务器功能切换
     /// </summary>
-    private static bool ToggleAutoCloseServer()
-    {
-        return _autoCloseServerEnabled = !_autoCloseServerEnabled;
-    }
+    private static bool ToggleAutoCloseServer() => _autoCloseServerEnabled = !_autoCloseServerEnabled;
 
     /// <summary>
     /// 显示警告信息功能切换
     /// </summary>
-    private static bool ToggleShowWarning()
-    {
-        return _showWarning = !_showWarning;
-    }
+    private static bool ToggleShowWarning() => _showWarning = !_showWarning;
 
     /// <summary>
     /// 显示详细信息功能切换
     /// </summary>
-    private static bool ToggleShowDetailedInfo()
-    {
-        return _showDetailedInfo = !_showDetailedInfo;
-    }
+    private static bool ToggleShowDetailedInfo() => _showDetailedInfo = !_showDetailedInfo;
 
     /// <summary>
     /// 静态构造函数, 初始化玩家数量和最后离开时间
@@ -116,10 +101,7 @@ public static partial class Run
     /// </summary>
     /// <param name="text">要检查的字符串</param>
     /// <returns>如果包含中文字符返回true，否则返回false</returns>
-    private static bool ContainsChinese(string text)
-    {
-        return MyRegex().IsMatch(text);
-    }
+    private static bool ContainsChinese(string text) => MyRegex().IsMatch(text);
 
     /// <summary>
     /// 输出Mod列表
