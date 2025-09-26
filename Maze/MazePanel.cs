@@ -603,8 +603,8 @@ internal sealed class MazePanel
         if (!string.IsNullOrEmpty(text))
         {
             var textSize = g.MeasureString(text, Control.DefaultFont);
-            var textX = rect.X + ((rect.Width - textSize.Width) / 2);
-            var textY = rect.Y + ((rect.Height - textSize.Height) / 2);
+            var textX = rect.X + (rect.Width - textSize.Width) / 2;
+            var textY = rect.Y + (rect.Height - textSize.Height) / 2;
             using var textBrush = new SolidBrush(Color.Black);
             g.DrawString(text, Control.DefaultFont, textBrush, textX, textY);
         }

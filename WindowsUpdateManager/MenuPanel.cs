@@ -193,7 +193,7 @@ internal sealed class MenuPanel : Panel
         var buttonSpacing = (int)(20 * Constants.DpiScale);
 
         // 按钮总高度(包括间距)
-        var buttonTotalHeight = (ButtonHeight * 4) + (buttonSpacing * 3);
+        var buttonTotalHeight = ButtonHeight * 4 + buttonSpacing * 3;
 
         // 标签与按钮所占据的总高度(包括间距)
         var totalHeight = _titleLabel.Height + titleBottomSpacing + buttonTotalHeight;

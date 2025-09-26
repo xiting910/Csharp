@@ -181,7 +181,7 @@ internal sealed class MainForm : Form
             var workingArea = Screen.GetWorkingArea(this);
 
             // 获取窗口的当前位置
-            var rectObj = Marshal.PtrToStructure(m.LParam, typeof(RECT));
+            var rectObj = Marshal.PtrToStructure<RECT>(m.LParam);
 
             if (rectObj is RECT rect)
             {
