@@ -67,7 +67,7 @@ file static class Program
         finally
         {
             // 只有获得互斥体时才释放
-            if (_mutex != null)
+            if (_mutex is not null)
             {
                 try
                 {

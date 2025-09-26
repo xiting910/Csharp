@@ -162,7 +162,7 @@ internal static partial class MazeData
             for (var row = 0; row < Constants.MazeHeight; ++row)
             {
                 var line = await reader.ReadLineAsync();
-                if (line == null || line.Length != Constants.MazeWidth)
+                if (line is null || line.Length != Constants.MazeWidth)
                 {
                     throw new FormatException("迷宫数据格式不正确");
                 }

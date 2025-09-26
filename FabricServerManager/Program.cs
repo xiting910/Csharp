@@ -44,7 +44,7 @@ public class Program
 
         // 选择要使用的服务器文件
         var serverPath = Prepare.FindServerFiles();
-        if (serverPath == null)
+        if (serverPath is null)
         {
             Methods.ReturnByKey();
             return;

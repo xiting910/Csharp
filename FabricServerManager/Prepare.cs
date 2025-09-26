@@ -99,7 +99,7 @@ public static class Prepare
                 var serverData = JsonSerializer.Deserialize<ServerData>(json, Constants.JsonOptions) ?? new ServerData();
                 Methods.SetHiddenAttribute(serverDataFile);
 
-                if (serverData.LastServerFilePath != null && Config.Data.AutoStartLastServer)
+                if (serverData.LastServerFilePath is not null && Config.Data.AutoStartLastServer)
                 {
                     IOMethods.WriteColorMessage($"自动选择上次运行的服务器文件: {serverData.LastServerFilePath}\n", ConsoleColor.Green);
                     return serverData.LastServerFilePath;

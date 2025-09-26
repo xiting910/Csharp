@@ -1,5 +1,7 @@
 <Solution>
+  <Folder Name="/解决方案项/">
     <File Path=".editorconfig" />
+  </Folder>
     <Project Path="FabricServerManager/FabricServerManager.csproj" />
     <Project Path="Maze/Maze.csproj" />
     <Project Path="WindowsUpdateManager/WindowsUpdateManager.csproj" />

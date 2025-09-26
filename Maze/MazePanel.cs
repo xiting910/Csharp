@@ -240,7 +240,7 @@ internal sealed class MazePanel
             var mazeData = await MazeData.Load(filePath);
 
             // 更新迷宫格子
-            if (mazeData != null)
+            if (mazeData is not null)
             {
                 await UpdateGrids(mazeData);
             }

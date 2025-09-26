@@ -140,7 +140,7 @@ internal sealed class TopInfoPanel : IDisposable
             return;
         }
 
-        if (OnSaveMaze != null)
+        if (OnSaveMaze is not null)
         {
             await OnSaveMaze.Invoke();
         }
@@ -157,7 +157,7 @@ internal sealed class TopInfoPanel : IDisposable
             return;
         }
 
-        if (OnLoadMaze != null)
+        if (OnLoadMaze is not null)
         {
             await OnLoadMaze.Invoke();
         }
@@ -206,7 +206,7 @@ internal sealed class TopInfoPanel : IDisposable
             return;
         }
 
-        if (OnMazeReset != null)
+        if (OnMazeReset is not null)
         {
             await OnMazeReset.Invoke();
         }
@@ -217,7 +217,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// </summary>
     public async void OnSetAllObstaclesButtonClick(object? sender, EventArgs e)
     {
-        if (OnSetAllObstacles != null)
+        if (OnSetAllObstacles is not null)
         {
             await OnSetAllObstacles.Invoke();
         }
@@ -228,7 +228,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// </summary>
     public async void OnClearObstaclesButtonClick(object? sender, EventArgs e)
     {
-        if (OnClearObstacles != null)
+        if (OnClearObstacles is not null)
         {
             await OnClearObstacles.Invoke();
         }
@@ -378,7 +378,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// </summary>
     public async void OnRandomGenerateMazeButtonClick(object? sender, EventArgs e)
     {
-        if (OnGenerateMaze != null)
+        if (OnGenerateMaze is not null)
         {
             await OnGenerateMaze.Invoke(GenerationAlgorithm.Random);
         }
@@ -389,7 +389,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// </summary>
     public async void OnDfsGenerateMazeButtonClick(object? sender, EventArgs e)
     {
-        if (OnGenerateMaze != null)
+        if (OnGenerateMaze is not null)
         {
             await OnGenerateMaze.Invoke(GenerationAlgorithm.DFS);
         }
@@ -400,7 +400,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// </summary>
     public async void OnRecursiveDivisionGenerateMazeButtonClick(object? sender, EventArgs e)
     {
-        if (OnGenerateMaze != null)
+        if (OnGenerateMaze is not null)
         {
             await OnGenerateMaze.Invoke(GenerationAlgorithm.RecursiveDivision);
         }
@@ -411,7 +411,7 @@ internal sealed class TopInfoPanel : IDisposable
     /// </summary>
     public async void OnPrimGenerateMazeButtonClick(object? sender, EventArgs e)
     {
-        if (OnGenerateMaze != null)
+        if (OnGenerateMaze is not null)
         {
             await OnGenerateMaze.Invoke(GenerationAlgorithm.Prim);
         }

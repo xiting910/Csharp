@@ -296,7 +296,7 @@ public static partial class Run
             // 获取服务器的Mod列表
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains("- ") && !_serverStarted)
+                if (e.Data is not null && e.Data.Contains("- ") && !_serverStarted)
                 {
                     if (e.Data.Trim().Split("- ")[0].All(c => c == ' ') && !e.Data.Contains("-- "))
                     {
@@ -313,7 +313,7 @@ public static partial class Run
             // 服务器详细信息输出
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data == null)
+                if (e.Data is null)
                 {
                     return;
                 }
@@ -346,7 +346,7 @@ public static partial class Run
             // 检测服务器错误或者警告
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null)
+                if (e.Data is not null)
                 {
                     if (e.Data.Contains("error") || e.Data.Contains("Exception"))
                     {
@@ -364,7 +364,7 @@ public static partial class Run
             // 检测服务器启动成功
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains(Constants.ServerStartSuccessMessage))
+                if (e.Data is not null && e.Data.Contains(Constants.ServerStartSuccessMessage))
                 {
                     _serverStarted = true;
                     IOMethods.ShowCurrentTimestamp(ConsoleColor.Green);
@@ -388,7 +388,7 @@ public static partial class Run
             // 检测玩家加入
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains(Constants.PlayerJoinMessage))
+                if (e.Data is not null && e.Data.Contains(Constants.PlayerJoinMessage))
                 {
                     IncrementPlayerCount();
                     var parts = e.Data.Split(Constants.PlayerJoinMessage, StringSplitOptions.RemoveEmptyEntries);
@@ -406,7 +406,7 @@ public static partial class Run
             // 检测玩家离开
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains(Constants.PlayerLeaveMessage))
+                if (e.Data is not null && e.Data.Contains(Constants.PlayerLeaveMessage))
                 {
                     DecrementPlayerCount();
                     var parts = e.Data.Split(Constants.PlayerLeaveMessage, StringSplitOptions.RemoveEmptyEntries);
@@ -431,7 +431,7 @@ public static partial class Run
             // 检测指令执行
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains(Constants.CommandMessage))
+                if (e.Data is not null && e.Data.Contains(Constants.CommandMessage))
                 {
                     try
                     {
@@ -481,7 +481,7 @@ public static partial class Run
             // 检测list指令输出在线玩家信息
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains("There are") && e.Data.Contains("players online:"))
+                if (e.Data is not null && e.Data.Contains("There are") && e.Data.Contains("players online:"))
                 {
                     try
                     {
@@ -530,7 +530,7 @@ public static partial class Run
             // 检测指令错误
             process.OutputDataReceived += (sender, e) =>
             {
-                if (e.Data != null && e.Data.Contains(Constants.CommandErrorMessage))
+                if (e.Data is not null && e.Data.Contains(Constants.CommandErrorMessage))
                 {
                     IOMethods.ShowCurrentTimestamp(ConsoleColor.Red);
                     IOMethods.WriteColorMessage($"指令执行错误: {e.Data}\n", ConsoleColor.Red);
@@ -540,7 +540,7 @@ public static partial class Run
             // 检测到服务器输出错误信息
             process.ErrorDataReceived += (sender, e) =>
             {
-                if (e.Data != null)
+                if (e.Data is not null)
                 {
                     IOMethods.WriteColorMessage(e.Data, ConsoleColor.Red);
                     IOMethods.WriteColorMessage("\n");
