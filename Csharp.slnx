@@ -1,0 +1,15 @@
+﻿<Solution>
+  <Folder Name="/Other/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="CleanUpRegedit/CleanUpRegedit.csproj" Id="9fe62173-17fe-4aaa-96d9-500cd0921a30" />
+  <Project Path="Maze/Maze.csproj" Id="e052e07e-810b-4d42-9a4c-c59542a9535c" />
+  <Project Path="MineClearance/MineClearance.csproj" Id="bbacdf1a-5b37-49cd-a3f7-02574f5ad420"/>
+  <Project Path="OwnConfigLib/OwnConfigLib.csproj" Id="9384b6f9-86df-4834-9a70-9505a63f7daf"/>
+  <Project Path="OwnRationalLib/OwnRationalLib.csproj" Id="ea4da4ee-4baa-4f35-b233-f2b2386f5c39" />
+  <Project Path="ServerManager/ServerManager.csproj" Id="2d777913-225b-41f1-a227-6deb8b4b64b1" />
+  <Project Path="WindowsUpdateManager/WindowsUpdateManager.csproj" Id="4b88c9ed-3f21-4d64-8157-92cb7493f401" />
+</Solution>
